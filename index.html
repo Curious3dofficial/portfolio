@@ -316,7 +316,7 @@
   .navbar{
     position:fixed;
     top:24px; left:50%; transform:translateX(-50%);
-    transition:transform 0.5s cubic-bezier(.4,0,.2,1);
+    transition:transform 0.6s cubic-bezier(.34,1.45,.45,1); /* pop-down */
     z-index:10;
   }
   .navbar.nav-hidden{
@@ -339,7 +339,9 @@
     font-size:14px;
     color:var(--paper);
     text-decoration:none;
-    transition:color 0.25s ease;
+    /* transparent glow as the start state so the hover glow fades in smoothly */
+    text-shadow:0 0 8px rgba(255,255,255,0), 0 0 22px rgba(255,255,255,0);
+    transition:color 0.3s ease, text-shadow 0.5s ease;
   }
   .nav-link:hover{
     color:var(--violet-light);
@@ -350,7 +352,10 @@
   .nav-link[href="#education"]:hover{ color:#22D3EE; }
   .nav-link[href="#projects"]:hover{ color:#22C55E; }
   .nav-link[href="#achievements"]:hover{ color:#FFD100; }
-  .nav-link[href="#epilogue"]:hover{ color:#FFFFFF; }
+  .nav-link[href="#epilogue"]:hover{
+    color:#FFFFFF;
+    text-shadow:0 0 8px rgba(255,255,255,0.85), 0 0 22px rgba(255,255,255,0.45);
+  }
   body.light-theme .nav-link[href="#epilogue"]:hover{ color:#17121F; }
   body.light-theme .nav-link[href="#achievements"]:hover{ color:#A98A00; }
   .theme-toggle{
@@ -656,6 +661,10 @@
     grid-template-columns:395px 1fr;
     gap:60px;
     align-items:start;
+    /* fit the columns to their content and centre the whole block */
+    max-width:1045px;
+    margin-left:auto;
+    margin-right:auto;
   }
   @media (max-width:900px){
     .about-grid{ grid-template-columns:1fr; justify-items:center; text-align:center; gap:50px; }
@@ -839,11 +848,18 @@
 
   .fact-grid{
     display:grid;
-    max-width:560px; /* align with .body-text above */
+    /* collection1 uniformly resized (x0.72) to align with .body-text:
+       columns, rows, gap all scale together so card ratios are untouched */
+    max-width:560px;
     grid-template-columns:repeat(4, 1fr);
-    grid-auto-rows:minmax(130px, auto);
-    gap:16px;
+    grid-auto-rows:minmax(93px, auto);
+    gap:12px;
   }
+  .fact-grid .fact-card{ padding:14px 13px; border-radius:13px; }
+  .fact-grid .fact-icon{ width:30px; height:30px; border-radius:9px; margin-bottom:10px; font-size:15px; }
+  .fact-grid .fact-card h4{ font-size:11.5px; margin:0 0 3px; }
+  .fact-grid .fact-card p{ font-size:10.5px; margin:0 0 6px; }
+  .fact-grid .fact-tag{ font-size:9.5px; }
   /* Bento placement (desktop): DOM order is India, Student, Java, Linux,
      Chess, Football, Builder, Currently-Learning, Folder cell.
      Folder gets its own square cell in the middle of the grid. */
@@ -1542,6 +1558,158 @@
     border-color:rgba(14,116,144,0.3);
     color:#0E7490;
   }
+  /* ---------- Education: level-select ---------- */
+  .lvl-grid{
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    gap:18px;
+    align-items:stretch;
+  }
+  .lvl-tile{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    padding:12px 16px 18px;
+    border-radius:16px;
+    border:1px solid rgba(34,211,238,0.16);
+    background:linear-gradient(165deg, rgba(34,211,238,0.06), rgba(20,23,31,0.55) 60%);
+    transition:transform 0.35s cubic-bezier(.16,1,.3,1), border-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease, filter 0.3s ease;
+  }
+  .lvl-tile:hover{
+    transform:translateY(-4px);
+    border-color:rgba(103,232,249,0.5);
+    box-shadow:0 18px 36px -18px rgba(8,145,178,0.55);
+  }
+  .lvl-rail{
+    position:relative;
+    height:26px;
+    margin:0 -17px 8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .lvl-rail::before, .lvl-rail::after{
+    content:'';
+    position:absolute;
+    top:50%; height:2.5px; margin-top:-1.25px;
+    background:rgba(34,211,238,0.14);
+    border-radius:2px;
+  }
+  .lvl-rail::before{ left:-19px; right:calc(50% + 15px); transform-origin:left center; }
+  .lvl-rail::after{ left:calc(50% + 15px); right:-19px; transform-origin:left center; }
+  .lvl-tile:first-child .lvl-rail::before{ display:none; }
+  .lvl-tile:last-child .lvl-rail::after{ display:none; }
+  .lvl-tile.is-done .lvl-rail::before,
+  .lvl-tile.is-done .lvl-rail::after,
+  .lvl-tile.is-current .lvl-rail::before{
+    background:linear-gradient(90deg, #22D3EE, #67E8F9);
+    box-shadow:0 0 8px rgba(34,211,238,0.45);
+  }
+  .lvl-dot{
+    position:relative;
+    z-index:1;
+    width:22px; height:22px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:#10222B;
+    border:2px solid rgba(34,211,238,0.35);
+    color:#9AA1AE;
+    font-style:normal;
+  }
+  .lvl-dot svg{ width:11px; height:11px; }
+  .lvl-tile.is-done .lvl-dot{
+    background:linear-gradient(150deg, #22D3EE, #0FA8C4);
+    border-color:transparent;
+    color:#06272E;
+    box-shadow:0 0 10px rgba(34,211,238,0.45);
+  }
+  .lvl-tile.is-current .lvl-dot{
+    background:#0E2A33;
+    border-color:#67E8F9;
+  }
+  .lvl-tile.is-current .lvl-dot::after{
+    content:'';
+    width:8px; height:8px;
+    border-radius:50%;
+    background:#67E8F9;
+  }
+  .lvl-tile.is-locked .lvl-dot{ border-style:dashed; }
+  .lvl-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
+  .lvl-num{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:11px;
+    letter-spacing:0.12em;
+    color:rgba(103,232,249,0.75);
+  }
+  .lvl-status{
+    font-family:'Quicksand', sans-serif;
+    font-weight:700;
+    font-size:9px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    padding:3px 9px;
+    border-radius:999px;
+    color:#67E8F9;
+    border:1px solid rgba(34,211,238,0.3);
+    background:rgba(34,211,238,0.08);
+    white-space:nowrap;
+  }
+  .lvl-tile.is-current .lvl-status{ color:#062A31; background:#22D3EE; border-color:#22D3EE; }
+  .lvl-tile.is-locked .lvl-status{ color:var(--fog); border-color:rgba(154,161,174,0.35); background:transparent; }
+  .lvl-year{ font-family:'Outfit', sans-serif; font-weight:800; font-size:24px; color:#67E8F9; margin:0 0 2px; }
+  .lvl-title{ font-family:'Outfit', sans-serif; font-weight:700; font-size:14.5px; line-height:1.3; color:var(--paper); margin:0 0 3px; }
+  .lvl-inst{ font-family:'Quicksand', sans-serif; font-weight:600; font-size:11.5px; color:var(--fog); margin:0 0 8px; }
+  .lvl-desc{ font-family:'Quicksand', sans-serif; font-size:11.8px; line-height:1.55; color:var(--fog); margin:0 0 10px; flex:1; }
+  .lvl-tile .edu-tags{ margin-top:auto; }
+  /* current level breathes */
+  .lvl-tile.is-current{ border-color:rgba(103,232,249,0.45); }
+  @keyframes lvlBreath{
+    0%, 100%{ box-shadow:0 0 0 -4px rgba(34,211,238,0), 0 14px 30px -18px rgba(8,145,178,0.5); }
+    50%{ box-shadow:0 0 22px -4px rgba(34,211,238,0.35), 0 14px 30px -18px rgba(8,145,178,0.5); }
+  }
+  /* entrance: hidden until revealed, then the meter fills level by level */
+  .lvl-grid:not(.revealed) .lvl-tile{ opacity:0; }
+  .lvl-grid:not(.revealed) .lvl-rail::before,
+  .lvl-grid:not(.revealed) .lvl-rail::after{ transform:scaleX(0); }
+  .lvl-grid:not(.revealed) .lvl-dot{ transform:scale(0); }
+  @keyframes lvlTileIn{ from{ opacity:0; transform:translateY(24px); } to{ opacity:1; transform:none; } }
+  @keyframes lvlTileInLock{ from{ opacity:0; transform:translateY(24px); } to{ opacity:0.55; transform:none; } }
+  @keyframes lvlSegIn{ from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
+  @keyframes lvlDotIn{ 0%{ transform:scale(0); } 60%{ transform:scale(1.28); } 100%{ transform:scale(1); } }
+  .lvl-grid.revealed .lvl-tile{ animation:lvlTileIn 0.6s cubic-bezier(.16,1,.3,1) calc(var(--d) + 0.1s) backwards; }
+  .lvl-grid.revealed .lvl-rail::before{ animation:lvlSegIn 0.28s cubic-bezier(.4,0,.2,1) var(--d) backwards; }
+  .lvl-grid.revealed .lvl-dot{ animation:lvlDotIn 0.4s cubic-bezier(.34,1.56,.64,1) calc(var(--d) + 0.12s) backwards; }
+  .lvl-grid.revealed .lvl-rail::after{ animation:lvlSegIn 0.28s cubic-bezier(.4,0,.2,1) calc(var(--d) + 0.18s) backwards; }
+  .lvl-grid.revealed .lvl-tile.is-current{
+    animation:lvlTileIn 0.6s cubic-bezier(.16,1,.3,1) calc(var(--d) + 0.1s) backwards,
+              lvlBreath 3.2s ease-in-out 1.8s infinite;
+  }
+  .lvl-grid.revealed .lvl-tile.is-locked{ animation-name:lvlTileInLock; }
+  /* locked level: dimmed until previewed */
+  .lvl-tile.is-locked{ opacity:0.55; border-style:dashed; filter:saturate(0.5); }
+  .lvl-tile.is-locked:hover{ opacity:1; filter:none; }
+  /* light theme */
+  body.light-theme .lvl-tile{
+    background:linear-gradient(165deg, rgba(34,211,238,0.09), rgba(255,255,255,0.92) 60%);
+    border-color:rgba(14,116,144,0.22);
+  }
+  body.light-theme .lvl-year{ color:#0E7490; }
+  body.light-theme .lvl-num{ color:rgba(14,116,144,0.8); }
+  body.light-theme .lvl-status{ color:#0E7490; border-color:rgba(14,116,144,0.35); background:rgba(34,211,238,0.1); }
+  body.light-theme .lvl-tile.is-current .lvl-status{ color:#ffffff; background:#0891B2; border-color:#0891B2; }
+  body.light-theme .lvl-rail::before, body.light-theme .lvl-rail::after{ background:rgba(14,116,144,0.15); }
+  body.light-theme .lvl-tile.is-done .lvl-rail::before,
+  body.light-theme .lvl-tile.is-done .lvl-rail::after,
+  body.light-theme .lvl-tile.is-current .lvl-rail::before{
+    background:linear-gradient(90deg, #22D3EE, #0891B2);
+  }
+  body.light-theme .lvl-dot{ background:#E8F8FB; border-color:rgba(14,116,144,0.4); }
+  @media (max-width:1020px){
+    .lvl-grid{ grid-template-columns:repeat(2, 1fr); }
+    .lvl-rail::before, .lvl-rail::after{ display:none; }
+  }
+  @media (max-width:600px){ .lvl-grid{ grid-template-columns:1fr; } }
   @media (max-width:640px){
     .edu-path{ padding-left:52px; }
     .edu-node{
@@ -1565,6 +1733,103 @@
   @media (prefers-reduced-motion: reduce){
     .edu-node{ opacity:1; transform:none; transition:none; }
     .edu-badge.is-current{ animation:none; }
+  }
+
+  /* ---------- Education: 3D chess promotion ---------- */
+  .chess3d{
+    display:grid;
+    grid-template-columns:minmax(0,1.05fr) minmax(0,0.95fr);
+    gap:34px; align-items:center;
+    max-width:1000px; margin:0 auto;
+  }
+  .chess3d-stage{ position:relative; }
+  .chess3d-viewport{ position:relative; width:100%; aspect-ratio:1/1; max-height:440px; margin:0 auto; }
+  .chess3d-canvas{ position:relative; z-index:2; width:100%; height:100%; display:block; }
+  .chess3d-ring{
+    position:absolute; z-index:1; left:50%; bottom:12%;
+    width:60%; height:60%; transform:translateX(-50%);
+    border-radius:50%;
+    background:radial-gradient(circle at 50% 50%, rgba(34,211,238,0.35), rgba(34,211,238,0.06) 55%, transparent 70%);
+    filter:blur(7px); pointer-events:none;
+  }
+  .chess3d-ring.is-burst{ animation:c3Burst 0.75s cubic-bezier(.16,1,.3,1); }
+  @keyframes c3Burst{
+    0%{ transform:translateX(-50%) scale(0.55); opacity:0.15; }
+    45%{ transform:translateX(-50%) scale(1.18); opacity:0.95; }
+    100%{ transform:translateX(-50%) scale(1); opacity:1; }
+  }
+  .chess3d-caption{ text-align:center; margin-top:4px; display:flex; flex-direction:column; gap:2px; }
+  .chess3d-piece-name{ font-family:'Outfit', sans-serif; font-weight:800; font-size:20px; letter-spacing:0.02em; color:var(--paper); }
+  .chess3d-piece-val{ font-family:'Baloo 2', sans-serif; font-weight:700; font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:#67E8F9; }
+  .chess3d-nav{ display:flex; align-items:center; justify-content:center; gap:16px; margin-top:14px; }
+  .chess3d-arrow{
+    width:38px; height:38px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px; line-height:1; color:#67E8F9;
+    background:rgba(34,211,238,0.08); border:1px solid rgba(34,211,238,0.3);
+    cursor:pointer; transition:transform 0.25s ease, background 0.25s ease, border-color 0.25s ease, opacity 0.25s ease;
+  }
+  .chess3d-arrow:hover{ background:rgba(34,211,238,0.18); border-color:#67E8F9; transform:translateY(-2px); }
+  .chess3d-arrow:disabled{ opacity:0.3; cursor:default; transform:none; }
+  .chess3d-dots{ display:flex; gap:9px; align-items:center; }
+  .chess3d-dot{
+    width:9px; height:9px; border-radius:50%; padding:0; cursor:pointer;
+    background:rgba(34,211,238,0.25); border:1px solid rgba(34,211,238,0.35);
+    transition:transform 0.3s cubic-bezier(.34,1.56,.64,1), background 0.3s ease, box-shadow 0.3s ease;
+  }
+  .chess3d-dot:hover{ transform:scale(1.25); }
+  .chess3d-dot.is-active{ background:#67E8F9; box-shadow:0 0 10px rgba(34,211,238,0.6); transform:scale(1.2); }
+  .chess3d-dot.is-goal{ border-style:dashed; }
+  .chess3d-detail{
+    position:relative; padding:26px 30px 28px; border-radius:20px;
+    border:1px solid rgba(34,211,238,0.28);
+    background:linear-gradient(158deg, rgba(34,211,238,0.10), rgba(20,23,31,0.72) 62%);
+    box-shadow:0 26px 60px -34px rgba(8,145,178,0.7), inset 0 1px 0 rgba(255,255,255,0.04);
+    overflow:hidden;
+  }
+  .chess3d-detail::before{
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(120% 140% at 12% 0%, rgba(103,232,249,0.14), transparent 55%);
+    pointer-events:none;
+  }
+  .c3-head{ display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
+  .c3-lvl{ font-family:'Baloo 2', sans-serif; font-weight:700; font-size:12px; letter-spacing:0.14em; color:rgba(103,232,249,0.85); }
+  .c3-status{
+    font-family:'Quicksand', sans-serif; font-weight:700; font-size:9.5px;
+    letter-spacing:0.07em; text-transform:uppercase; padding:4px 11px; border-radius:999px;
+    color:#67E8F9; border:1px solid rgba(34,211,238,0.3); background:rgba(34,211,238,0.08);
+  }
+  .chess3d-detail[data-state="current"] .c3-status{ color:#062A31; background:#22D3EE; border-color:#22D3EE; }
+  .chess3d-detail[data-state="goal"] .c3-status{ color:var(--fog); border-color:rgba(154,161,174,0.4); background:transparent; }
+  .c3-year{ font-family:'Outfit', sans-serif; font-weight:800; font-size:46px; line-height:1; color:#67E8F9; margin:0 0 6px; text-shadow:0 0 26px rgba(34,211,238,0.35); }
+  .c3-title{ font-family:'Outfit', sans-serif; font-weight:700; font-size:21px; line-height:1.25; color:var(--paper); margin:0 0 4px; }
+  .c3-inst{ font-family:'Quicksand', sans-serif; font-weight:600; font-size:13px; color:var(--fog); margin:0 0 12px; }
+  .c3-desc{ font-family:'Quicksand', sans-serif; font-size:13.5px; line-height:1.6; color:var(--fog); margin:0 0 14px; }
+  .chess3d-detail .edu-tags{ display:flex; flex-wrap:wrap; gap:7px; }
+  @keyframes c3DetailIn{ from{ opacity:0; transform:translateY(14px); filter:blur(5px); } to{ opacity:1; transform:none; filter:blur(0); } }
+  .chess3d-detail.is-in{ animation:c3DetailIn 0.5s cubic-bezier(.16,1,.3,1); }
+  .chess3d:not(.revealed) .chess3d-detail{ opacity:0; transform:translateY(18px); }
+  .chess3d:not(.revealed) .chess3d-viewport{ opacity:0; }
+  .chess3d.revealed .chess3d-viewport{ opacity:1; transition:opacity 0.6s ease; }
+  body.light-theme .chess3d-detail{
+    background:linear-gradient(158deg, rgba(34,211,238,0.12), rgba(255,255,255,0.94) 62%);
+    border-color:rgba(14,116,144,0.24); box-shadow:0 26px 60px -36px rgba(8,145,178,0.45);
+  }
+  body.light-theme .c3-year{ color:#0891B2; }
+  body.light-theme .c3-lvl{ color:rgba(14,116,144,0.85); }
+  body.light-theme .c3-status{ color:#0E7490; border-color:rgba(14,116,144,0.35); background:rgba(34,211,238,0.1); }
+  body.light-theme .chess3d-detail[data-state="current"] .c3-status{ color:#fff; background:#0891B2; border-color:#0891B2; }
+  body.light-theme .chess3d-piece-name{ color:#0B0D12; }
+  body.light-theme .chess3d-arrow{ color:#0E7490; border-color:rgba(14,116,144,0.35); }
+  @media (max-width:820px){
+    .chess3d{ grid-template-columns:1fr; gap:20px; }
+    .chess3d-viewport{ max-height:340px; }
+    .chess3d-detail{ padding:22px 20px 24px; }
+    .c3-year{ font-size:40px; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .chess3d-ring.is-burst{ animation:none; }
+    .chess3d-detail.is-in{ animation-duration:0.001s; }
   }
 
   /* ---------- Achievement toasts ---------- */
@@ -1722,8 +1987,8 @@
     flex-direction:column;
     align-items:center;
     justify-content:center;
-    gap:5px;
-    width:46px;
+    gap:4px;
+    width:auto;
   }
   .music-eq{
     display:flex;
@@ -1741,6 +2006,39 @@
   .music-widget.is-playing .music-eq span{
     animation:eqBounce 0.9s ease-in-out infinite;
   }
+  /* mute/unmute indicator (replaces the EQ dots) */
+  .music-indicator{
+    position:relative;
+    width:34px; height:34px;
+    display:flex; align-items:center; justify-content:center;
+    background:none; border:none; padding:0;
+    color:var(--paper);
+    cursor:pointer;
+    transition:color 0.25s ease, transform 0.2s ease;
+  }
+  .music-indicator:hover{ transform:scale(1.15); }
+  .music-indicator svg{ width:24px; height:24px; }
+  .mi-wave{
+    opacity:0;
+    transform:translateX(-3px) scale(0.7);
+    transform-origin:11px 12px;
+    transition:opacity 0.3s ease, transform 0.38s cubic-bezier(.34,1.4,.5,1);
+  }
+  .mi-wave.on{ opacity:1; transform:none; }
+  .music-indicator .mi-slash{
+    position:absolute;
+    left:50%; top:50%;
+    width:24px; height:24px;
+    transform:translate(-50%,-50%);
+    pointer-events:none;
+  }
+  .music-indicator .mi-slash line{
+    stroke-dasharray:25;
+    stroke-dashoffset:25;
+    transition:stroke-dashoffset 0.3s ease;
+  }
+  .music-indicator.muted{ color:var(--fog); }
+  .music-indicator.muted .mi-slash line{ stroke-dashoffset:0; }
   .music-eq span:nth-child(1){ animation-delay:0s; animation-duration:0.75s; }
   .music-eq span:nth-child(2){ animation-delay:0.18s; animation-duration:0.95s; }
   .music-eq span:nth-child(3){ animation-delay:0.08s; animation-duration:0.65s; }
@@ -1821,8 +2119,8 @@
   }
   /* Horizontal volume slider */
   .music-volume{
-    width:46px;
-    height:12px;
+    width:90px;
+    height:14px;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -1831,7 +2129,7 @@
   }
   .music-volume-track{
     position:relative;
-    width:42px;
+    width:84px;
     height:4px;
     border-radius:999px;
     background:rgba(183,156,251,0.18);
@@ -2571,7 +2869,7 @@
 <div id="canvas-wrap"></div>
 <div class="achievement-toasts" id="achievementToasts"></div>
 
-<nav class="navbar">
+<nav class="navbar nav-hidden">
   <div class="nav-pill">
     <a href="#about" class="nav-link">About</a>
     <a href="#stats" class="nav-link">Stats</a>
@@ -2595,20 +2893,14 @@
       <span class="music-status" id="musicStatus">DeVotchKa</span>
     </div>
     <div class="music-side" aria-hidden="false">
-      <div class="music-eq" aria-hidden="true"><span></span><span></span><span></span></div>
+      <button class="music-indicator" id="musicIndicator" type="button" aria-label="Mute"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.4 4.7 7.2 8.2H4.6C3.7 8.2 3 8.9 3 9.8v4.4c0 .9.7 1.6 1.6 1.6h2.6l4.2 3.5c.9.75 2.2.1 2.2-1.05V5.75c0-1.15-1.3-1.8-2.2-1.05Z" fill="currentColor"/><path class="mi-wave" d="M14.5 8.7a4.7 4.7 0 0 1 0 6.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><path class="mi-wave" d="M16.9 6.3a8.1 8.1 0 0 1 0 11.4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><path class="mi-wave" d="M19.3 3.9a11.6 11.6 0 0 1 0 16.2" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg><svg class="mi-slash" viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="4" x2="21" y2="21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
       <div class="music-volume" id="musicVolume" aria-label="Volume">
         <div class="music-volume-track">
           <div class="music-volume-fill" id="musicVolumeFill"></div>
         </div>
       </div>
     </div>
-    <button class="music-playpause" id="musicPlayPause" type="button" aria-label="Unmute">
-      <svg class="icon-sound icon-hide" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/><path d="M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-      <svg class="icon-muted" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4 9.91 6.09 12 8.18V4z"/></svg>
-      <svg class="icon-replay icon-hide" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
-      <svg class="music-ring" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="21" fill="none" stroke="currentColor" stroke-width="2.5" stroke-dasharray="131.9" stroke-dashoffset="131.9"/></svg>
-    </button>
-    <div class="music-progress" aria-hidden="true"><div class="music-progress-fill" id="musicProgressFill"></div></div>
+        <div class="music-progress" aria-hidden="true"><div class="music-progress-fill" id="musicProgressFill"></div></div>
   </div>
 </div>
 
@@ -2836,93 +3128,31 @@
     <div class="section-head" data-reveal>
       <h2>Education</h2>
       <div class="divider"><span></span><i></i><span></span></div>
-      <p class="content-section-sub">Where the foundation is being built.</p>
+      <p class="content-section-sub">Every stage promoted me to a stronger piece. Step through the set.</p>
     </div>
     <div class="content-section-body">
-      <div class="edu-path" id="eduPath">
-        <svg class="edu-svg" id="eduSvg">
-          <path class="edu-path-bg" id="eduPathBg"></path>
-          <path class="edu-path-fill" id="eduPathFill"></path>
-        </svg>
+      <div class="chess3d" id="eduChess">
 
-        <div class="edu-node" data-edu-node>
-          <div class="edu-badge">01</div>
-          <div class="edu-card">
-            <div class="edu-top-row">
-              <span class="edu-year">2012</span>
-              <span class="edu-status">Completed</span>
-            </div>
-            <h3 class="edu-title">Nursery</h3>
-            <p class="edu-institution">Vivekananda Mission School</p>
-            <p class="edu-desc">The journey begins &mdash; the start of a curiosity for learning and problem-solving.</p>
+        <!-- 3D stage -->
+        <div class="chess3d-stage">
+          <div class="chess3d-viewport" id="chessViewport">
+            <canvas class="chess3d-canvas" id="chessCanvas"></canvas>
+            <div class="chess3d-ring" id="chessRing"></div>
+          </div>
+          <div class="chess3d-caption">
+            <span class="chess3d-piece-name" id="pieceName">Pawn</span>
+            <span class="chess3d-piece-val" id="pieceVal">1 pt</span>
+          </div>
+          <div class="chess3d-nav">
+            <button type="button" class="chess3d-arrow" id="chessPrev" aria-label="Previous piece">&#8249;</button>
+            <div class="chess3d-dots" id="chessDots"></div>
+            <button type="button" class="chess3d-arrow" id="chessNext" aria-label="Next piece">&#8250;</button>
           </div>
         </div>
 
-        <div class="edu-node" data-edu-node>
-          <div class="edu-badge">02</div>
-          <div class="edu-card">
-            <div class="edu-top-row">
-              <span class="edu-year">2020</span>
-              <span class="edu-status">Completed</span>
-            </div>
-            <h3 class="edu-title">Java &amp; Object-Oriented Programming</h3>
-            <p class="edu-institution">Class 8</p>
-            <p class="edu-desc">Began learning Java, opening the door to desktop applications, algorithms, and structured software development.</p>
-            <div class="edu-tags">
-              <span class="edu-tag">Java</span>
-              <span class="edu-tag">OOP</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="edu-node" data-edu-node>
-          <div class="edu-badge">03</div>
-          <div class="edu-card">
-            <div class="edu-top-row">
-              <span class="edu-year">2025</span>
-              <span class="edu-status">Completed</span>
-            </div>
-            <h3 class="edu-title">Graduated ICSE</h3>
-            <p class="edu-institution">Class X</p>
-            <p class="edu-desc">Wrapped up secondary school while taking software development more seriously — built Tic Tac Toe, then Scaccomatto, marking the start of a real portfolio.</p>
-            <div class="edu-tags">
-              <span class="edu-tag">ICSE</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="edu-node is-current" data-edu-node>
-          <div class="edu-badge">04</div>
-          <div class="edu-card">
-            <div class="edu-top-row">
-              <span class="edu-year">2027</span>
-              <span class="edu-status">In Progress</span>
-            </div>
-            <h3 class="edu-title">ISC</h3>
-            <p class="edu-institution">Class XI &ndash; XII</p>
-            <p class="edu-desc">Currently pursuing ISC while expanding beyond coursework — modern web development, Linux as a daily driver, and founding Alekhine Studios.</p>
-            <div class="edu-tags">
-              <span class="edu-tag">JavaScript</span>
-              <span class="edu-tag">Linux</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="edu-node" data-edu-node>
-          <div class="edu-badge">05</div>
-          <div class="edu-card">
-            <div class="edu-top-row">
-              <span class="edu-year">2028</span>
-              <span class="edu-status">Goal</span>
-            </div>
-            <h3 class="edu-title">ITMO University</h3>
-            <p class="edu-institution">Computer Science &ndash; Cybersecurity Focus</p>
-            <p class="edu-desc">Plan to pursue Computer Science at ITMO, with a focus on cybersecurity, competitive programming, and international hackathons.</p>
-            <div class="edu-tags">
-              <span class="edu-tag">Cybersecurity</span>
-              <span class="edu-tag">Competitive Programming</span>
-            </div>
-          </div>
+        <!-- milestone detail -->
+        <div class="chess3d-panel">
+          <article class="chess3d-detail" id="chessDetail" aria-live="polite"></article>
         </div>
 
       </div>
@@ -3211,9 +3441,42 @@
     const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
     scrollProgress.style.width = pct + '%';
   }
+  /* Multi-colour bar: each section's colour occupies exactly its share of the
+     scroll length, with short smooth blends at the boundaries. The gradient is
+     sized to the full viewport so the growing bar reveals it. */
+  function paintScrollProgress(){
+    if(!scrollProgress) return;
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    if(max <= 0) return;
+    const SECTION_COLOURS = [
+      ['#about', '#8B5CF6'],
+      ['#stats', '#FB4B70'],
+      ['#education', '#22D3EE'],
+      ['#projects', '#22C55E'],
+      ['#achievements', '#FFD100'],
+      ['#epilogue', '#F5F6F8']
+    ];
+    const stops = [];
+    let prev = '#8B5CF6'; /* hero rides on About purple */
+    stops.push(prev + ' 0%');
+    SECTION_COLOURS.forEach(pair => {
+      const el = document.querySelector(pair[0]);
+      if(!el) return;
+      const p = Math.max(0, Math.min(100, (el.offsetTop / max) * 100));
+      stops.push(prev + ' ' + Math.max(0, p - 2).toFixed(2) + '%');
+      stops.push(pair[1] + ' ' + Math.min(100, p + 2).toFixed(2) + '%');
+      prev = pair[1];
+    });
+    stops.push(prev + ' 100%');
+    scrollProgress.style.background = 'linear-gradient(90deg, ' + stops.join(', ') + ')';
+    scrollProgress.style.backgroundSize = '100vw 100%';
+    scrollProgress.style.backgroundRepeat = 'no-repeat';
+  }
   window.addEventListener('scroll', updateScrollProgress, { passive:true });
-  window.addEventListener('resize', updateScrollProgress);
+  window.addEventListener('resize', () => { updateScrollProgress(); paintScrollProgress(); });
+  window.addEventListener('load', paintScrollProgress);
   updateScrollProgress();
+  paintScrollProgress();
 
   document.querySelectorAll('.nav-link').forEach(link => {
     link.addEventListener('click', (e) => {
@@ -4082,125 +4345,183 @@
   }, { threshold: 0.35 });
   if(timelineWrap) statsObserver.observe(timelineWrap);
 
-  /* ---------- Education: milestone journey path reveal ---------- */
-  const eduPath = document.getElementById('eduPath');
-  const eduSvg = document.getElementById('eduSvg');
-  const eduPathBg = document.getElementById('eduPathBg');
-  const eduPathFill = document.getElementById('eduPathFill');
-  const eduNodes = document.querySelectorAll('[data-edu-node]');
-  const eduBadges = document.querySelectorAll('.edu-badge');
-  const EDU_FILL_DURATION = 2600;
-  let eduPathLength = 0;
-  let eduRevealed = false;
+  /* ---------- Education: 3D chess promotion ---------- */
+  (function(){
+    const eduChess = document.getElementById('eduChess');
+    if(!eduChess || !window.THREE) return;
+    const MS = [
+      { piece:'pawn',   pieceName:'Pawn',   pieceVal:'1 pt',  lvl:'LVL 01', state:'done',    status:'Completed',   year:'2012', title:'Nursery', inst:'Vivekananda Mission School', desc:'The journey begins &mdash; the start of a curiosity for learning and problem-solving.', tags:[] },
+      { piece:'bishop', pieceName:'Bishop', pieceVal:'3 pts', lvl:'LVL 02', state:'done',    status:'Completed',   year:'2020', title:'Java &amp; Object-Oriented Programming', inst:'Class 8', desc:'Began learning Java, opening the door to desktop applications, algorithms, and structured software development.', tags:['Java','OOP'] },
+      { piece:'rook',   pieceName:'Rook',   pieceVal:'5 pts', lvl:'LVL 03', state:'done',    status:'Completed',   year:'2025', title:'Graduated ICSE', inst:'Class X', desc:'Wrapped up secondary school while taking software development more seriously &mdash; built Tic Tac Toe, then Scaccomatto, marking the start of a real portfolio.', tags:['ICSE'] },
+      { piece:'queen',  pieceName:'Queen',  pieceVal:'9 pts', lvl:'LVL 04', state:'current', status:'In Progress', year:'2027', title:'ISC', inst:'Class XI &ndash; XII', desc:'Currently pursuing ISC while expanding beyond coursework &mdash; modern web development, Linux as a daily driver, and founding Alekhine Studios.', tags:['JavaScript','Linux'] },
+      { piece:'king',   pieceName:'King',   pieceVal:'∞', lvl:'LVL 05', state:'goal',    status:'Goal',        year:'2028', title:'ITMO University', inst:'Computer Science &ndash; Cybersecurity Focus', desc:'Plan to pursue Computer Science at ITMO, with a focus on cybersecurity, competitive programming, and international hackathons.', tags:['Cybersecurity','Competitive Programming'] },
+    ];
+    const CURRENT = 3;
+    const canvas   = document.getElementById('chessCanvas');
+    const viewport = document.getElementById('chessViewport');
+    const ring     = document.getElementById('chessRing');
+    const detail   = document.getElementById('chessDetail');
+    const dotsWrap = document.getElementById('chessDots');
+    const nameEl   = document.getElementById('pieceName');
+    const valEl    = document.getElementById('pieceVal');
+    const prevBtn  = document.getElementById('chessPrev');
+    const nextBtn  = document.getElementById('chessNext');
+    const THREE = window.THREE;
 
-  function buildEduPath(){
-    if(!eduPath || !eduSvg || !eduBadges.length) return;
+    const renderer = new THREE.WebGLRenderer({ canvas:canvas, antialias:true, alpha:true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    const scene  = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
+    camera.position.set(0, 2.25, 7.4);
+    camera.lookAt(0, 1.4, 0);
 
-    const containerRect = eduPath.getBoundingClientRect();
-    const width = eduPath.offsetWidth;
-    const height = eduPath.offsetHeight;
-    eduSvg.setAttribute('width', width);
-    eduSvg.setAttribute('height', height);
-    eduSvg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    scene.add(new THREE.AmbientLight(0x35506a, 0.9));
+    const key = new THREE.DirectionalLight(0xffffff, 1.0); key.position.set(4, 8, 6); scene.add(key);
+    const rimC = new THREE.PointLight(0x22D3EE, 1.6, 45); rimC.position.set(-6, 3, -2); scene.add(rimC);
+    const rimW = new THREE.PointLight(0x67E8F9, 0.9, 45); rimW.position.set(5, 1.5, -4); scene.add(rimW);
+    const fillL = new THREE.PointLight(0xffffff, 0.35, 45); fillL.position.set(0, -3, 5); scene.add(fillL);
 
-    const points = Array.from(eduBadges).map(badge => {
-      const r = badge.getBoundingClientRect();
-      return {
-        x: r.left - containerRect.left + r.width / 2,
-        y: r.top - containerRect.top + r.height / 2,
-      };
-    });
+    const material = new THREE.MeshStandardMaterial({ color:0x35d3ef, metalness:0.72, roughness:0.26, emissive:0x0a3b46, emissiveIntensity:0.55 });
+    const darkMat  = new THREE.MeshStandardMaterial({ color:0x0e2831, metalness:0.5, roughness:0.5, emissive:0x061a20, emissiveIntensity:0.5 });
 
-    if(points.length < 2){
-      const single = points[0] || { x: width / 2, y: 0 };
-      eduPathBg.setAttribute('d', `M ${single.x} ${single.y} L ${single.x} ${single.y}`);
-      eduPathFill.setAttribute('d', eduPathBg.getAttribute('d'));
-      eduPathLength = 0;
-      return;
-    }
+    const disc = new THREE.Mesh(new THREE.CylinderGeometry(1.15, 1.32, 0.16, 56), darkMat);
+    disc.position.y = 0.02; scene.add(disc);
 
-    // Overdramatic sideways sway, scaled to available width so it never
-    // overflows on narrow screens.
-    const amplitude = Math.min(130, width * 0.4);
+    const V2 = (x,y) => new THREE.Vector2(x,y);
+    function lathe(profile){ return new THREE.LatheGeometry(profile.map(p => V2(p[0],p[1])), 64); }
+    function M(geo){ return new THREE.Mesh(geo, material); }
+    function ringOf(n, r, y, makeMesh){ for(let i=0;i<n;i++){ const a=(i/n)*Math.PI*2; const m=makeMesh(); m.position.set(Math.cos(a)*r, y, Math.sin(a)*r); m.rotation.y=-a; } }
 
-    // Inject a virtual waypoint (swung far to alternating sides) between
-    // every pair of badges, then run a Catmull-Rom spline through the
-    // whole sequence. This is what keeps the curve genuinely SMOOTH —
-    // no sharp corners at any node — while still swinging wide, unlike
-    // stitching together independent per-segment beziers.
-    const spline = [points[0]];
-    for(let i = 0; i < points.length - 1; i++){
-      const p0 = points[i];
-      const p1 = points[i + 1];
-      const sway = (i % 2 === 0 ? 1 : -1) * amplitude;
-      spline.push({ x: (p0.x + p1.x) / 2 + sway, y: (p0.y + p1.y) / 2 });
-      spline.push(p1);
-    }
-
-    let d = `M ${spline[0].x} ${spline[0].y}`;
-    for(let i = 0; i < spline.length - 1; i++){
-      const p0 = spline[i - 1] || spline[i];
-      const p1 = spline[i];
-      const p2 = spline[i + 1];
-      const p3 = spline[i + 2] || p2;
-      const cp1x = p1.x + (p2.x - p0.x) / 6;
-      const cp1y = p1.y + (p2.y - p0.y) / 6;
-      const cp2x = p2.x - (p3.x - p1.x) / 6;
-      const cp2y = p2.y - (p3.y - p1.y) / 6;
-      d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
-    }
-
-    eduPathBg.setAttribute('d', d);
-    eduPathFill.setAttribute('d', d);
-    eduPathLength = eduPathFill.getTotalLength();
-    eduPathFill.style.transition = 'none';
-    eduPathFill.style.strokeDasharray = `${eduPathLength}`;
-    eduPathFill.style.strokeDashoffset = eduRevealed ? '0' : `${eduPathLength}`;
-  }
-
-  function runEduPath(){
-    if(!eduPathFill) return;
-    buildEduPath();
-    eduRevealed = true;
-
-    if(reduceMotion){
-      eduPathFill.style.strokeDashoffset = '0';
-      eduNodes.forEach(node => node.classList.add('is-visible'));
-      return;
-    }
-
-    requestAnimationFrame(() => {
-      eduPathFill.style.transition = `stroke-dashoffset ${EDU_FILL_DURATION}ms cubic-bezier(.65,0,.35,1)`;
-      eduPathFill.style.strokeDashoffset = '0';
-    });
-
-    eduNodes.forEach((node, i) => {
-      const fraction = eduNodes.length > 1 ? i / (eduNodes.length - 1) : 0;
-      const delay = fraction * EDU_FILL_DURATION;
-      setTimeout(() => node.classList.add('is-visible'), delay);
-    });
-  }
-
-  buildEduPath();
-  window.addEventListener('load', () => { buildEduPath(); });
-  window.addEventListener('resize', () => { buildEduPath(); });
-
-  const eduObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if(entry.isIntersecting){
-        runEduPath();
-        eduObserver.unobserve(entry.target);
+    function buildPiece(type){
+      const g = new THREE.Group();
+      if(type === 'pawn'){
+        g.add(M(lathe([[0,0.16],[0.6,0.16],[0.58,0.3],[0.4,0.42],[0.34,0.55],[0.5,0.68],[0.32,0.84],[0.26,1.2],[0.4,1.34],[0.27,1.5],[0,1.5]])));
+        const h = M(new THREE.SphereGeometry(0.44, 32, 24)); h.position.y = 1.86; g.add(h);
+      } else if(type === 'bishop'){
+        g.add(M(lathe([[0,0.16],[0.64,0.16],[0.6,0.3],[0.4,0.44],[0.34,0.58],[0.52,0.72],[0.32,0.88],[0.24,1.5],[0.42,1.68],[0.29,1.84],[0.22,2.12],[0.15,2.38],[0,2.58]])));
+        const b = M(new THREE.SphereGeometry(0.13, 20, 16)); b.position.y = 2.66; g.add(b);
+      } else if(type === 'rook'){
+        g.add(M(lathe([[0,0.16],[0.66,0.16],[0.6,0.32],[0.42,0.5],[0.4,1.28],[0.5,1.48],[0.62,1.58],[0.62,1.9],[0,1.9]])));
+        ringOf(8, 0.5, 2.02, () => { const m = M(new THREE.BoxGeometry(0.2, 0.26, 0.2)); g.add(m); return m; });
+      } else if(type === 'queen'){
+        g.add(M(lathe([[0,0.16],[0.7,0.16],[0.64,0.32],[0.42,0.48],[0.36,0.62],[0.54,0.76],[0.32,0.94],[0.26,1.68],[0.44,1.88],[0.6,2.02],[0.6,2.24],[0,2.24]])));
+        ringOf(8, 0.44, 2.42, () => { const m = M(new THREE.ConeGeometry(0.1, 0.34, 12)); g.add(m); const ball = M(new THREE.SphereGeometry(0.11, 16, 12)); ball.position.copy(m.position); ball.position.y += 0.22; g.add(ball); return m; });
+        const top = M(new THREE.SphereGeometry(0.2, 24, 18)); top.position.y = 2.52; g.add(top);
+      } else if(type === 'king'){
+        g.add(M(lathe([[0,0.16],[0.72,0.16],[0.66,0.32],[0.42,0.48],[0.36,0.62],[0.56,0.76],[0.32,0.94],[0.26,1.72],[0.46,1.92],[0.62,2.06],[0.62,2.28],[0.5,2.4],[0,2.4]])));
+        ringOf(8, 0.46, 2.5, () => { const m = M(new THREE.SphereGeometry(0.09, 14, 12)); g.add(m); return m; });
+        const cap = M(new THREE.SphereGeometry(0.22, 24, 18)); cap.position.y = 2.5; g.add(cap);
+        const cv = M(new THREE.BoxGeometry(0.13, 0.55, 0.13)); cv.position.y = 3.0; g.add(cv);
+        const ch = M(new THREE.BoxGeometry(0.4, 0.13, 0.13)); ch.position.y = 3.02; g.add(ch);
       }
+      return g;
+    }
+
+    function disposeGroup(g){ g.traverse(o => { if(o.geometry) o.geometry.dispose(); }); }
+
+    let index = CURRENT, current = null, tval = 1, last = 0, loopStarted = false, inView = false;
+    function easeOutBack(x){ const c1 = 1.70158, c3 = c1 + 1; return 1 + c3*Math.pow(x-1,3) + c1*Math.pow(x-1,2); }
+
+    function renderDetail(m){
+      detail.dataset.state = m.state;
+      const tags = m.tags.length ? '<div class="edu-tags">' + m.tags.map(t => '<span class="edu-tag">'+t+'</span>').join('') + '</div>' : '';
+      detail.innerHTML =
+        '<div class="c3-head"><span class="c3-lvl">'+m.lvl+'</span><span class="c3-status">'+m.status+'</span></div>' +
+        '<p class="c3-year">'+m.year+'</p>' +
+        '<h3 class="c3-title">'+m.title+'</h3>' +
+        '<p class="c3-inst">'+m.inst+'</p>' +
+        '<p class="c3-desc">'+m.desc+'</p>' + tags;
+      detail.classList.remove('is-in'); void detail.offsetWidth; detail.classList.add('is-in');
+    }
+    function updateDots(i){ [...dotsWrap.children].forEach((d,k) => d.classList.toggle('is-active', k === i)); }
+
+    function showPiece(i, animate){
+      i = Math.max(0, Math.min(MS.length - 1, i));
+      index = i; const m = MS[i];
+      if(current){ scene.remove(current); disposeGroup(current); }
+      current = buildPiece(m.piece); scene.add(current);
+      tval = (animate === false) ? 1 : 0;
+      if(animate !== false){ ring.classList.remove('is-burst'); void ring.offsetWidth; ring.classList.add('is-burst'); }
+      nameEl.textContent = m.pieceName; valEl.textContent = m.pieceVal;
+      renderDetail(m); updateDots(i);
+      prevBtn.disabled = (i === 0); nextBtn.disabled = (i === MS.length - 1);
+    }
+
+    MS.forEach((m, i) => {
+      const d = document.createElement('button');
+      d.type = 'button';
+      d.className = 'chess3d-dot' + (m.state === 'goal' ? ' is-goal' : '');
+      d.setAttribute('aria-label', m.year + ' ' + m.pieceName);
+      d.addEventListener('click', () => showPiece(i, true));
+      dotsWrap.appendChild(d);
     });
-  }, { threshold: 0.2 });
-  if(eduPath) eduObserver.observe(eduPath);
+    prevBtn.addEventListener('click', () => showPiece(index - 1, true));
+    nextBtn.addEventListener('click', () => showPiece(index + 1, true));
+    window.addEventListener('keydown', (e) => {
+      if(!inView) return;
+      if(e.key === 'ArrowLeft'){ e.preventDefault(); showPiece(index - 1, true); }
+      else if(e.key === 'ArrowRight'){ e.preventDefault(); showPiece(index + 1, true); }
+    });
+
+    function resize(){
+      const r = viewport.getBoundingClientRect();
+      const w = Math.max(1, r.width), h = Math.max(1, r.height || r.width);
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h; camera.updateProjectionMatrix();
+    }
+    if(window.ResizeObserver){ new ResizeObserver(resize).observe(viewport); }
+    window.addEventListener('resize', resize);
+
+    function frame(now){
+      if(!last) last = now;
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      if(tval < 1) tval = Math.min(1, tval + dt / 0.55);
+      if(current){
+        const s = 0.2 + 0.8 * easeOutBack(tval);
+        current.scale.setScalar(Math.max(0.001, s));
+        current.rotation.y += dt * 0.6;
+        current.position.y = Math.sin(now * 0.0011) * 0.05;
+      }
+      disc.rotation.y += dt * 0.12;
+      renderer.render(scene, camera);
+      requestAnimationFrame(frame);
+    }
+
+    showPiece(CURRENT, false);
+    resize();
+
+    let autoTimer = null;
+    function autoplay(){
+      let i = 0; showPiece(0, true);
+      autoTimer = setInterval(() => {
+        i++;
+        if(i > CURRENT){ clearInterval(autoTimer); autoTimer = null; return; }
+        showPiece(i, true);
+      }, 1150);
+    }
+
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        inView = entry.isIntersecting;
+        if(entry.isIntersecting && !loopStarted){
+          loopStarted = true;
+          eduChess.classList.add('revealed');
+          resize();
+          requestAnimationFrame(frame);
+          const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          if(reduce){ showPiece(CURRENT, false); } else { autoplay(); }
+        }
+      });
+    }, { threshold: 0.3 });
+    obs.observe(eduChess);
+  })();
 
   /* ---------- Achievement toasts ---------- */
   const achievementToastsWrap = document.getElementById('achievementToasts');
   const ACHIEVEMENTS = [
     { selector: '#about',        icon: '🧭', title: 'The Origin Story',       rgb: '167,109,255' },
     { selector: '#stats',        icon: '📊', title: "The Numbers Don't Lie",  rgb: '239,68,68' },
-    { selector: '#education',    icon: '🎓', title: 'The Learning Path',      rgb: '59,130,246' },
+    { selector: '#education',    icon: '🎓', title: 'The Learning Path',      rgb: '34,211,238' },
     { selector: '#projects',     icon: '⚡', title: 'Built From Scratch',     rgb: '34,197,94' },
     { selector: '#achievements', icon: '🏆', title: 'Trophy Room',            rgb: '255,209,0' },
     { selector: '#epilogue',     icon: '📖', title: 'Reached the Epilogue',   rgb: '245,246,248' },
@@ -4235,7 +4556,8 @@
     entries.forEach(entry => {
       if(entry.isIntersecting){
         const match = ACHIEVEMENTS.find(a => document.querySelector(a.selector) === entry.target);
-        if(match) setTimeout(() => spawnAchievementToast(match.icon, match.title, match.rgb), 1000);
+        /* the epilogue toast is timed to the end of the letter instead */
+        if(match && match.selector !== '#epilogue') setTimeout(() => spawnAchievementToast(match.icon, match.title, match.rgb), 1000);
         achievementObserver.unobserve(entry.target);
       }
     });
@@ -4325,6 +4647,8 @@
     let scoreMuted = true;
     let fadeRaf = null;
     let userVolume = 1;
+    let prevUserVolume = 1;
+    const musicIndicator = document.getElementById('musicIndicator');
     const musicVolume = document.getElementById('musicVolume');
     const musicVolumeTrack = musicVolume ? musicVolume.querySelector('.music-volume-track') : null;
     const musicVolumeFill = document.getElementById('musicVolumeFill');
@@ -4339,7 +4663,44 @@
       userVolume = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
       if(fadeRaf){ cancelAnimationFrame(fadeRaf); fadeRaf = null; }
       epilogueAudio.volume = userVolume;
+      if(userVolume > 0.001 && scoreMuted){
+        scoreMuted = false;
+        epilogueAudio.muted = false;
+        const p = epilogueAudio.play();
+        if(p && typeof p.catch === 'function') p.catch(() => {});
+      }
+      if(userVolume > 0.001) prevUserVolume = userVolume;
       renderVolume();
+      updateMusicState();
+    }
+
+    if(musicIndicator){
+      musicIndicator.addEventListener('click', () => {
+        if(!epilogueAudio) return;
+        const indMuted = scoreMuted || userVolume <= 0.001;
+        if(!indMuted){
+          /* mute: slash draws across, slider drops to 0, 1s fade out then hard-mute */
+          prevUserVolume = userVolume || 1;
+          scoreMuted = true;
+          userVolume = 0;
+          renderVolume();
+          fadeVolume(epilogueAudio.volume, 0, 1000, () => {
+            epilogueAudio.muted = true;
+            epilogueAudio.volume = prevUserVolume;
+          });
+        } else {
+          /* unmute: slash retracts, restore volume, 1s fade in */
+          scoreMuted = false;
+          if(userVolume <= 0.001) userVolume = prevUserVolume || 1;
+          renderVolume();
+          const from = epilogueAudio.muted ? 0 : epilogueAudio.volume;
+          epilogueAudio.muted = false;
+          fadeVolume(from, userVolume, 1000);
+          const action = epilogueAudio.play();
+          if(action && typeof action.catch === 'function') action.catch(() => {});
+        }
+        updateMusicState();
+      });
     }
 
     if(musicVolume){
@@ -4395,7 +4756,14 @@
     function updateMusicState(){
       const ended = Boolean(epilogueAudio && epilogueAudio.ended);
       const playing = Boolean(epilogueAudio && !epilogueAudio.paused);
-      const audible = playing && !scoreMuted;
+      const audible = playing && !scoreMuted && userVolume > 0.001;
+      const indMuted = scoreMuted || userVolume <= 0.001;
+      if(musicIndicator){
+        musicIndicator.classList.toggle('muted', indMuted);
+        musicIndicator.setAttribute('aria-label', indMuted ? 'Unmute' : 'Mute');
+        const lvl = indMuted ? 0 : (userVolume > 0.75 ? 3 : (userVolume > 0.4 ? 2 : (userVolume > 0.001 ? 1 : 0)));
+        musicIndicator.querySelectorAll('.mi-wave').forEach((w, i) => w.classList.toggle('on', i < lvl));
+      }
       if(musicWidget) musicWidget.classList.toggle('is-playing', audible);
       setRing(audible);
       if(musicStatus) musicStatus.textContent = 'DeVotchKa · ' + (ended ? 'Ended' : (audible ? 'Now playing' : (playing ? 'Muted' : 'Paused')));
@@ -4478,6 +4846,13 @@
             updateNavVisibility();
             startEpilogueScore();
           }, 2400);
+          /* epilogue achievement: 1s after the last line has fully revealed */
+          const epilogueAch = ACHIEVEMENTS.find(a => a.selector === '#epilogue');
+          if(epilogueAch){
+            window.setTimeout(() => {
+              spawnAchievementToast(epilogueAch.icon, epilogueAch.title, epilogueAch.rgb);
+            }, (cumulativeDelay + 1.4 + 1) * 1000);
+          }
           epilogueObserver.unobserve(entry.target);
         }
       });
@@ -4536,11 +4911,13 @@
   const navbarEl = document.querySelector('.navbar');
   const musicWidgetEl = document.getElementById('musicWidget');
   const epilogueHeading = document.querySelector('#epilogue .section-head');
+  const aboutSectionEl = document.getElementById('about');
   function updateNavVisibility(){
     if(!navbarEl || !epilogueHeading) return;
-    const rect = epilogueHeading.getBoundingClientRect();
-    const pastEpilogue = rect.top <= 150;
-    navbarEl.classList.toggle('nav-hidden', pastEpilogue);
+    const pastEpilogue = epilogueHeading.getBoundingClientRect().top <= 150;
+    /* nav pops down only once the user has stepped into the About section */
+    const inAbout = aboutSectionEl ? aboutSectionEl.getBoundingClientRect().top <= window.innerHeight * 0.45 : true;
+    navbarEl.classList.toggle('nav-hidden', !inAbout || pastEpilogue);
     if(musicWidgetEl) musicWidgetEl.classList.toggle('nav-slot-visible', pastEpilogue && musicWidgetUnlocked);
   }
   window.addEventListener('scroll', updateNavVisibility, { passive:true });

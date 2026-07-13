@@ -597,6 +597,12 @@
     color:var(--fog);
     opacity:0.07;
   }
+  .doodle-tux{
+    aspect-ratio:413 / 484;
+    background-color:currentColor;
+    -webkit-mask:url('assets/iinuxx.png') no-repeat center / contain;
+    mask:url('assets/iinuxx.png') no-repeat center / contain;
+  }
 
   .hind-text{
     position:absolute;
@@ -900,6 +906,12 @@
     margin-bottom:14px;
     font-size:20px;
     line-height:1;
+  }
+  .tux-icon{
+    width:68%;
+    height:68%;
+    object-fit:contain;
+    display:block;
   }
   @media (max-width:900px){ .fact-icon{ margin-left:auto; margin-right:auto; } }
   .fi-1{ background:rgba(183,156,251,0.15); color:#B79CFB; }
@@ -1735,101 +1747,53 @@
     .edu-badge.is-current{ animation:none; }
   }
 
-  /* ---------- Education: 3D chess promotion ---------- */
-  .chess3d{
-    display:grid;
-    grid-template-columns:minmax(0,1.05fr) minmax(0,0.95fr);
-    gap:34px; align-items:center;
-    max-width:1000px; margin:0 auto;
+  /* ---------- Education: holographic scroll ---------- */
+  /* the shared .content-section sets overflow:hidden, which breaks position:sticky.
+     Education must allow overflow so the holo stage can pin while scrolling. */
+  #education{ overflow:visible; }
+  #education .hind-text{ display:none; }
+  .holo{ position:relative; width:100vw; margin-left:calc(50% - 50vw); height:540vh; }
+  .holo-stage{
+    position:sticky; top:0; height:100vh; overflow:hidden;
+    background:radial-gradient(130% 100% at 50% 26%, #0a1c24 0%, #06090d 60%, #04060a 100%);
   }
-  .chess3d-stage{ position:relative; }
-  .chess3d-viewport{ position:relative; width:100%; aspect-ratio:1/1; max-height:440px; margin:0 auto; }
-  .chess3d-canvas{ position:relative; z-index:2; width:100%; height:100%; display:block; }
-  .chess3d-ring{
-    position:absolute; z-index:1; left:50%; bottom:12%;
-    width:60%; height:60%; transform:translateX(-50%);
-    border-radius:50%;
-    background:radial-gradient(circle at 50% 50%, rgba(34,211,238,0.35), rgba(34,211,238,0.06) 55%, transparent 70%);
-    filter:blur(7px); pointer-events:none;
+  .holo-canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; z-index:1; }
+  .holo-scene{ position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; }
+  .holo-scene svg{ width:100%; height:100%; }
+  .holo-panel[data-i="0"], .holo-panel[data-i="1"]{ display:none; }
+  .holo-scan{
+    position:absolute; inset:0; pointer-events:none; z-index:2; mix-blend-mode:screen; opacity:0.45;
+    background:repeating-linear-gradient(0deg, rgba(103,232,249,0.05) 0px, rgba(103,232,249,0.05) 1px, transparent 2px, transparent 4px);
+    animation:holoFlick 5s steps(60) infinite;
   }
-  .chess3d-ring.is-burst{ animation:c3Burst 0.75s cubic-bezier(.16,1,.3,1); }
-  @keyframes c3Burst{
-    0%{ transform:translateX(-50%) scale(0.55); opacity:0.15; }
-    45%{ transform:translateX(-50%) scale(1.18); opacity:0.95; }
-    100%{ transform:translateX(-50%) scale(1); opacity:1; }
+  @keyframes holoFlick{ 0%,100%{ opacity:0.42; } 50%{ opacity:0.55; } 97%{ opacity:0.3; } }
+  .holo-vignette{
+    position:absolute; inset:0; pointer-events:none; z-index:2;
+    background:radial-gradient(120% 90% at 50% 50%, transparent 50%, rgba(2,5,8,0.85) 100%);
   }
-  .chess3d-caption{ text-align:center; margin-top:4px; display:flex; flex-direction:column; gap:2px; }
-  .chess3d-piece-name{ font-family:'Outfit', sans-serif; font-weight:800; font-size:20px; letter-spacing:0.02em; color:var(--paper); }
-  .chess3d-piece-val{ font-family:'Baloo 2', sans-serif; font-weight:700; font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:#67E8F9; }
-  .chess3d-nav{ display:flex; align-items:center; justify-content:center; gap:16px; margin-top:14px; }
-  .chess3d-arrow{
-    width:38px; height:38px; border-radius:50%;
-    display:flex; align-items:center; justify-content:center;
-    font-size:20px; line-height:1; color:#67E8F9;
-    background:rgba(34,211,238,0.08); border:1px solid rgba(34,211,238,0.3);
-    cursor:pointer; transition:transform 0.25s ease, background 0.25s ease, border-color 0.25s ease, opacity 0.25s ease;
-  }
-  .chess3d-arrow:hover{ background:rgba(34,211,238,0.18); border-color:#67E8F9; transform:translateY(-2px); }
-  .chess3d-arrow:disabled{ opacity:0.3; cursor:default; transform:none; }
-  .chess3d-dots{ display:flex; gap:9px; align-items:center; }
-  .chess3d-dot{
-    width:9px; height:9px; border-radius:50%; padding:0; cursor:pointer;
-    background:rgba(34,211,238,0.25); border:1px solid rgba(34,211,238,0.35);
-    transition:transform 0.3s cubic-bezier(.34,1.56,.64,1), background 0.3s ease, box-shadow 0.3s ease;
-  }
-  .chess3d-dot:hover{ transform:scale(1.25); }
-  .chess3d-dot.is-active{ background:#67E8F9; box-shadow:0 0 10px rgba(34,211,238,0.6); transform:scale(1.2); }
-  .chess3d-dot.is-goal{ border-style:dashed; }
-  .chess3d-detail{
-    position:relative; padding:26px 30px 28px; border-radius:20px;
-    border:1px solid rgba(34,211,238,0.28);
-    background:linear-gradient(158deg, rgba(34,211,238,0.10), rgba(20,23,31,0.72) 62%);
-    box-shadow:0 26px 60px -34px rgba(8,145,178,0.7), inset 0 1px 0 rgba(255,255,255,0.04);
-    overflow:hidden;
-  }
-  .chess3d-detail::before{
-    content:''; position:absolute; inset:0;
-    background:radial-gradient(120% 140% at 12% 0%, rgba(103,232,249,0.14), transparent 55%);
-    pointer-events:none;
-  }
-  .c3-head{ display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
-  .c3-lvl{ font-family:'Baloo 2', sans-serif; font-weight:700; font-size:12px; letter-spacing:0.14em; color:rgba(103,232,249,0.85); }
-  .c3-status{
-    font-family:'Quicksand', sans-serif; font-weight:700; font-size:9.5px;
-    letter-spacing:0.07em; text-transform:uppercase; padding:4px 11px; border-radius:999px;
-    color:#67E8F9; border:1px solid rgba(34,211,238,0.3); background:rgba(34,211,238,0.08);
-  }
-  .chess3d-detail[data-state="current"] .c3-status{ color:#062A31; background:#22D3EE; border-color:#22D3EE; }
-  .chess3d-detail[data-state="goal"] .c3-status{ color:var(--fog); border-color:rgba(154,161,174,0.4); background:transparent; }
-  .c3-year{ font-family:'Outfit', sans-serif; font-weight:800; font-size:46px; line-height:1; color:#67E8F9; margin:0 0 6px; text-shadow:0 0 26px rgba(34,211,238,0.35); }
-  .c3-title{ font-family:'Outfit', sans-serif; font-weight:700; font-size:21px; line-height:1.25; color:var(--paper); margin:0 0 4px; }
-  .c3-inst{ font-family:'Quicksand', sans-serif; font-weight:600; font-size:13px; color:var(--fog); margin:0 0 12px; }
-  .c3-desc{ font-family:'Quicksand', sans-serif; font-size:13.5px; line-height:1.6; color:var(--fog); margin:0 0 14px; }
-  .chess3d-detail .edu-tags{ display:flex; flex-wrap:wrap; gap:7px; }
-  @keyframes c3DetailIn{ from{ opacity:0; transform:translateY(14px); filter:blur(5px); } to{ opacity:1; transform:none; filter:blur(0); } }
-  .chess3d-detail.is-in{ animation:c3DetailIn 0.5s cubic-bezier(.16,1,.3,1); }
-  .chess3d:not(.revealed) .chess3d-detail{ opacity:0; transform:translateY(18px); }
-  .chess3d:not(.revealed) .chess3d-viewport{ opacity:0; }
-  .chess3d.revealed .chess3d-viewport{ opacity:1; transition:opacity 0.6s ease; }
-  body.light-theme .chess3d-detail{
-    background:linear-gradient(158deg, rgba(34,211,238,0.12), rgba(255,255,255,0.94) 62%);
-    border-color:rgba(14,116,144,0.24); box-shadow:0 26px 60px -36px rgba(8,145,178,0.45);
-  }
-  body.light-theme .c3-year{ color:#0891B2; }
-  body.light-theme .c3-lvl{ color:rgba(14,116,144,0.85); }
-  body.light-theme .c3-status{ color:#0E7490; border-color:rgba(14,116,144,0.35); background:rgba(34,211,238,0.1); }
-  body.light-theme .chess3d-detail[data-state="current"] .c3-status{ color:#fff; background:#0891B2; border-color:#0891B2; }
-  body.light-theme .chess3d-piece-name{ color:#0B0D12; }
-  body.light-theme .chess3d-arrow{ color:#0E7490; border-color:rgba(14,116,144,0.35); }
+  .holo-hud{ position:absolute; inset:0; z-index:3; display:grid; place-items:center; pointer-events:none; padding:0 24px; }
+  .holo-panel{ position:absolute; max-width:680px; text-align:center; opacity:0; will-change:opacity, transform; }
+  .holo-stage-no{ display:inline-block; font-family:'JetBrains Mono', ui-monospace, monospace; font-size:12px; letter-spacing:0.4em; text-transform:uppercase; color:#67E8F9; margin-bottom:14px; }
+  .holo-year{ font-family:'Outfit', sans-serif; font-weight:800; font-size:clamp(64px,12vw,150px); line-height:0.92; margin:0; letter-spacing:-0.02em; color:#dffcff; text-shadow:0 0 34px rgba(34,211,238,0.55), 0 0 74px rgba(34,211,238,0.25); }
+  .holo-title{ font-family:'Outfit', sans-serif; font-weight:700; font-size:clamp(22px,3.4vw,34px); color:#eafcff; margin:8px 0 2px; text-shadow:0 0 18px rgba(34,211,238,0.4); }
+  .holo-sub{ font-family:'JetBrains Mono', ui-monospace, monospace; font-size:12.5px; letter-spacing:0.14em; text-transform:uppercase; color:#67E8F9; margin:0 0 14px; }
+  .holo-desc{ font-family:'Quicksand', sans-serif; font-size:15.5px; line-height:1.65; color:#b9d3d8; margin:0 auto 16px; max-width:520px; }
+  .holo-panel .edu-tags{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+  .holo-panel .edu-tag{ border-color:rgba(103,232,249,0.4); background:rgba(34,211,238,0.08); color:#aef2ff; }
+  .holo-progress{ position:absolute; z-index:4; right:26px; top:50%; transform:translateY(-50%); width:4px; height:180px; border-radius:4px; background:rgba(103,232,249,0.16); cursor:pointer; pointer-events:auto; touch-action:none; }
+  .holo-progress::before{ content:''; position:absolute; inset:-14px -16px; }
+  .holo-progress-fill{ position:absolute; left:0; top:0; width:100%; height:0; border-radius:4px; background:linear-gradient(#22D3EE,#8af0ff); box-shadow:0 0 12px rgba(34,211,238,0.7); pointer-events:none; }
+  .holo-progress-knob{ position:absolute; left:50%; top:0; transform:translate(-50%,-50%); width:15px; height:15px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #d5fbff, #8af0ff 60%, #22D3EE); box-shadow:0 0 0 4px rgba(34,211,238,0.18), 0 0 14px rgba(34,211,238,0.85); cursor:grab; pointer-events:none; }
+  .holo-progress.is-grabbing{ cursor:grabbing; }
+  .holo-progress.is-grabbing .holo-progress-knob{ box-shadow:0 0 0 7px rgba(34,211,238,0.22), 0 0 16px rgba(34,211,238,0.95); }
+  .holo-hint{ position:absolute; z-index:3; bottom:26px; left:50%; font-family:'JetBrains Mono', ui-monospace, monospace; font-size:11px; letter-spacing:0.3em; text-transform:uppercase; color:#67E8F9; opacity:0.8; transition:opacity 0.4s ease; animation:holoBob 1.8s ease-in-out infinite; }
+  @keyframes holoBob{ 0%,100%{ transform:translate(-50%,0); } 50%{ transform:translate(-50%,6px); } }
   @media (max-width:820px){
-    .chess3d{ grid-template-columns:1fr; gap:20px; }
-    .chess3d-viewport{ max-height:340px; }
-    .chess3d-detail{ padding:22px 20px 24px; }
-    .c3-year{ font-size:40px; }
+    .holo-progress{ right:12px; height:110px; }
+    .holo-desc{ font-size:14px; }
   }
   @media (prefers-reduced-motion: reduce){
-    .chess3d-ring.is-burst{ animation:none; }
-    .chess3d-detail.is-in{ animation-duration:0.001s; }
+    .holo-scan{ animation:none; } .holo-hint{ animation:none; }
   }
 
   /* ---------- Achievement toasts ---------- */
@@ -2455,6 +2419,189 @@
     .project-visual{ display:none; }
     .project-title{ padding-right:0; }
   }
+
+  /* ---------- Projects: apple tree ---------- */
+  #projects .content-section-inner{
+    max-width:1900px;
+  }
+  .tree-scene{
+    position:relative;
+    max-width:1800px;
+    margin:0 auto 8px;
+    opacity:0;
+    transform:translateY(24px) scale(0.97);
+    transition:opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1);
+  }
+  .tree-scene.is-grown{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+  .tree-art{
+    width:100%;
+    height:auto;
+    display:block;
+    user-select:none;
+    -webkit-user-drag:none;
+    pointer-events:none;
+  }
+
+  .apple{
+    position:absolute;
+    width:48px; height:48px;
+    margin:-24px 0 0 -24px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    opacity:0;
+    transform:translateY(-14px) scale(0.4);
+    transition:opacity 0.5s cubic-bezier(.34,1.56,.64,1), transform 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .tree-scene.is-grown .apple{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+  .apple:nth-of-type(1){ transition-delay:0.35s; }
+  .apple:nth-of-type(2){ transition-delay:0.55s; }
+  .apple:nth-of-type(3){ transition-delay:0.75s; }
+  .apple:nth-of-type(4){ transition-delay:0.95s; }
+  .apple-body{
+    position:relative;
+    width:36px; height:36px;
+    border-radius:48% 52% 50% 50% / 55% 55% 45% 45%;
+    background:#D62E28;
+    box-shadow:0 8px 14px -6px rgba(0,0,0,0.5);
+    transition:transform 0.35s cubic-bezier(.34,1.56,.64,1), box-shadow 0.35s ease;
+  }
+  .apple-body::before{
+    content:"";
+    position:absolute;
+    top:-10px; left:50%;
+    width:3.5px; height:11px;
+    background:#6B4A2C;
+    border-radius:2px;
+    transform:translateX(-50%) rotate(-8deg);
+  }
+  .apple-body::after{
+    content:"";
+    position:absolute;
+    top:22%; left:22%;
+    width:32%; height:44%;
+    background:linear-gradient(160deg, rgba(255,255,255,0.75), rgba(255,255,255,0) 70%);
+    border-radius:50%;
+    transform:rotate(-20deg);
+  }
+  .apple:hover .apple-body, .apple:focus-visible .apple-body{
+    transform:scale(1.15) rotate(-4deg);
+  }
+  .apple.is-active .apple-body{
+    transform:scale(1.2);
+    box-shadow:0 0 0 4px rgba(74,222,128,0.45), 0 10px 18px -6px rgba(0,0,0,0.55);
+  }
+  .apple:focus-visible{ outline:none; }
+  .apple:focus-visible .apple-body{ box-shadow:0 0 0 3px #4ADE80, 0 8px 14px -6px rgba(0,0,0,0.5); }
+  .apple-label{
+    position:absolute;
+    bottom:calc(100% + 8px);
+    left:50%;
+    transform:translateX(-50%) translateY(4px);
+    white-space:nowrap;
+    background:var(--mist);
+    color:var(--paper);
+    font-family:'Quicksand', sans-serif;
+    font-weight:600;
+    font-size:12px;
+    padding:6px 12px;
+    border-radius:999px;
+    border:1px solid rgba(74,222,128,0.35);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.25s ease, transform 0.25s ease;
+    z-index:3;
+  }
+  .apple:hover .apple-label, .apple:focus-visible .apple-label{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+
+  .project-display{
+    position:relative;
+    max-width:560px;
+    margin:56px auto 0;
+  }
+  .project-display .project-card{
+    display:none;
+    width:100%;
+    max-width:none;
+    padding:76px 46px 52px;
+    border-radius:36px;
+    clip-path:url(#appleCardClip);
+    animation:appleCardIn 0.5s cubic-bezier(.16,1,.3,1);
+  }
+  .project-display .project-card.is-active{ display:block; }
+  .project-display::before{
+    content:"";
+    position:absolute;
+    top:-30px; left:50%;
+    width:56px; height:42px;
+    transform:translateX(-42%);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 46'%3E%3Cpath d='M28,46 C26,30 24,18 30,4' stroke='%233D2A16' stroke-width='7' stroke-linecap='round' fill='none'/%3E%3Cpath d='M30,10 C42,2 54,6 58,16 C46,20 34,18 30,10 Z' fill='%238BC34A' stroke='%232b1a0f' stroke-width='3'/%3E%3C/svg%3E");
+    background-size:contain;
+    background-repeat:no-repeat;
+    pointer-events:none;
+    z-index:2;
+  }
+  #projects .project-display .project-card{
+    border-color:rgba(229,57,47,0.32);
+    background:linear-gradient(165deg, rgba(229,57,47,0.12), rgba(20,10,10,0.55) 55%);
+  }
+  #projects .project-display .project-card::before{
+    background:radial-gradient(circle, rgba(229,57,47,0.22), transparent 65%);
+  }
+  #projects .project-display .project-card:hover{
+    border-color:rgba(255,122,99,0.55);
+    box-shadow:0 24px 48px -20px rgba(168,30,30,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  body.light-theme #projects .project-display .project-card{
+    border-color:rgba(168,30,30,0.28);
+    background:linear-gradient(165deg, rgba(229,57,47,0.14), rgba(255,255,255,0.85) 55%);
+  }
+  @keyframes appleCardIn{
+    from{ opacity:0; transform:translateY(14px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .project-dots{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-top:22px;
+  }
+  .project-dot{
+    width:9px; height:9px;
+    border-radius:50%;
+    background:rgba(74,222,128,0.25);
+    border:none;
+    cursor:pointer;
+    padding:0;
+    transition:background 0.3s ease, transform 0.3s ease;
+  }
+  .project-dot.is-active{
+    background:#4ADE80;
+    transform:scale(1.3);
+  }
+  @media (max-width:560px){
+    .apple{ width:28px; height:28px; margin:-14px 0 0 -14px; }
+    .apple-body{ width:21px; height:21px; }
+    .apple-label{ display:none; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .tree-scene, .apple, .apple-body{ transition:none; }
+    .tree-scene{ opacity:1; transform:none; }
+    .apple{ opacity:1; transform:none; }
+    .project-display .project-card{ animation:none; }
+  }
+
   .stats-inner{
     position:relative;
     z-index:1;
@@ -2886,7 +3033,7 @@
 <div class="music-widget" id="musicWidget">
   <div class="music-trigger">
     <div class="music-art" id="musicArt">
-      <img src="winneris.jpeg" alt="The Winner Is" style="width:100%;height:100%;object-fit:cover;">
+      <img src="assets/winneris.jpeg" alt="The Winner Is" style="width:100%;height:100%;object-fit:cover;">
     </div>
     <div class="music-info">
       <span class="music-track-name">The Winner Is</span>
@@ -2913,12 +3060,12 @@
   <div class="doodle-layer" aria-hidden="true">
     <svg class="doodle" style="top:6%; left:4%; width:70px; transform:rotate(-12deg);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="12" r="9"/><path d="M12 6.5 15.8 9.2 14.3 13.7H9.7L8.2 9.2Z"/><path d="M12 3v3.5M3.5 10l4.7-.8M4.5 17.5l5.2-3.8M19.5 17.5l-5.2-3.8M20.5 10l-4.7-.8"/></svg>
     <svg class="doodle" style="top:14%; right:8%; width:54px; transform:rotate(16deg);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M9 22h6M10 22v-4h4v4M8 18h8l1-6-2-1 .5-3-2-1-1 2-1-2-2 1 .5 3-2 1Z"/></svg>
-    <svg class="doodle" style="top:34%; left:2%; width:60px; transform:rotate(8deg);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M12 2c-1.7 0-3 1.6-3 3.6 0 1 .3 1.9.8 2.6C7.8 9.3 6.5 11.6 6 14.3c-.5 2.8-.3 5.4.4 6.7.3.6 1 1 1.7 1h7.8c.7 0 1.4-.4 1.7-1 .7-1.3.9-3.9.4-6.7-.5-2.7-1.8-5-3.8-6.1.5-.7.8-1.6.8-2.6C15 3.6 13.7 2 12 2Z"/><circle cx="10.6" cy="5.4" r="0.6"/><circle cx="13.4" cy="5.4" r="0.6"/></svg>
+    <div class="doodle doodle-tux" style="top:34%; left:2%; width:52px; transform:rotate(8deg);" aria-hidden="true"></div>
     <svg class="doodle" style="top:46%; right:4%; width:90px; transform:rotate(-18deg);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2Z"/></svg>
     <svg class="doodle" style="top:64%; left:9%; width:56px; transform:rotate(-6deg);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="12" r="9"/><path d="M12 6.5 15.8 9.2 14.3 13.7H9.7L8.2 9.2Z"/><path d="M12 3v3.5M3.5 10l4.7-.8M4.5 17.5l5.2-3.8M19.5 17.5l-5.2-3.8M20.5 10l-4.7-.8"/></svg>
     <svg class="doodle" style="top:72%; right:12%; width:64px; transform:rotate(22deg);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M9 22h6M10 22v-4h4v4M8 18h8l1-6-2-1 .5-3-2-1-1 2-1-2-2 1 .5 3-2 1Z"/></svg>
     <svg class="doodle" style="top:84%; left:5%; width:74px; transform:rotate(14deg);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2Z"/></svg>
-    <svg class="doodle" style="top:90%; right:6%; width:50px; transform:rotate(-10deg);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M12 2c-1.7 0-3 1.6-3 3.6 0 1 .3 1.9.8 2.6C7.8 9.3 6.5 11.6 6 14.3c-.5 2.8-.3 5.4.4 6.7.3.6 1 1 1.7 1h7.8c.7 0 1.4-.4 1.7-1 .7-1.3.9-3.9.4-6.7-.5-2.7-1.8-5-3.8-6.1.5-.7.8-1.6.8-2.6C15 3.6 13.7 2 12 2Z"/><circle cx="10.6" cy="5.4" r="0.6"/><circle cx="13.4" cy="5.4" r="0.6"/></svg>
+    <div class="doodle doodle-tux" style="top:90%; right:6%; width:44px; transform:rotate(-10deg);" aria-hidden="true"></div>
     <svg class="doodle" style="top:24%; left:20%; width:44px; transform:rotate(30deg);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="12" r="9"/><path d="M12 6.5 15.8 9.2 14.3 13.7H9.7L8.2 9.2Z"/></svg>
     <svg class="doodle" style="top:56%; left:38%; width:48px; transform:rotate(-24deg);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2Z"/></svg>
   </div>
@@ -2997,7 +3144,7 @@
             <span class="fact-tag">Where most of my ideas come to life.</span>
           </div>
           <div class="fact-card fc-linux">
-            <div class="fact-icon fi-4"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-1.7 0-3 1.6-3 3.6 0 1 .3 1.9.8 2.6C7.8 9.3 6.5 11.6 6 14.3c-.5 2.8-.3 5.4.4 6.7.3.6 1 1 1.7 1h7.8c.7 0 1.4-.4 1.7-1 .7-1.3.9-3.9.4-6.7-.5-2.7-1.8-5-3.8-6.1.5-.7.8-1.6.8-2.6C15 3.6 13.7 2 12 2Z"/><ellipse cx="12" cy="15.5" rx="3.2" ry="4.3" fill="var(--mist)"/><circle cx="10.6" cy="5.4" r="0.9" fill="var(--mist)"/><circle cx="13.4" cy="5.4" r="0.9" fill="var(--mist)"/><path d="M11.1 6.6h1.8l-.9 1.1z" fill="#F4A93B"/><path d="M7.5 17.5c-.9.3-1.6 1.1-1.7 2M16.5 17.5c.9.3 1.6 1.1 1.7 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" fill="none"/></svg></div>
+            <div class="fact-icon fi-4"><img class="tux-icon" src="assets/iinuxx.png" alt="Linux (Tux)"></div>
             <svg class="card-doodle" viewBox="0 0 200 400" preserveAspectRatio="none" aria-hidden="true"><path class="dz-blob dz-tr" d="M200 0h-92c-8 18 6 30 0 44-5 13 6 26 24 26 24 0 46-12 68-30V0Z"/><path class="dz-blob dz-bl" d="M0 400v-58c18-10 38-6 46 8 8 13 26 12 32 26 5 12-2 24-12 24H0Z"/><g class="dz-dot dz-br"><circle cx="152" cy="350" r="3"/><circle cx="165" cy="350" r="3"/><circle cx="178" cy="350" r="3"/><circle cx="152" cy="363" r="3"/><circle cx="165" cy="363" r="3"/><circle cx="178" cy="363" r="3"/><circle cx="152" cy="376" r="3"/><circle cx="165" cy="376" r="3"/><circle cx="178" cy="376" r="3"/></g><g class="dz-ic"><rect class="dz-icon" x="42" y="252" width="118" height="86" rx="10"/><path class="stroke-cut" d="M42 272h118"/><circle class="dz-cut" cx="55" cy="262" r="3"/><circle class="dz-cut" cx="66" cy="262" r="3"/><circle class="dz-cut" cx="77" cy="262" r="3"/><path class="stroke-cut" d="M59 292l15 11-15 11"/><path class="stroke-cut" d="M85 314h28"/></g></svg>
             <h4>Linux User</h4>
             <p>Daily Driver</p>
@@ -3128,33 +3275,543 @@
     <div class="section-head" data-reveal>
       <h2>Education</h2>
       <div class="divider"><span></span><i></i><span></span></div>
-      <p class="content-section-sub">Every stage promoted me to a stronger piece. Step through the set.</p>
+      <p class="content-section-sub">Keep scrolling &mdash; each year materializes as you go.</p>
     </div>
     <div class="content-section-body">
-      <div class="chess3d" id="eduChess">
+      <div class="holo" id="eduHolo">
+        <div class="holo-stage">
+          <canvas class="holo-canvas" id="holoCanvas"></canvas>
+          <div class="holo-scene" id="holoScene" data-i="0">
+          <svg class="ns-svg" viewBox="0 0 1700 950" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Holographic nursery classroom, 2012">
+            <defs>
+              <filter id="nsGlow" x="-6%" y="-6%" width="112%" height="112%">
+                <feGaussianBlur stdDeviation="1.5" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+              <style>
+                .ns{ fill:none; stroke:#57e2ff; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+                .ns-dim{ fill:none; stroke:#2f9fb8; stroke-width:1.1; stroke-linecap:round; stroke-linejoin:round; opacity:.6; }
+                .ns-b{ fill:none; stroke:#a6f3ff; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+                .ns-f{ fill:#57e2ff; stroke:none; }
+                .ns-fb{ fill:#a6f3ff; stroke:none; }
+                .ns-t{ fill:#8af0ff; font-family:'Baloo 2','Quicksand',cursive; }
+                .ns-hand{ fill:#c7f2fa; font-family:'Baloo 2','Quicksand',cursive; }
+                .ns-hud{ fill:#67E8F9; font-family:'JetBrains Mono',ui-monospace,monospace; letter-spacing:7px; }
+                .ns-year{ fill:#e6fdff; font-family:'Outfit','Baloo 2',sans-serif; font-weight:800; }
+              </style>
+            </defs>
 
-        <!-- 3D stage -->
-        <div class="chess3d-stage">
-          <div class="chess3d-viewport" id="chessViewport">
-            <canvas class="chess3d-canvas" id="chessCanvas"></canvas>
-            <div class="chess3d-ring" id="chessRing"></div>
+            <g filter="url(#nsGlow)">
+
+              <!-- ===== room shell ===== -->
+              <g class="ns-dim">
+                <path d="M0,0 L430,150 M1700,0 L1270,150 M430,150 L1270,150"/>
+                <path d="M0,950 L430,650 M1700,950 L1270,650 M430,650 L1270,650"/>
+                <path d="M430,150 L430,650 M1270,150 L1270,650"/>
+                <!-- ceiling depth lines -->
+                <path d="M150,50 L470,168 M1550,50 L1230,168 M300,110 L520,158 M1400,110 L1180,158" opacity=".4"/>
+                <!-- floor converging -->
+                <path d="M430,650 L0,950 M1270,650 L1700,950"/>
+                <path d="M560,650 L360,950 M740,650 L640,950 M960,650 L1060,950 M1140,650 L1340,950"/>
+                <path d="M470,700 L1230,700 M450,760 L1250,760 M425,835 L1275,835 M400,920 L1300,920"/>
+                <!-- faint wall grid -->
+                <path d="M540,150 L540,650 M650,150 L650,650 M1160,150 L1160,650 M1050,150 L1050,650" opacity=".3"/>
+                <path d="M430,270 L1270,270 M430,410 L1270,410 M430,540 L1270,540" opacity=".3"/>
+                <path d="M60,300 L60,760 M120,240 L120,820 M1580,240 L1580,820 M1640,300 L1640,760" opacity=".25"/>
+              </g>
+
+              <!-- scattered stars -->
+              <g class="ns-f" opacity=".9">
+                <circle cx="150" cy="70" r="2.4"/><circle cx="320" cy="40" r="1.6"/><circle cx="90" cy="200" r="1.8"/>
+                <circle cx="1550" cy="60" r="2.2"/><circle cx="1400" cy="120" r="1.6"/><circle cx="1640" cy="240" r="1.8"/>
+                <circle cx="60" cy="430" r="1.6"/><circle cx="1660" cy="470" r="1.6"/><circle cx="1180" cy="90" r="1.5"/>
+                <circle cx="520" cy="60" r="1.5"/><circle cx="980" cy="55" r="1.6"/><circle cx="1500" cy="330" r="1.6"/>
+                <circle cx="40" cy="620" r="1.6"/><circle cx="1665" cy="640" r="1.6"/>
+              </g>
+              <g class="ns" opacity=".8">
+                <path d="M250,110 l0,14 M243,117 l14,0"/>
+                <path d="M1330,180 l0,12 M1324,186 l12,0"/>
+                <path d="M120,320 l0,12 M114,326 l12,0"/>
+                <path d="M1470,540 l0,10 M1465,545 l10,0"/>
+              </g>
+
+              <!-- ===== pendant lamps ===== -->
+              <g class="ns">
+                <!-- left -->
+                <path d="M392,0 L392,150"/>
+                <path d="M318,198 Q392,150 466,198"/>
+                <path d="M318,198 L344,152 Q392,134 440,152 L466,198"/>
+                <path class="ns-dim" d="M340,182 Q392,164 444,182"/>
+                <path class="ns-b" d="M392,150 L392,170"/>
+                <ellipse class="ns-b" cx="392" cy="184" rx="12" ry="15"/>
+                <circle class="ns-fb" cx="392" cy="184" r="4"/>
+                <path class="ns-dim" d="M392,208 l0,18 M366,200 l-16,10 M418,200 l16,10 M376,214 l-8,10 M408,214 l8,10"/>
+                <!-- right -->
+                <path d="M1308,0 L1308,150"/>
+                <path d="M1234,198 Q1308,150 1382,198"/>
+                <path d="M1234,198 L1260,152 Q1308,134 1356,152 L1382,198"/>
+                <path class="ns-dim" d="M1256,182 Q1308,164 1360,182"/>
+                <path class="ns-b" d="M1308,150 L1308,170"/>
+                <ellipse class="ns-b" cx="1308" cy="184" rx="12" ry="15"/>
+                <circle class="ns-fb" cx="1308" cy="184" r="4"/>
+                <path class="ns-dim" d="M1308,208 l0,18 M1282,200 l-16,10 M1334,200 l16,10 M1292,214 l-8,10 M1324,214 l8,10"/>
+              </g>
+
+              <!-- ===== window + curtains (left) ===== -->
+              <g>
+                <!-- frame -->
+                <path class="ns" d="M64,244 L268,230 L268,584 L64,624 Z"/>
+                <path class="ns-dim" d="M80,260 L252,247 L252,568 L80,606 Z"/>
+                <!-- fixed pane back with mullions + outdoor scene -->
+                <path class="ns-dim" d="M168,253 L168,588 M80,410 L252,401"/>
+                <g class="ns-dim">
+                  <!-- hills + sun + cloud + trees -->
+                  <path d="M84,470 q42,-26 84,-8 q44,-22 84,-2"/>
+                  <circle cx="126" cy="300" r="15"/>
+                  <path d="M126,278 l0,-8 M104,300 l-8,0 M110,284 l-6,-6 M110,318 l-6,6"/>
+                  <path d="M196,296 q10,-14 24,-4 q14,-8 16,6 q10,2 4,12 l-48,0 q-6,-10 4,-14"/>
+                  <path d="M100,470 l0,-40 q-12,-2 -12,-16 q0,-14 12,-16 q12,2 12,16 q0,14 -12,16"/>
+                  <path d="M150,470 l0,-34 q-12,-2 -12,-16 q0,-14 12,-14 q12,0 12,14 q0,14 -12,16"/>
+                </g>
+                <!-- open casement swung outward (left) -->
+                <path class="ns" d="M64,244 L8,286 L8,596 L64,624"/>
+                <path class="ns-dim" d="M20,300 L52,278 M20,420 L52,404 M20,540 L52,528 M36,290 L36,566"/>
+                <!-- curtains both sides with folds + tiebacks -->
+                <path class="ns" d="M58,230 Q34,360 54,470 Q76,548 56,626 L100,616 Q82,520 96,428 Q82,336 100,240 Z"/>
+                <path class="ns-dim" d="M72,262 Q64,400 74,540 M84,256 Q78,400 86,556 M96,250 Q92,400 90,568"/>
+                <path class="ns" d="M274,224 Q300,346 282,458 Q266,548 284,610 L242,562 Q258,470 248,384 Q260,306 244,244 Z"/>
+                <path class="ns-dim" d="M258,258 Q266,400 258,548 M270,252 Q278,400 268,558"/>
+                <path class="ns-b" d="M98,392 Q80,404 96,420"/><path class="ns-b" d="M244,382 Q262,394 246,410"/>
+              </g>
+
+              <!-- ===== left wall doodles ===== -->
+              <g class="ns">
+                <circle cx="410" cy="300" r="20"/>
+                <path d="M410,270 l0,-12 M410,342 l0,12 M380,300 l-12,0 M440,300 l12,0 M389,279 l-9,-9 M431,279 l9,-9 M389,321 l-9,9 M431,321 l9,9"/>
+                <circle class="ns-dim" cx="404" cy="298" r="2"/><circle class="ns-dim" cx="416" cy="298" r="2"/><path class="ns-dim" d="M403,308 q7,6 14,0"/>
+                <path class="ns-b" d="M392,384 l6,-16 l6,16 l16,2 l-13,11 l5,17 l-14,-9 l-14,9 l5,-17 l-13,-11 z"/>
+                <path d="M438,438 q10,-14 20,-2 q10,-12 20,2 q4,14 -20,30 q-24,-16 -20,-30 z"/>
+                <path class="ns-f" d="M472,492 l3,-8 l3,8 l8,1 l-6,6 l2,8 l-7,-4 l-7,4 l2,-8 l-6,-6 z"/>
+              </g>
+
+              <!-- ===== clock + framed pictures (right wall) ===== -->
+              <g class="ns">
+                <circle cx="1236" cy="286" r="46"/>
+                <circle cx="1236" cy="286" r="53" class="ns-dim"/>
+                <g class="ns-dim">
+                  <path d="M1236,244 l0,9 M1236,319 l0,9 M1194,286 l9,0 M1269,286 l9,0"/>
+                  <path d="M1266,266 l6,-4 M1206,266 l-6,-4 M1266,306 l6,4 M1206,306 l-6,4"/>
+                </g>
+                <path class="ns-b" d="M1236,286 L1236,256 M1236,286 L1262,298"/>
+                <circle class="ns-fb" cx="1236" cy="286" r="3.4"/>
+                <!-- flower frame -->
+                <path d="M1392,266 L1470,262 L1474,404 L1392,408 Z"/>
+                <path d="M1400,274 L1466,271 L1469,398 L1400,401 Z" class="ns-dim"/>
+                <g class="ns-dim">
+                  <circle cx="1432" cy="318" r="8"/>
+                  <path d="M1432,300 q-13,3 -6,16 M1432,300 q13,3 6,16 M1416,324 q-3,13 14,9 M1448,324 q3,13 -14,9"/>
+                  <path d="M1432,334 l0,44 M1432,352 q-12,-6 -18,2 M1432,364 q12,-6 18,2"/>
+                  <path d="M1408,392 q24,-8 48,0"/>
+                </g>
+                <!-- giraffe frame -->
+                <path d="M1498,266 L1600,262 L1606,418 L1500,422 Z"/>
+                <path d="M1506,274 L1596,271 L1601,411 L1508,415 Z" class="ns-dim"/>
+                <g class="ns-dim">
+                  <path d="M1536,400 l3,-46 q-3,-16 12,-22 l4,-20"/>
+                  <path d="M1566,400 l-2,-40 q14,-6 12,-24 l-6,-20"/>
+                  <path d="M1555,292 q-9,-8 -3,-18 M1571,292 q9,-8 3,-18"/>
+                  <path d="M1552,288 q10,-6 22,0 l0,18 q-11,7 -22,0 z"/>
+                  <circle class="ns-fb" cx="1559" cy="300" r="1.8"/>
+                  <path d="M1546,346 l3,10 M1560,352 l3,9 M1570,344 l-2,10 M1552,372 l2,8"/>
+                </g>
+              </g>
+
+              <!-- ===== left cabinet + teddy + toys + ball ===== -->
+              <g class="ns">
+                <!-- cabinet body -->
+                <path d="M116,548 L410,548 L410,700 L116,706 Z"/>
+                <path d="M116,548 L150,520 L444,520 L410,548"/>
+                <path d="M410,548 L444,520 L444,672 L410,700" class="ns-dim"/>
+                <path d="M212,548 L212,703 M310,548 L310,701" class="ns-dim"/>
+                <path d="M124,700 l0,44 M402,700 l6,44 M212,701 l0,42 M310,701 l0,42" class="ns-dim"/>
+                <!-- cubby contents -->
+                <circle cx="164" cy="632" r="30" class="ns-dim"/>
+                <path d="M136,624 q28,-12 56,0 M150,606 q14,44 0,52" class="ns-dim"/>
+                <path d="M250,600 h44 v42 h-44 z M260,642 h44 v40 h-44 z" class="ns-dim"/>
+                <path d="M340,598 h52 v48 h-52 z M344,604 h44 M344,614 h44 M344,624 h44" class="ns-dim"/>
+                <!-- teddy on top -->
+                <g>
+                  <ellipse cx="228" cy="514" rx="34" ry="27"/>
+                  <circle cx="228" cy="468" r="26"/>
+                  <circle cx="207" cy="448" r="10"/><circle cx="249" cy="448" r="10"/>
+                  <circle cx="207" cy="448" r="4" class="ns-dim"/><circle cx="249" cy="448" r="4" class="ns-dim"/>
+                  <ellipse cx="228" cy="478" rx="12" ry="10" class="ns-dim"/>
+                  <circle class="ns-fb" cx="219" cy="464" r="2.6"/><circle class="ns-fb" cx="237" cy="464" r="2.6"/>
+                  <path class="ns-fb" d="M225,474 q3,3 6,0 z"/><path d="M222,482 q6,5 12,0"/>
+                  <path d="M197,500 q-15,8 -8,28 M259,500 q15,8 8,28"/>
+                  <ellipse cx="210" cy="540" rx="12" ry="9"/><ellipse cx="246" cy="540" rx="12" ry="9"/>
+                  <path d="M204,494 q24,10 48,0" class="ns-dim"/>
+                </g>
+                <!-- stacking rings toy -->
+                <g class="ns-dim">
+                  <path d="M366,516 l0,-40"/>
+                  <path d="M340,516 q26,-13 52,0 q-26,11 -52,0"/>
+                  <path d="M347,502 q19,-10 38,0 q-19,9 -38,0"/>
+                  <path d="M353,489 q13,-7 26,0 q-13,7 -26,0"/>
+                  <circle class="ns-fb" cx="366" cy="474" r="4"/>
+                </g>
+                <!-- beach ball -->
+                <circle cx="92" cy="668" r="58"/>
+                <path class="ns-dim" d="M92,610 q34,58 0,116 M92,610 q-34,58 0,116 M36,650 q56,20 112,0 M40,690 q52,16 104,0"/>
+                <circle class="ns-fb" cx="70" cy="646" r="4" opacity=".8"/>
+              </g>
+
+              <!-- ===== right bookshelf + globe + blocks + rocking horse ===== -->
+              <g class="ns">
+                <!-- bookshelf -->
+                <path d="M1188,566 L1360,562 L1362,700 L1188,704 Z"/>
+                <path d="M1188,566 L1214,542 L1386,538 L1360,562"/>
+                <path d="M1360,562 L1386,538 L1388,676 L1362,700" class="ns-dim"/>
+                <path d="M1190,634 L1361,631" class="ns-dim"/>
+                <g class="ns-dim">
+                  <path d="M1204,574 l0,52 M1216,573 l0,53 M1228,572 l4,54 M1246,571 l6,54 M1266,570 h32 v56 h-32 z"/>
+                  <path d="M1206,642 h40 v54 h-40 z M1258,641 l0,54 M1270,640 l0,55 M1284,639 l6,55 M1306,638 l0,56"/>
+                </g>
+                <!-- globe on stand -->
+                <g>
+                  <circle cx="1300" cy="498" r="40"/>
+                  <path class="ns-dim" d="M1300,458 q-24,40 0,80 M1300,458 q24,40 0,80 M1262,484 q38,16 76,0 M1262,512 q38,16 76,0"/>
+                  <path class="ns-dim" d="M1276,478 q8,-8 18,-4 q-4,10 -14,12 q-8,6 -4,-8 M1312,506 q10,-2 16,6 q-10,6 -18,-2"/>
+                  <path d="M1300,538 q22,6 22,-8 M1300,538 l0,18 M1284,556 h34"/>
+                </g>
+                <!-- ABC blocks -->
+                <g>
+                  <path d="M1058,606 L1112,606 L1112,660 L1058,660 Z"/>
+                  <path d="M1058,606 L1074,592 L1128,592 L1112,606"/>
+                  <path d="M1112,606 L1128,592 L1128,646 L1112,660" class="ns-dim"/>
+                  <path d="M1074,662 L1128,662 L1128,712 L1074,712 Z"/>
+                  <path d="M1074,662 L1090,648 L1144,648 L1128,662"/>
+                  <path d="M1128,662 L1144,648 L1144,698 L1128,712" class="ns-dim"/>
+                  <text class="ns-t" x="1071" y="646" font-size="30" font-weight="700">A</text>
+                  <text class="ns-t" x="1088" y="702" font-size="30" font-weight="700">B</text>
+                </g>
+                <!-- rocking horse -->
+                <g>
+                  <!-- rockers -->
+                  <path class="ns-b" d="M1430,748 Q1530,792 1632,742"/>
+                  <path class="ns-dim" d="M1438,738 Q1530,778 1624,732"/>
+                  <!-- body -->
+                  <path d="M1476,648 q18,-22 54,-20 q34,2 58,16 q14,10 8,26 q-8,20 -40,24 q-40,6 -72,-6 q-22,-10 -8,-40 z"/>
+                  <!-- neck + head -->
+                  <path d="M1486,644 q-10,-32 6,-52 q10,-14 30,-14"/>
+                  <path d="M1522,578 q22,-2 30,10 q8,10 -2,22 l-16,6"/>
+                  <path d="M1508,600 q-6,14 6,26"/>
+                  <!-- muzzle + ear + eye -->
+                  <path d="M1548,590 q16,-2 22,8 q-6,10 -20,8"/>
+                  <path d="M1520,576 q-4,-14 8,-18 q6,10 -2,20"/>
+                  <circle class="ns-fb" cx="1536" cy="596" r="2.4"/>
+                  <!-- mane -->
+                  <path class="ns-dim" d="M1512,566 l10,8 l-8,8 l12,8 l-8,8 l12,8"/>
+                  <!-- saddle -->
+                  <path d="M1516,632 q22,-12 46,-2 M1520,632 l-4,14 M1560,630 l6,14"/>
+                  <!-- legs -->
+                  <path d="M1500,676 l-8,58 M1524,682 l-4,54 M1566,680 l6,56 M1592,672 l14,52"/>
+                  <path d="M1492,734 l-14,8 M1520,736 l-14,6 M1572,736 l16,6 M1606,724 l16,6"/>
+                  <!-- tail -->
+                  <path d="M1596,650 q26,6 26,42 q-2,16 -14,22"/>
+                  <path class="ns-dim" d="M1602,656 q18,10 16,40 M1610,660 q12,10 10,34"/>
+                  <!-- handle post -->
+                  <path class="ns-dim" d="M1500,596 l0,-16 M1494,580 l12,0"/>
+                </g>
+              </g>
+
+              <!-- ===== chalkboard ===== -->
+              <g>
+                <path class="ns-b" d="M516,232 L1184,232 L1184,566 L516,566 Z"/>
+                <path class="ns-b" d="M528,244 L1172,244 L1172,554 L528,554 Z"/>
+                <path class="ns" d="M540,256 L1160,256 L1160,542 L540,542 Z"/>
+                <!-- tray + chalk + eraser -->
+                <path class="ns" d="M508,566 L1192,566 L1192,588 L508,588 Z"/>
+                <path class="ns-dim" d="M560,572 h64 v9 h-64 z M690,574 h30 v7 h-30 z M760,575 h40"/>
+
+                <!-- bunting -->
+                <path class="ns-dim" d="M556,286 Q660,300 764,286"/>
+                <g class="ns-dim">
+                  <path d="M566,289 l14,2 l-4,16 z"/><path d="M596,292 l14,1 l-5,16 z"/>
+                  <path d="M628,294 l14,0 l-6,16 z"/><path d="M662,294 l14,-1 l-6,16 z"/>
+                  <path d="M696,292 l14,-1 l-7,15 z"/><path d="M730,290 l14,-2 l-7,15 z"/>
+                </g>
+
+                <!-- title + text -->
+                <text class="ns-t" x="726" y="336" font-size="42" font-weight="700">Nursery</text>
+                <text class="ns-hand" x="662" y="384" font-size="21">Where the curiosity switched on &#8212;</text>
+                <text class="ns-hand" x="662" y="414" font-size="21">the kid who took things apart just to</text>
+                <text class="ns-hand" x="662" y="444" font-size="21">see how they clicked back together.</text>
+
+                <!-- doodles -->
+                <g class="ns-dim">
+                  <text class="ns-t" x="946" y="316" font-size="44" font-weight="700" opacity=".85">ABC</text>
+                  <path d="M978,346 q10,-16 26,-8 q16,-10 24,6 q14,0 8,14 l-64,0 q-6,-12 6,-12"/>
+                  <path d="M560,330 l5,-14 l5,14 l15,2 l-12,10 l4,15 l-12,-8 l-12,8 l4,-15 l-12,-10 z"/>
+                  <path d="M552,378 q8,-12 16,-2 q8,-10 16,2 q4,12 -16,26 q-20,-14 -16,-26 z"/>
+                  <g>
+                    <circle cx="578" cy="440" r="12"/>
+                    <path d="M578,452 l0,34 M560,466 l36,0 M578,486 l-14,26 M578,486 l14,26"/>
+                    <path d="M572,438 q6,6 12,0"/>
+                    <circle class="ns-fb" cx="574" cy="438" r="1.4"/><circle class="ns-fb" cx="582" cy="438" r="1.4"/>
+                  </g>
+                  <g>
+                    <circle cx="648" cy="486" r="7"/>
+                    <path d="M648,474 q-10,2 -4,12 M648,474 q10,2 4,12 M636,492 q-2,10 12,7 M660,492 q2,10 -12,7"/>
+                    <path d="M648,500 l0,20 M648,510 q-10,-4 -14,2 M648,514 q10,-4 14,2"/>
+                    <circle cx="686" cy="492" r="6"/>
+                    <path d="M686,482 q-8,2 -3,10 M686,482 q8,2 3,10 M676,497 q-2,8 10,6 M696,497 q2,8 -10,6"/>
+                    <path d="M686,504 l0,16"/>
+                  </g>
+                  <path d="M748,516 l40,-40 l14,14 l-40,40 z M748,516 l-8,22 l22,-8 M786,478 l14,14 M754,510 l26,26"/>
+                  <path d="M858,506 q-16,-4 -16,12 q0,18 16,20 q16,-2 16,-20 q0,-16 -16,-12 z"/>
+                  <path d="M858,506 l0,-8 q6,-6 12,-4"/>
+                  <path d="M918,504 l24,-20 l24,20 M924,500 l0,26 l36,0 l0,-26 M936,526 l0,-14 l12,0 l0,14"/>
+                  <path d="M1052,398 q-20,0 -20,22 q0,20 20,24 q20,-4 20,-24 q0,-22 -20,-22 z"/>
+                  <path d="M1052,444 l0,10 q-6,6 0,12 q6,-6 0,-12 M1052,466 q-8,16 6,34"/>
+                </g>
+              </g>
+
+              <!-- ===== desks + chairs ===== -->
+              <g class="ns">
+                <!-- teacher desk (center) with chair behind -->
+                <path class="ns-dim" d="M772,548 L872,548 L872,470 L772,470 Z M772,510 L872,510"/>
+                <path d="M700,566 L946,566 L982,712 L664,712 Z"/>
+                <path d="M700,566 L718,552 L964,552 L946,566"/>
+                <path d="M946,566 L964,552 L1000,698 L982,712" class="ns-dim"/>
+                <path d="M690,712 l14,66 M956,712 l14,66 M664,712 l-8,60 M982,712 l8,60" class="ns-dim"/>
+                <path d="M760,566 L760,712 M886,566 L886,712" class="ns-dim"/>
+                <path d="M742,560 h46 v-18 h-46 z M746,551 h38" class="ns-dim"/>
+                <ellipse cx="902" cy="556" rx="14" ry="7" class="ns-dim"/><path d="M888,556 l2,14 q12,7 24,0 l2,-14" class="ns-dim"/>
+                <!-- center-front desk + chair -->
+                <path class="ns-dim" d="M700,700 L706,614 L862,614 L858,700 M706,614 L706,582 M862,614 L862,582 M700,648 l160,0"/>
+                <path d="M604,706 L916,706 L960,792 L560,792 Z"/>
+                <path d="M604,706 L624,690 L936,690 L916,706"/>
+                <path d="M916,706 L936,690 L980,776 L960,792" class="ns-dim"/>
+                <path d="M584,792 l12,78 M936,792 l12,78 M560,792 l-6,70 M960,792 l6,70" class="ns-dim"/>
+                <path d="M700,700 q40,-12 90,-2" class="ns-dim"/>
+                <!-- left desk + chair -->
+                <path class="ns-dim" d="M300,690 L306,616 L410,614 L408,690 M306,616 L306,590 M410,614 L410,588 M302,650 l108,-1"/>
+                <path d="M232,700 L430,694 L452,792 L206,798 Z"/>
+                <path d="M232,700 L250,686 L448,680 L430,694"/>
+                <path d="M430,694 L448,680 L470,778 L452,792" class="ns-dim"/>
+                <path d="M214,798 l10,64 M448,792 l10,60 M206,798 l-6,58 M452,792 l6,56" class="ns-dim"/>
+                <path d="M262,686 h30 v-14 h-30 z" class="ns-dim"/>
+                <ellipse cx="362" cy="682" rx="16" ry="7" class="ns-dim"/>
+                <g class="ns-dim"><path d="M350,678 l2,-16 M358,678 l1,-16 M366,678 l0,-16 M374,678 l-1,-16"/></g>
+                <!-- right desk + chair -->
+                <path class="ns-dim" d="M1150,700 L1156,616 L1300,614 L1296,700 M1156,616 L1156,590 M1300,614 L1300,588 M1152,650 l148,-1"/>
+                <path d="M1078,700 L1360,694 L1392,798 L1052,804 Z"/>
+                <path d="M1078,700 L1098,684 L1380,678 L1360,694"/>
+                <path d="M1360,694 L1380,678 L1412,782 L1392,798" class="ns-dim"/>
+                <path d="M1060,804 l8,64 M1388,798 l8,60 M1052,804 l-6,58 M1392,798 l6,56" class="ns-dim"/>
+                <path d="M1120,690 h60 v18 h-60 z M1122,696 h56 M1122,702 h56" class="ns-dim"/>
+              </g>
+
+              <!-- ===== top HUD text ===== -->
+              <text class="ns-year" x="850" y="176" font-size="104" text-anchor="middle">2012</text>
+              <path class="ns-b" d="M826,196 L874,196"/>
+              <text class="ns-hud" x="852" y="224" font-size="15" text-anchor="middle">STAGE 01 / 05</text>
+
+            </g>
+          </svg>
           </div>
-          <div class="chess3d-caption">
-            <span class="chess3d-piece-name" id="pieceName">Pawn</span>
-            <span class="chess3d-piece-val" id="pieceVal">1 pt</span>
+          <div class="holo-scene" id="holoScene1" data-i="1">
+          <svg class="ns-svg" viewBox="0 0 1700 950" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Holographic neural brain, Java and OOP, 2020">
+            <defs>
+              <filter id="brGlow" x="-8%" y="-8%" width="116%" height="116%">
+                <feGaussianBlur stdDeviation="1.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+              <radialGradient id="brCore" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#d6fbff" stop-opacity="1"/><stop offset="45%" stop-color="#57e2ff" stop-opacity=".55"/><stop offset="100%" stop-color="#57e2ff" stop-opacity="0"/>
+              </radialGradient>
+              <style>
+                .b1{ fill:none; stroke:#57e2ff; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+                .bd{ fill:none; stroke:#2f9fb8; stroke-width:1; stroke-linecap:round; stroke-linejoin:round; opacity:.55; }
+                .bb{ fill:none; stroke:#a6f3ff; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+                .bf{ fill:#57e2ff; stroke:none; } .bfb{ fill:#bff4ff; stroke:none; }
+                .bt{ fill:#8af0ff; font-family:'Outfit','Baloo 2',sans-serif; }
+                .btl{ fill:#d6fbff; font-family:'Outfit',sans-serif; font-weight:700; }
+                .bde{ fill:#7fbfd0; font-family:'Quicksand',sans-serif; }
+                .bhud{ fill:#67E8F9; font-family:'JetBrains Mono',ui-monospace,monospace; letter-spacing:8px; }
+                .byear{ fill:#e6fdff; font-family:'Outfit',sans-serif; font-weight:800; }
+                .bquote{ fill:#8fd7e6; font-family:'Quicksand',sans-serif; font-style:italic; }
+              </style>
+            </defs>
+            <g filter="url(#brGlow)">
+              <g class="bf" opacity=".85"><circle cx="663" cy="154" r="2.2"/><circle cx="1333" cy="49" r="1.2"/><circle cx="1681" cy="548" r="1.2"/><circle cx="118" cy="931" r="1.5"/><circle cx="76" cy="88" r="2.2"/><circle cx="856" cy="71" r="1.5"/><circle cx="185" cy="564" r="2.2"/><circle cx="121" cy="846" r="1.2"/><circle cx="457" cy="645" r="1.2"/><circle cx="1181" cy="599" r="2.2"/><circle cx="101" cy="226" r="1.2"/><circle cx="1140" cy="879" r="1.5"/><circle cx="295" cy="553" r="1.2"/><circle cx="1169" cy="315" r="1.5"/><circle cx="211" cy="595" r="1.5"/><circle cx="762" cy="99" r="1.2"/><circle cx="1155" cy="61" r="1.5"/><circle cx="1016" cy="696" r="2.2"/><circle cx="1591" cy="321" r="2.2"/><circle cx="1199" cy="945" r="2.2"/><circle cx="508" cy="813" r="1.5"/><circle cx="1431" cy="798" r="1.5"/><circle cx="167" cy="588" r="1.8"/><circle cx="703" cy="746" r="2.2"/><circle cx="589" cy="623" r="1.2"/><circle cx="241" cy="524" r="2.2"/><circle cx="337" cy="775" r="1.8"/><circle cx="311" cy="500" r="2.2"/><circle cx="80" cy="684" r="1.2"/><circle cx="1565" cy="571" r="1.8"/><circle cx="696" cy="711" r="1.8"/><circle cx="1217" cy="508" r="2.2"/><circle cx="140" cy="860" r="1.2"/><circle cx="552" cy="485" r="1.2"/><circle cx="124" cy="748" r="1.8"/><circle cx="1325" cy="591" r="2.2"/><circle cx="582" cy="733" r="2.2"/><circle cx="1369" cy="355" r="1.2"/><circle cx="344" cy="625" r="1.2"/><circle cx="1011" cy="60" r="1.5"/><circle cx="1573" cy="294" r="1.5"/></g>
+              <g class="bd" opacity=".4"><path d="M0,950 L262,720"/><path d="M120,950 L295,720"/><path d="M240,950 L329,720"/><path d="M360,950 L362,720"/><path d="M480,950 L396,720"/><path d="M600,950 L430,720"/><path d="M720,950 L463,720"/><path d="M840,950 L497,720"/><path d="M960,950 L530,720"/><path d="M1080,950 L564,720"/><path d="M1200,950 L598,720"/><path d="M1320,950 L631,720"/><path d="M1440,950 L665,720"/><path d="M1560,950 L698,720"/><path d="M1680,950 L732,720"/><path d="M0,760 L1700,760"/><path d="M0,810 L1700,810"/><path d="M0,870 L1700,870"/><path d="M0,930 L1700,930"/></g>
+              <g>
+                <ellipse cx="850" cy="700" rx="220" ry="46" class="bd"/>
+                <ellipse cx="850" cy="700" rx="190" ry="40" class="b1"/>
+                <ellipse cx="850" cy="700" rx="150" ry="32" class="bd"/>
+                <ellipse cx="850" cy="700" rx="112" ry="24" class="b1"/>
+                <ellipse cx="850" cy="700" rx="74" ry="16" class="bd"/>
+                <ellipse cx="850" cy="700" rx="40" ry="9" class="bb"/>
+                <ellipse cx="850" cy="700" rx="150" ry="150" fill="url(#brCore)" opacity=".5"/>
+                <circle cx="850" cy="700" r="6" class="bfb"/>
+                <g class="bd" opacity=".5"><path d="M850,700 L720,600"/><path d="M850,700 L780,600"/><path d="M850,700 L850,600"/><path d="M850,700 L920,600"/><path d="M850,700 L980,600"/></g>
+                <g class="b1" opacity=".7"><path d="M850,690 L850,600 M818,694 L828,606 M882,694 L872,606"/></g>
+              </g>
+              <g>
+                <path class="b1" d="M600,470 C558,432 566,360 620,336 C640,298 706,276 764,288 C808,252 902,252 958,288 C1012,274 1088,302 1106,362 C1152,394 1150,470 1104,506 C1112,548 1070,586 1016,576 C1006,600 968,612 938,596 C902,616 852,606 838,578 C800,600 748,592 736,562 C700,580 654,566 648,532 C606,540 574,506 600,470 Z"/>
+                <g class="bd">
+                  <path d="M846,290 C838,360 860,430 846,540"/>
+                  <path d="M636,360 C680,340 700,378 660,392 C700,404 690,440 650,436"/>
+                  <path d="M700,330 C740,318 756,352 720,366 C756,378 748,412 712,410"/>
+                  <path d="M792,306 C832,300 846,332 812,346 C846,356 840,392 802,392"/>
+                  <path d="M902,306 C942,300 956,334 920,348 C956,358 950,392 912,392"/>
+                  <path d="M1000,330 C1040,322 1054,356 1018,370 C1052,382 1044,414 1008,410"/>
+                  <path d="M1060,378 C1096,372 1104,404 1072,418 C1102,430 1092,458 1060,452"/>
+                  <path d="M660,462 C700,452 714,484 680,498 C712,510 702,540 668,532"/>
+                  <path d="M760,470 C800,462 814,494 780,508 C812,520 802,548 768,540"/>
+                  <path d="M900,466 C940,458 956,490 920,504 C954,516 944,546 908,538"/>
+                  <path d="M1000,460 C1040,452 1054,484 1018,498"/>
+                </g>
+                <path class="bd" d="M956,556 c34,-6 58,14 54,42 c-2,20 -30,30 -54,24 M968,566 q22,6 30,26 M968,588 q20,2 34,14"/>
+                <path class="b1" d="M868,592 c-6,26 -8,54 -18,78 M900,596 c4,26 6,52 20,74 M876,640 q22,10 40,0"/>
+                <g class="bd" opacity=".55">
+                  <path d="M662,300 L612,384"/>        <path d="M662,300 L620,360"/>        <path d="M662,300 L700,320"/>        <path d="M612,384 L620,360"/>        <path d="M612,384 L602,470"/>        <path d="M612,384 L650,420"/>        <path d="M650,470 L682,502"/>        <path d="M650,470 L602,470"/>        <path d="M650,470 L650,420"/>        <path d="M650,470 L722,462"/>        <path d="M712,556 L760,542"/>        <path d="M712,556 L682,502"/>        <path d="M712,556 L722,462"/>        <path d="M1050,300 L1090,392"/>        <path d="M1050,300 L1002,330"/>        <path d="M1050,300 L1064,362"/>        <path d="M1090,392 L1064,362"/>        <path d="M1090,392 L1102,424"/>        <path d="M1090,392 L1022,424"/>        <path d="M1060,480 L1102,424"/>        <path d="M1060,480 L1082,472"/>        <path d="M1060,480 L1022,542"/>        <path d="M1060,480 L1022,424"/>        <path d="M1060,480 L1000,470"/>        <path d="M848,318 L842,290"/>        <path d="M848,318 L902,312"/>        <path d="M848,318 L802,362"/>        <path d="M930,430 L882,382"/>        <path d="M930,430 L962,382"/>        <path d="M930,430 L942,482"/>        <path d="M930,430 L980,430"/>        <path d="M930,430 L880,470"/>        <path d="M930,430 L940,420"/>        <path d="M790,420 L802,362"/>        <path d="M790,420 L760,360"/>        <path d="M790,420 L820,420"/>        <path d="M978,506 L1022,542"/>        <path d="M978,506 L942,562"/>        <path d="M978,506 L942,482"/>        <path d="M978,506 L1000,470"/>        <path d="M858,540 L862,544"/>        <path d="M858,540 L822,482"/>        <path d="M858,540 L880,470"/>        <path d="M620,360 L650,420"/>        <path d="M700,320 L760,300"/>        <path d="M700,320 L722,382"/>        <path d="M760,300 L802,362"/>        <path d="M760,300 L760,360"/>        <path d="M842,290 L902,312"/>        <path d="M842,290 L802,362"/>        <path d="M902,312 L900,360"/>        <path d="M1002,330 L1064,362"/>        <path d="M1002,330 L962,382"/>        <path d="M1102,424 L1082,472"/>        <path d="M1082,472 L1022,424"/>        <path d="M1022,542 L1000,470"/>        <path d="M942,562 L862,544"/>        <path d="M942,562 L942,482"/>        <path d="M862,544 L822,482"/>        <path d="M862,544 L880,470"/>        <path d="M760,542 L682,502"/>        <path d="M760,542 L822,482"/>        <path d="M682,502 L602,470"/>        <path d="M682,502 L722,462"/>        <path d="M602,470 L650,420"/>        <path d="M650,420 L700,430"/>        <path d="M722,382 L760,360"/>        <path d="M722,382 L700,430"/>        <path d="M802,362 L760,360"/>        <path d="M802,362 L820,420"/>        <path d="M882,382 L900,360"/>        <path d="M882,382 L940,420"/>        <path d="M962,382 L900,360"/>        <path d="M962,382 L980,430"/>        <path d="M962,382 L940,420"/>        <path d="M1022,424 L980,430"/>        <path d="M1022,424 L1000,470"/>        <path d="M942,482 L880,470"/>        <path d="M942,482 L1000,470"/>        <path d="M822,482 L820,420"/>        <path d="M822,482 L880,470"/>        <path d="M722,462 L700,430"/>        <path d="M980,430 L940,420"/>        <path d="M980,430 L1000,470"/>
+                </g>
+                <g class="bf"><circle cx="620" cy="360" r="1.8"/><circle cx="700" cy="320" r="1.8"/><circle cx="760" cy="300" r="1.8"/><circle cx="842" cy="290" r="1.8"/><circle cx="902" cy="312" r="1.8"/><circle cx="1002" cy="330" r="1.8"/><circle cx="1064" cy="362" r="1.8"/><circle cx="1102" cy="424" r="1.8"/><circle cx="1082" cy="472" r="1.8"/><circle cx="1022" cy="542" r="1.8"/><circle cx="942" cy="562" r="1.8"/><circle cx="862" cy="544" r="1.8"/><circle cx="760" cy="542" r="1.8"/><circle cx="682" cy="502" r="1.8"/><circle cx="602" cy="470" r="1.8"/><circle cx="650" cy="420" r="1.8"/><circle cx="722" cy="382" r="1.8"/><circle cx="802" cy="362" r="1.8"/><circle cx="882" cy="382" r="1.8"/><circle cx="962" cy="382" r="1.8"/><circle cx="1022" cy="424" r="1.8"/><circle cx="942" cy="482" r="1.8"/><circle cx="822" cy="482" r="1.8"/><circle cx="722" cy="462" r="1.8"/><circle cx="760" cy="360" r="1.8"/><circle cx="900" cy="360" r="1.8"/><circle cx="980" cy="430" r="1.8"/><circle cx="700" cy="430" r="1.8"/><circle cx="820" cy="420" r="1.8"/><circle cx="880" cy="470" r="1.8"/><circle cx="940" cy="420" r="1.8"/><circle cx="1000" cy="470" r="1.8"/></g>
+                <g class="bfb"><circle cx="790" cy="420" r="3.6"/><circle cx="612" cy="384" r="3.6"/><circle cx="1060" cy="480" r="3.6"/><circle cx="1050" cy="300" r="3.6"/><circle cx="712" cy="556" r="3.6"/><circle cx="650" cy="470" r="3.6"/><circle cx="662" cy="300" r="3.6"/><circle cx="1090" cy="392" r="3.6"/><circle cx="848" cy="318" r="3.6"/><circle cx="930" cy="430" r="3.6"/><circle cx="858" cy="540" r="3.6"/><circle cx="978" cy="506" r="3.6"/></g>
+              </g>
+              <g>
+                <path class="bd" d="M176,300 L419,300 L662,300"/>
+                <circle cx="176" cy="300" r="3" class="bf"/>
+                <circle class="b1" cx="150" cy="300" r="24"/>
+                <path class="b1" d="M141,297 L155,297 L155,311 L141,311 Z M141,297 L148,290 L162,290 L155,297 M155,297 L162,290 L162,304 L155,311"/>
+                <text class="btl" x="188" y="294" font-size="20" text-anchor="start">VARIABLES</text>
+                <text class="bde" x="188" y="312" font-size="13" text-anchor="start">Containers that store</text>
+                <text class="bde" x="188" y="328" font-size="13" text-anchor="start">data for use.</text>
+                <path class="bd" d="M138,392 L375,392 L612,384"/>
+                <circle cx="138" cy="392" r="3" class="bf"/>
+                <circle class="b1" cx="112" cy="392" r="24"/>
+                <path class="b1" d="M108,384 L100,392 L108,400 M116,384 L124,392 L116,400 M114,383 L110,401"/>
+                <text class="btl" x="150" y="386" font-size="20" text-anchor="start">METHODS</text>
+                <text class="bde" x="150" y="404" font-size="13" text-anchor="start">Actions that define</text>
+                <text class="bde" x="150" y="420" font-size="13" text-anchor="start">what an object can do.</text>
+                <path class="bd" d="M154,505 L402,505 L650,470"/>
+                <circle cx="154" cy="505" r="3" class="bf"/>
+                <circle class="b1" cx="128" cy="505" r="24"/>
+                <path class="b1" d="M119,502 L133,502 L133,516 L119,516 Z M119,502 L126,495 L140,495 L133,502 M133,502 L140,495 L140,509 L133,516"/>
+                <text class="btl" x="166" y="499" font-size="20" text-anchor="start">OBJECTS</text>
+                <text class="bde" x="166" y="517" font-size="13" text-anchor="start">Instances of classes —</text>
+                <text class="bde" x="166" y="533" font-size="13" text-anchor="start">real-world entities.</text>
+                <path class="bd" d="M288,628 L500,628 L712,556"/>
+                <circle cx="288" cy="628" r="3" class="bf"/>
+                <circle class="b1" cx="262" cy="628" r="24"/>
+                <g class="b1"><rect x="251" y="617" width="6" height="6" rx="1"/><rect x="251" y="625" width="6" height="6" rx="1"/><rect x="251" y="633" width="6" height="6" rx="1"/><rect x="259" y="617" width="6" height="6" rx="1"/><rect x="259" y="625" width="6" height="6" rx="1"/><rect x="259" y="633" width="6" height="6" rx="1"/><rect x="267" y="617" width="6" height="6" rx="1"/><rect x="267" y="625" width="6" height="6" rx="1"/><rect x="267" y="633" width="6" height="6" rx="1"/></g>
+                <text class="btl" x="300" y="622" font-size="20" text-anchor="start">ARRAYS</text>
+                <text class="bde" x="300" y="640" font-size="13" text-anchor="start">Collections of</text>
+                <text class="bde" x="300" y="656" font-size="13" text-anchor="start">similar elements.</text>
+                <path class="bd" d="M1526,300 L1288,300 L1050,300"/>
+                <circle cx="1526" cy="300" r="3" class="bf"/>
+                <circle class="b1" cx="1552" cy="300" r="24"/>
+                <g class="b1"><rect x="1541" y="299" width="15" height="15" rx="2"/><rect x="1546" y="294" width="15" height="15" rx="2"/><rect x="1551" y="289" width="15" height="15" rx="2"/></g>
+                <text class="btl" x="1514" y="294" font-size="20" text-anchor="end">CLASSES</text>
+                <text class="bde" x="1514" y="312" font-size="13" text-anchor="end">Blueprints for</text>
+                <text class="bde" x="1514" y="328" font-size="13" text-anchor="end">creating objects.</text>
+                <path class="bd" d="M1558,400 L1324,400 L1090,392"/>
+                <circle cx="1558" cy="400" r="3" class="bf"/>
+                <circle class="b1" cx="1584" cy="400" r="24"/>
+                <g class="b1"><circle cx="1584" cy="400" r="3.2"/><circle cx="1584" cy="388" r="2.4"/><path d="M1584,400 L1584,388"/><circle cx="1595" cy="396" r="2.4"/><path d="M1584,400 L1595,396"/><circle cx="1592" cy="410" r="2.4"/><path d="M1584,400 L1592,410"/><circle cx="1576" cy="410" r="2.4"/><path d="M1584,400 L1576,410"/><circle cx="1573" cy="396" r="2.4"/><path d="M1584,400 L1573,396"/></g>
+                <text class="btl" x="1546" y="394" font-size="20" text-anchor="end">INTERFACES</text>
+                <text class="bde" x="1546" y="412" font-size="13" text-anchor="end">Contracts that define</text>
+                <text class="bde" x="1546" y="428" font-size="13" text-anchor="end">a capability.</text>
+                <path class="bd" d="M1530,512 L1295,512 L1060,480"/>
+                <circle cx="1530" cy="512" r="3" class="bf"/>
+                <circle class="b1" cx="1556" cy="512" r="24"/>
+                <g class="b1"><path d="M1563,503 A 12 12 0 1 1 1554,500"/><path d="M1562,501 l7,-3 l-1,8 z" class="bf"/></g>
+                <text class="btl" x="1518" y="506" font-size="20" text-anchor="end">LOOPS</text>
+                <text class="bde" x="1518" y="524" font-size="13" text-anchor="end">Repeat actions,</text>
+                <text class="bde" x="1518" y="540" font-size="13" text-anchor="end">automate logic.</text>
+              </g>
+              <g class="b1" opacity=".9">
+                <path d="M40,700 L150,676 L196,716 L86,744 Z"/>
+                <path d="M52,706 L150,686 L186,716 L74,738 Z" class="bd"/>
+                <path d="M86,744 L196,716 L214,730 L60,760 Z"/>
+                <path d="M60,760 L214,730" class="bd"/>
+              </g>
+              <g class="b1" opacity=".9">
+                <path d="M628,742 q-6,-14 6,-22 M648,738 q-8,-16 4,-26 M668,742 q-6,-14 6,-22" class="bd"/>
+                <path d="M604,758 h84 v56 a42,16 0 0 1 -84,0 z"/>
+                <path d="M604,770 a42,14 0 0 0 84,0" class="bd"/>
+                <path d="M688,772 q30,-2 30,20 q0,20 -30,20"/>
+                <path class="bf" d="M636,792 l-8,6 l8,6 M656,792 l8,6 l-8,6 M650,788 l-6,20"/>
+              </g>
+              <g opacity=".9">
+                <path class="b1" d="M744,806 L906,786 L906,764 L744,784 Z"/>
+                <path class="b1" d="M752,832 L898,812 L898,790 L752,810 Z"/>
+                <path class="b1" d="M760,858 L890,840 L890,818 L760,836 Z"/>
+                <text class="bde" x="772" y="780" font-size="12" transform="rotate(-7 772 780)">JAVA</text>
+                <text class="bde" x="772" y="806" font-size="11" transform="rotate(-7 772 806)">DATA STRUCTURES</text>
+                <text class="bde" x="772" y="832" font-size="11" transform="rotate(-7 772 832)">ALGORITHMS</text>
+              </g>
+              <text class="bhud" x="852" y="58" font-size="16" text-anchor="middle">STAGE 02 / 05</text>
+              <text class="byear" x="850" y="150" font-size="98" text-anchor="middle">2020</text>
+              <text class="bt" x="850" y="196" font-size="32" font-weight="700" text-anchor="middle">Learned Java &amp; OOP</text>
+              <g class="bb" opacity=".8"><path d="M556,222 l-10,0 l0,34 l10,0 M1144,222 l10,0 l0,34 l-10,0"/></g>
+              <text class="bde" x="850" y="236" font-size="15" text-anchor="middle">The year I learned to think in Objects and</text>
+              <text class="bde" x="850" y="256" font-size="15" text-anchor="middle">started building logic that could shape anything.</text>
+              <text class="bquote" x="850" y="884" font-size="19" text-anchor="middle">"It wasn't just code,</text>
+              <text class="bquote" x="850" y="910" font-size="19" text-anchor="middle">it was the beginning of a new way of thinking."</text>
+            </g>
+          </svg>
           </div>
-          <div class="chess3d-nav">
-            <button type="button" class="chess3d-arrow" id="chessPrev" aria-label="Previous piece">&#8249;</button>
-            <div class="chess3d-dots" id="chessDots"></div>
-            <button type="button" class="chess3d-arrow" id="chessNext" aria-label="Next piece">&#8250;</button>
+          <div class="holo-scan" aria-hidden="true"></div>
+          <div class="holo-vignette" aria-hidden="true"></div>
+
+          <div class="holo-hud" id="holoHud">
+            <div class="holo-panel" data-i="0">
+              <span class="holo-stage-no">Stage 01 / 05</span>
+              <p class="holo-year">2012</p>
+              <h3 class="holo-title">Nursery</h3>
+              <p class="holo-sub">Vivekananda Mission School</p>
+              <p class="holo-desc">Where the curiosity switched on &mdash; the kid who took things apart just to see how they clicked back together.</p>
+            </div>
+            <div class="holo-panel" data-i="1">
+              <span class="holo-stage-no">Stage 02 / 05</span>
+              <p class="holo-year">2020</p>
+              <h3 class="holo-title">Java &amp; OOP</h3>
+              <p class="holo-sub">Class 8 &middot; first real language</p>
+              <p class="holo-desc">Met Java at thirteen. Stopped only playing games and quietly started building them instead.</p>
+              <div class="edu-tags"><span class="edu-tag">Java</span><span class="edu-tag">OOP</span></div>
+            </div>
+            <div class="holo-panel" data-i="2">
+              <span class="holo-stage-no">Stage 03 / 05</span>
+              <p class="holo-year">2025</p>
+              <h3 class="holo-title">Graduated ICSE</h3>
+              <p class="holo-sub">Class X</p>
+              <p class="holo-desc">Started shipping real software &mdash; Tic Tac Toe first, then Scaccomatto, a full chess app.</p>
+              <div class="edu-tags"><span class="edu-tag">ICSE</span></div>
+            </div>
+            <div class="holo-panel" data-i="3">
+              <span class="holo-stage-no">Stage 04 / 05 &middot; now</span>
+              <p class="holo-year">2027</p>
+              <h3 class="holo-title">ISC</h3>
+              <p class="holo-sub">Class XI &ndash; XII</p>
+              <p class="holo-desc">Two educations at once: ISC on paper, plus modern web, Linux as a daily driver, and Alekhine Studios.</p>
+              <div class="edu-tags"><span class="edu-tag">JavaScript</span><span class="edu-tag">Linux</span></div>
+            </div>
+            <div class="holo-panel" data-i="4">
+              <span class="holo-stage-no">Stage 05 / 05 &middot; the goal</span>
+              <p class="holo-year">2028</p>
+              <h3 class="holo-title">ITMO University</h3>
+              <p class="holo-sub">Computer Science &middot; Cybersecurity</p>
+              <p class="holo-desc">The target: CS at ITMO &mdash; cybersecurity, competitive programming, and hackathons across borders.</p>
+              <div class="edu-tags"><span class="edu-tag">Cybersecurity</span><span class="edu-tag">Competitive Programming</span></div>
+            </div>
           </div>
+
+          <div class="holo-progress" aria-hidden="true"><span class="holo-progress-fill" id="holoProgress"></span></div>
+          <div class="holo-hint" id="holoHint">scroll &darr;</div>
         </div>
-
-        <!-- milestone detail -->
-        <div class="chess3d-panel">
-          <article class="chess3d-detail" id="chessDetail" aria-live="polite"></article>
-        </div>
-
       </div>
     </div>
   </div>
@@ -3169,9 +3826,38 @@
       <p class="content-section-sub">Ideas turned into working software.</p>
     </div>
     <div class="content-section-body">
-      <div class="project-grid">
+      <div class="tree-scene" id="treeScene">
+        <img class="tree-art" src="assets/tree.png" alt="" aria-hidden="true">
 
-        <div class="project-card" data-reveal>
+        <div class="apple is-active" data-project="0" style="left:30%; top:43.7%;" tabindex="0" role="button" aria-label="Show project: Scaccomatto Chess App">
+          <span class="apple-body"></span>
+          <span class="apple-label">Scaccomatto Chess App</span>
+        </div>
+        <div class="apple" data-project="1" style="left:50%; top:29.8%;" tabindex="0" role="button" aria-label="Show project: API Optimization Suite">
+          <span class="apple-body"></span>
+          <span class="apple-label">API Optimization Suite</span>
+        </div>
+        <div class="apple" data-project="2" style="left:70%; top:43.7%;" tabindex="0" role="button" aria-label="Show project: Motion-Driven Portfolio">
+          <span class="apple-body"></span>
+          <span class="apple-label">Motion-Driven Portfolio</span>
+        </div>
+        <div class="apple" data-project="3" style="left:56.7%; top:55.7%;" tabindex="0" role="button" aria-label="Show project: Linux Dev Toolkit">
+          <span class="apple-body"></span>
+          <span class="apple-label">Linux Dev Toolkit</span>
+        </div>
+      </div>
+
+      <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+          <clipPath id="appleCardClip" clipPathUnits="objectBoundingBox">
+            <path d="M0.5,0.045 C0.42,0.005 0.34,0.0 0.26,0.015 C0.1,0.045 0.0,0.16 0.0,0.32 L0.0,0.68 C0.0,0.84 0.08,0.955 0.22,0.985 C0.32,1.0 0.4,0.995 0.46,0.985 C0.5,0.978 0.5,0.978 0.54,0.985 C0.6,0.995 0.68,1.0 0.78,0.985 C0.92,0.955 1.0,0.84 1.0,0.68 L1.0,0.32 C1.0,0.16 0.9,0.045 0.74,0.015 C0.66,0.0 0.58,0.005 0.5,0.045 Z"/>
+          </clipPath>
+        </defs>
+      </svg>
+
+      <div class="project-display" id="projectDisplay">
+
+        <div class="project-card is-active" data-project-index="0">
           <div class="project-info">
             <h3 class="project-title">Scaccomatto Chess App</h3>
             <ul class="project-bullets">
@@ -3201,7 +3887,7 @@
           </div>
         </div>
 
-        <div class="project-card" data-reveal>
+        <div class="project-card" data-project-index="1">
           <div class="project-info">
             <h3 class="project-title">API Optimization Suite</h3>
             <ul class="project-bullets">
@@ -3232,7 +3918,7 @@
           </div>
         </div>
 
-        <div class="project-card" data-reveal>
+        <div class="project-card" data-project-index="2">
           <div class="project-info">
             <h3 class="project-title">Motion-Driven Portfolio</h3>
             <ul class="project-bullets">
@@ -3263,7 +3949,7 @@
           </div>
         </div>
 
-        <div class="project-card" data-reveal>
+        <div class="project-card" data-project-index="3">
           <div class="project-info">
             <h3 class="project-title">Linux Dev Toolkit</h3>
             <ul class="project-bullets">
@@ -3293,6 +3979,12 @@
           </div>
         </div>
 
+        <div class="project-dots" id="projectDots" aria-hidden="true">
+          <button class="project-dot is-active" data-project="0" aria-label="Project 1"></button>
+          <button class="project-dot" data-project="1" aria-label="Project 2"></button>
+          <button class="project-dot" data-project="2" aria-label="Project 3"></button>
+          <button class="project-dot" data-project="3" aria-label="Project 4"></button>
+        </div>
       </div>
     </div>
   </div>
@@ -4345,175 +5037,199 @@
   }, { threshold: 0.35 });
   if(timelineWrap) statsObserver.observe(timelineWrap);
 
-  /* ---------- Education: 3D chess promotion ---------- */
+  /* ---------- Projects: apple tree ---------- */
+  const treeScene = document.getElementById('treeScene');
+  const appleEls = document.querySelectorAll('.apple');
+  const projectCards = document.querySelectorAll('.project-display .project-card');
+  const projectDots = document.querySelectorAll('.project-dot');
+
+  function selectProject(idx){
+    appleEls.forEach(a => a.classList.toggle('is-active', a.getAttribute('data-project') === idx));
+    projectCards.forEach(c => c.classList.toggle('is-active', c.getAttribute('data-project-index') === idx));
+    projectDots.forEach(d => d.classList.toggle('is-active', d.getAttribute('data-project') === idx));
+  }
+
+  appleEls.forEach(apple => {
+    apple.addEventListener('click', () => selectProject(apple.getAttribute('data-project')));
+    apple.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        selectProject(apple.getAttribute('data-project'));
+      }
+    });
+  });
+  projectDots.forEach(dot => {
+    dot.addEventListener('click', () => selectProject(dot.getAttribute('data-project')));
+  });
+
+  const treeObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('is-grown');
+        treeObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.2 });
+  if(treeScene) treeObserver.observe(treeScene);
+
+  /* ---------- Education: holographic scroll ---------- */
   (function(){
-    const eduChess = document.getElementById('eduChess');
-    if(!eduChess || !window.THREE) return;
-    const MS = [
-      { piece:'pawn',   pieceName:'Pawn',   pieceVal:'1 pt',  lvl:'LVL 01', state:'done',    status:'Completed',   year:'2012', title:'Nursery', inst:'Vivekananda Mission School', desc:'The journey begins &mdash; the start of a curiosity for learning and problem-solving.', tags:[] },
-      { piece:'bishop', pieceName:'Bishop', pieceVal:'3 pts', lvl:'LVL 02', state:'done',    status:'Completed',   year:'2020', title:'Java &amp; Object-Oriented Programming', inst:'Class 8', desc:'Began learning Java, opening the door to desktop applications, algorithms, and structured software development.', tags:['Java','OOP'] },
-      { piece:'rook',   pieceName:'Rook',   pieceVal:'5 pts', lvl:'LVL 03', state:'done',    status:'Completed',   year:'2025', title:'Graduated ICSE', inst:'Class X', desc:'Wrapped up secondary school while taking software development more seriously &mdash; built Tic Tac Toe, then Scaccomatto, marking the start of a real portfolio.', tags:['ICSE'] },
-      { piece:'queen',  pieceName:'Queen',  pieceVal:'9 pts', lvl:'LVL 04', state:'current', status:'In Progress', year:'2027', title:'ISC', inst:'Class XI &ndash; XII', desc:'Currently pursuing ISC while expanding beyond coursework &mdash; modern web development, Linux as a daily driver, and founding Alekhine Studios.', tags:['JavaScript','Linux'] },
-      { piece:'king',   pieceName:'King',   pieceVal:'∞', lvl:'LVL 05', state:'goal',    status:'Goal',        year:'2028', title:'ITMO University', inst:'Computer Science &ndash; Cybersecurity Focus', desc:'Plan to pursue Computer Science at ITMO, with a focus on cybersecurity, competitive programming, and international hackathons.', tags:['Cybersecurity','Competitive Programming'] },
-    ];
-    const CURRENT = 3;
-    const canvas   = document.getElementById('chessCanvas');
-    const viewport = document.getElementById('chessViewport');
-    const ring     = document.getElementById('chessRing');
-    const detail   = document.getElementById('chessDetail');
-    const dotsWrap = document.getElementById('chessDots');
-    const nameEl   = document.getElementById('pieceName');
-    const valEl    = document.getElementById('pieceVal');
-    const prevBtn  = document.getElementById('chessPrev');
-    const nextBtn  = document.getElementById('chessNext');
+    const holo = document.getElementById('eduHolo');
+    if(!holo || !window.THREE) return;
     const THREE = window.THREE;
+    const canvas = document.getElementById('holoCanvas');
+    const stage = holo.querySelector('.holo-stage');
+    const panels = Array.prototype.slice.call(holo.querySelectorAll('.holo-panel'));
+    const progress = document.getElementById('holoProgress');
+    const hint = document.getElementById('holoHint');
+    const scenes = Array.prototype.slice.call(holo.querySelectorAll('.holo-scene'));
+    const N = panels.length;
+    if(!N || !canvas) return;
+    const isMobile = window.matchMedia && window.matchMedia('(max-width:820px)').matches;
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const CY = 0x35d7f0, CY2 = 0x8af0ff;
 
     const renderer = new THREE.WebGLRenderer({ canvas:canvas, antialias:true, alpha:true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    const scene  = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
-    camera.position.set(0, 2.25, 7.4);
-    camera.lookAt(0, 1.4, 0);
+    renderer.setClearColor(0x000000, 0);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+    camera.position.set(0, 0, 7);
 
-    scene.add(new THREE.AmbientLight(0x35506a, 0.9));
-    const key = new THREE.DirectionalLight(0xffffff, 1.0); key.position.set(4, 8, 6); scene.add(key);
-    const rimC = new THREE.PointLight(0x22D3EE, 1.6, 45); rimC.position.set(-6, 3, -2); scene.add(rimC);
-    const rimW = new THREE.PointLight(0x67E8F9, 0.9, 45); rimW.position.set(5, 1.5, -4); scene.add(rimW);
-    const fillL = new THREE.PointLight(0xffffff, 0.35, 45); fillL.position.set(0, -3, 5); scene.add(fillL);
+    function wire(geo){
+      return new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color:CY, wireframe:true, transparent:true, opacity:0, blending:THREE.AdditiveBlending, depthWrite:false }));
+    }
+    const objs = [];
+    objs.push(wire(new THREE.IcosahedronGeometry(1.55, 1)));
+    objs.push(wire(new THREE.BoxGeometry(2.1, 2.1, 2.1, 2, 2, 2)));
+    objs.push(wire(new THREE.TorusKnotGeometry(1.1, 0.34, 140, 18)));
+    objs.push(wire(new THREE.OctahedronGeometry(1.75, 1)));
+    const gg = new THREE.Group();
+    gg.add(wire(new THREE.IcosahedronGeometry(1.25, 1)));
+    const ringMesh = wire(new THREE.TorusGeometry(2.1, 0.05, 8, 72));
+    ringMesh.rotation.x = Math.PI / 2.3; gg.add(ringMesh);
+    objs.push(gg);
+    // hidden: education now uses illustrated SVG scenes instead of abstract wireframes
+    objs.forEach(o => { o.visible = false; scene.add(o); });
 
-    const material = new THREE.MeshStandardMaterial({ color:0x35d3ef, metalness:0.72, roughness:0.26, emissive:0x0a3b46, emissiveIntensity:0.55 });
-    const darkMat  = new THREE.MeshStandardMaterial({ color:0x0e2831, metalness:0.5, roughness:0.5, emissive:0x061a20, emissiveIntensity:0.5 });
-
-    const disc = new THREE.Mesh(new THREE.CylinderGeometry(1.15, 1.32, 0.16, 56), darkMat);
-    disc.position.y = 0.02; scene.add(disc);
-
-    const V2 = (x,y) => new THREE.Vector2(x,y);
-    function lathe(profile){ return new THREE.LatheGeometry(profile.map(p => V2(p[0],p[1])), 64); }
-    function M(geo){ return new THREE.Mesh(geo, material); }
-    function ringOf(n, r, y, makeMesh){ for(let i=0;i<n;i++){ const a=(i/n)*Math.PI*2; const m=makeMesh(); m.position.set(Math.cos(a)*r, y, Math.sin(a)*r); m.rotation.y=-a; } }
-
-    function buildPiece(type){
-      const g = new THREE.Group();
-      if(type === 'pawn'){
-        g.add(M(lathe([[0,0.16],[0.6,0.16],[0.58,0.3],[0.4,0.42],[0.34,0.55],[0.5,0.68],[0.32,0.84],[0.26,1.2],[0.4,1.34],[0.27,1.5],[0,1.5]])));
-        const h = M(new THREE.SphereGeometry(0.44, 32, 24)); h.position.y = 1.86; g.add(h);
-      } else if(type === 'bishop'){
-        g.add(M(lathe([[0,0.16],[0.64,0.16],[0.6,0.3],[0.4,0.44],[0.34,0.58],[0.52,0.72],[0.32,0.88],[0.24,1.5],[0.42,1.68],[0.29,1.84],[0.22,2.12],[0.15,2.38],[0,2.58]])));
-        const b = M(new THREE.SphereGeometry(0.13, 20, 16)); b.position.y = 2.66; g.add(b);
-      } else if(type === 'rook'){
-        g.add(M(lathe([[0,0.16],[0.66,0.16],[0.6,0.32],[0.42,0.5],[0.4,1.28],[0.5,1.48],[0.62,1.58],[0.62,1.9],[0,1.9]])));
-        ringOf(8, 0.5, 2.02, () => { const m = M(new THREE.BoxGeometry(0.2, 0.26, 0.2)); g.add(m); return m; });
-      } else if(type === 'queen'){
-        g.add(M(lathe([[0,0.16],[0.7,0.16],[0.64,0.32],[0.42,0.48],[0.36,0.62],[0.54,0.76],[0.32,0.94],[0.26,1.68],[0.44,1.88],[0.6,2.02],[0.6,2.24],[0,2.24]])));
-        ringOf(8, 0.44, 2.42, () => { const m = M(new THREE.ConeGeometry(0.1, 0.34, 12)); g.add(m); const ball = M(new THREE.SphereGeometry(0.11, 16, 12)); ball.position.copy(m.position); ball.position.y += 0.22; g.add(ball); return m; });
-        const top = M(new THREE.SphereGeometry(0.2, 24, 18)); top.position.y = 2.52; g.add(top);
-      } else if(type === 'king'){
-        g.add(M(lathe([[0,0.16],[0.72,0.16],[0.66,0.32],[0.42,0.48],[0.36,0.62],[0.56,0.76],[0.32,0.94],[0.26,1.72],[0.46,1.92],[0.62,2.06],[0.62,2.28],[0.5,2.4],[0,2.4]])));
-        ringOf(8, 0.46, 2.5, () => { const m = M(new THREE.SphereGeometry(0.09, 14, 12)); g.add(m); return m; });
-        const cap = M(new THREE.SphereGeometry(0.22, 24, 18)); cap.position.y = 2.5; g.add(cap);
-        const cv = M(new THREE.BoxGeometry(0.13, 0.55, 0.13)); cv.position.y = 3.0; g.add(cv);
-        const ch = M(new THREE.BoxGeometry(0.4, 0.13, 0.13)); ch.position.y = 3.02; g.add(ch);
-      }
-      return g;
+    function setOpacity(o, v){
+      if(o.material) o.material.opacity = v;
+      if(o.children) o.children.forEach(c => { if(c.material) c.material.opacity = v; });
     }
 
-    function disposeGroup(g){ g.traverse(o => { if(o.geometry) o.geometry.dispose(); }); }
-
-    let index = CURRENT, current = null, tval = 1, last = 0, loopStarted = false, inView = false;
-    function easeOutBack(x){ const c1 = 1.70158, c3 = c1 + 1; return 1 + c3*Math.pow(x-1,3) + c1*Math.pow(x-1,2); }
-
-    function renderDetail(m){
-      detail.dataset.state = m.state;
-      const tags = m.tags.length ? '<div class="edu-tags">' + m.tags.map(t => '<span class="edu-tag">'+t+'</span>').join('') + '</div>' : '';
-      detail.innerHTML =
-        '<div class="c3-head"><span class="c3-lvl">'+m.lvl+'</span><span class="c3-status">'+m.status+'</span></div>' +
-        '<p class="c3-year">'+m.year+'</p>' +
-        '<h3 class="c3-title">'+m.title+'</h3>' +
-        '<p class="c3-inst">'+m.inst+'</p>' +
-        '<p class="c3-desc">'+m.desc+'</p>' + tags;
-      detail.classList.remove('is-in'); void detail.offsetWidth; detail.classList.add('is-in');
+    // particle field
+    const pcount = isMobile ? 500 : 1100;
+    const ppos = new Float32Array(pcount * 3);
+    for(let i = 0; i < pcount; i++){
+      ppos[i*3]   = (Math.random() - 0.5) * 18;
+      ppos[i*3+1] = (Math.random() - 0.5) * 18;
+      ppos[i*3+2] = (Math.random() - 0.5) * 26 - 6;
     }
-    function updateDots(i){ [...dotsWrap.children].forEach((d,k) => d.classList.toggle('is-active', k === i)); }
+    const pgeo = new THREE.BufferGeometry();
+    pgeo.setAttribute('position', new THREE.BufferAttribute(ppos, 3));
+    const points = new THREE.Points(pgeo, new THREE.PointsMaterial({ color:CY2, size:0.035, transparent:true, opacity:0.75, depthWrite:false, blending:THREE.AdditiveBlending }));
+    scene.add(points);
 
-    function showPiece(i, animate){
-      i = Math.max(0, Math.min(MS.length - 1, i));
-      index = i; const m = MS[i];
-      if(current){ scene.remove(current); disposeGroup(current); }
-      current = buildPiece(m.piece); scene.add(current);
-      tval = (animate === false) ? 1 : 0;
-      if(animate !== false){ ring.classList.remove('is-burst'); void ring.offsetWidth; ring.classList.add('is-burst'); }
-      nameEl.textContent = m.pieceName; valEl.textContent = m.pieceVal;
-      renderDetail(m); updateDots(i);
-      prevBtn.disabled = (i === 0); nextBtn.disabled = (i === MS.length - 1);
-    }
-
-    MS.forEach((m, i) => {
-      const d = document.createElement('button');
-      d.type = 'button';
-      d.className = 'chess3d-dot' + (m.state === 'goal' ? ' is-goal' : '');
-      d.setAttribute('aria-label', m.year + ' ' + m.pieceName);
-      d.addEventListener('click', () => showPiece(i, true));
-      dotsWrap.appendChild(d);
-    });
-    prevBtn.addEventListener('click', () => showPiece(index - 1, true));
-    nextBtn.addEventListener('click', () => showPiece(index + 1, true));
-    window.addEventListener('keydown', (e) => {
-      if(!inView) return;
-      if(e.key === 'ArrowLeft'){ e.preventDefault(); showPiece(index - 1, true); }
-      else if(e.key === 'ArrowRight'){ e.preventDefault(); showPiece(index + 1, true); }
-    });
+    // receding grid
+    const grid = new THREE.GridHelper(44, 44, CY, CY);
+    if(grid.material){ grid.material.transparent = true; grid.material.opacity = 0.11; }
+    grid.position.y = -3.2;
+    scene.add(grid);
 
     function resize(){
-      const r = viewport.getBoundingClientRect();
-      const w = Math.max(1, r.width), h = Math.max(1, r.height || r.width);
+      const w = stage.clientWidth || window.innerWidth;
+      const h = stage.clientHeight || window.innerHeight;
       renderer.setSize(w, h, false);
       camera.aspect = w / h; camera.updateProjectionMatrix();
     }
-    if(window.ResizeObserver){ new ResizeObserver(resize).observe(viewport); }
+    if(window.ResizeObserver){ new ResizeObserver(resize).observe(stage); }
     window.addEventListener('resize', resize);
-
-    function frame(now){
-      if(!last) last = now;
-      const dt = Math.min(0.05, (now - last) / 1000); last = now;
-      if(tval < 1) tval = Math.min(1, tval + dt / 0.55);
-      if(current){
-        const s = 0.2 + 0.8 * easeOutBack(tval);
-        current.scale.setScalar(Math.max(0.001, s));
-        current.rotation.y += dt * 0.6;
-        current.position.y = Math.sin(now * 0.0011) * 0.05;
-      }
-      disc.rotation.y += dt * 0.12;
-      renderer.render(scene, camera);
-      requestAnimationFrame(frame);
-    }
-
-    showPiece(CURRENT, false);
     resize();
 
-    let autoTimer = null;
-    function autoplay(){
-      let i = 0; showPiece(0, true);
-      autoTimer = setInterval(() => {
-        i++;
-        if(i > CURRENT){ clearInterval(autoTimer); autoTimer = null; return; }
-        showPiece(i, true);
-      }, 1150);
+    let targetP = 0, curP = 0;
+    function onScroll(){
+      const rect = holo.getBoundingClientRect();
+      const total = holo.offsetHeight - window.innerHeight;
+      targetP = total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 0;
+    }
+    window.addEventListener('scroll', onScroll, { passive:true });
+    onScroll();
+
+    const clock = new THREE.Clock();
+    let running = false, raf = 0;
+    function frame(){
+      const dt = Math.min(0.05, clock.getDelta());
+      const t = clock.elapsedTime;
+      curP += (targetP - curP) * Math.min(1, dt * 6);
+      const sf = curP * (N - 1);
+      objs.forEach((o, i) => {
+        const d = Math.abs(sf - i);
+        const vis = Math.max(0, 1 - d);
+        setOpacity(o, vis * 0.9);
+        o.position.z = (i - sf) * 4.2;
+        o.position.y = Math.sin(t * 0.5 + i) * 0.12;
+        o.scale.setScalar(0.7 + 0.3 * vis);
+        if(!reduce){ o.rotation.y += dt * (0.3 + 0.08 * i); o.rotation.x += dt * 0.12; }
+      });
+      if(!reduce){ points.rotation.y += dt * 0.03; }
+      points.position.y = -curP * 1.6;
+      grid.position.z = -6 + (curP * 12);
+      camera.position.x = Math.sin(curP * Math.PI) * 0.7;
+      camera.lookAt(0, 0, 0);
+      panels.forEach((p, i) => {
+        const o = Math.max(0, 1 - Math.abs(sf - i) * 1.5);
+        p.style.opacity = o;
+        p.style.transform = 'translateY(' + ((sf - i) * 26) + 'px)';
+      });
+      let sceneMax = 0;
+      for(let k = 0; k < scenes.length; k++){
+        const si = +scenes[k].dataset.i;
+        const sv = Math.max(0, 1 - Math.abs(sf - si) * 1.5);
+        scenes[k].style.opacity = sv;
+        if(sv > sceneMax) sceneMax = sv;
+      }
+      if(grid.material) grid.material.opacity = 0.11 * (1 - sceneMax * 0.85);
+      if(progress) progress.style.height = (curP * 100) + '%';
+      if(knob) knob.style.top = (curP * 100) + '%';
+      if(hint) hint.style.opacity = curP > 0.02 ? '0' : '0.8';
+      renderer.render(scene, camera);
+      if(running) raf = requestAnimationFrame(frame);
+    }
+    function start(){ if(running) return; running = true; clock.getDelta(); raf = requestAnimationFrame(frame); }
+    function stop(){ running = false; if(raf) cancelAnimationFrame(raf); }
+
+    // seed first panel so it isn't blank before scroll
+    panels[0].style.opacity = '1';
+
+    // interactive right-side scrubber: drag/click to seek through the section
+    const track = progress ? progress.parentElement : null;
+    let knob = null;
+    if(track){
+      knob = document.createElement('span');
+      knob.className = 'holo-progress-knob';
+      track.appendChild(knob);
+      let dragging = false;
+      function seek(clientY){
+        const r = track.getBoundingClientRect();
+        let f = (clientY - r.top) / r.height;
+        f = Math.min(1, Math.max(0, f));
+        const total = holo.offsetHeight - window.innerHeight;
+        const holoTopDoc = holo.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top: holoTopDoc + f * total });
+      }
+      track.addEventListener('pointerdown', (e) => {
+        dragging = true; track.classList.add('is-grabbing');
+        if(track.setPointerCapture && e.pointerId != null) track.setPointerCapture(e.pointerId);
+        seek(e.clientY); e.preventDefault();
+      });
+      window.addEventListener('pointermove', (e) => { if(dragging) seek(e.clientY); });
+      window.addEventListener('pointerup', () => { dragging = false; track.classList.remove('is-grabbing'); });
     }
 
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        inView = entry.isIntersecting;
-        if(entry.isIntersecting && !loopStarted){
-          loopStarted = true;
-          eduChess.classList.add('revealed');
-          resize();
-          requestAnimationFrame(frame);
-          const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-          if(reduce){ showPiece(CURRENT, false); } else { autoplay(); }
-        }
-      });
-    }, { threshold: 0.3 });
-    obs.observe(eduChess);
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if(e.isIntersecting){ resize(); start(); } else { stop(); } });
+    }, { threshold: 0.02 });
+    io.observe(holo);
   })();
 
   /* ---------- Achievement toasts ---------- */

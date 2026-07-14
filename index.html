@@ -350,7 +350,7 @@
   .nav-link[href="#about"]:hover{ color:#A78BFA; }
   .nav-link[href="#stats"]:hover{ color:#FB4B70; }
   .nav-link[href="#education"]:hover{ color:#22D3EE; }
-  .nav-link[href="#projects"]:hover{ color:#22C55E; }
+  .nav-link[href="#projects"]:hover{ color:#ADBE2F; }
   .nav-link[href="#achievements"]:hover{ color:#FFD100; }
   .nav-link[href="#epilogue"]:hover{
     color:#FFFFFF;
@@ -1802,6 +1802,66 @@
     .edu-slideshow{ opacity:1; transform:none; transition:none; }
   }
 
+  /* ---------- Achievements: trophy grid ---------- */
+  .trophy-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:20px;
+    max-width:900px;
+    margin:0 auto;
+    opacity:0;
+    transform:translateY(24px);
+    transition:opacity 0.8s cubic-bezier(.16,1,.3,1), transform 0.8s cubic-bezier(.16,1,.3,1);
+  }
+  .trophy-card{
+    position:relative;
+    padding:30px 22px;
+    border-radius:20px;
+    text-align:center;
+    background:linear-gradient(160deg, rgba(var(--tr),0.14), rgba(20,23,31,0.5) 60%);
+    border:1px solid rgba(var(--tr),0.28);
+    transition:transform 0.4s cubic-bezier(.16,1,.3,1), border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .trophy-card:hover{
+    transform:translateY(-6px);
+    border-color:rgba(var(--tr),0.6);
+    box-shadow:0 20px 40px -18px rgba(var(--tr),0.45);
+  }
+  .trophy-icon{
+    width:56px; height:56px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:26px;
+    line-height:1;
+    margin:0 auto 16px;
+    background:rgba(var(--tr),0.16);
+    box-shadow:0 0 0 1px rgba(var(--tr),0.35) inset;
+  }
+  .trophy-title{
+    font-family:'Outfit', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    margin:0 0 5px;
+    color:var(--paper);
+  }
+  .trophy-sub{
+    font-family:'JetBrains Mono', ui-monospace, monospace;
+    font-size:11px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--fog);
+    margin:0;
+  }
+  body.light-theme .trophy-card{
+    background:linear-gradient(160deg, rgba(var(--tr),0.16), rgba(255,255,255,0.85) 60%);
+  }
+  @media (max-width:720px){
+    .trophy-grid{ grid-template-columns:repeat(2, 1fr); }
+  }
+  @media (max-width:460px){
+    .trophy-grid{ grid-template-columns:1fr; }
+  }
+
   /* ---------- Achievement toasts ---------- */
   .achievement-toasts{
     position:fixed;
@@ -1957,8 +2017,9 @@
     flex-direction:column;
     align-items:center;
     justify-content:center;
-    gap:4px;
+    gap:7px;
     width:auto;
+    padding-right:4px;
   }
   .music-eq{
     display:flex;
@@ -1979,15 +2040,30 @@
   /* mute/unmute indicator (replaces the EQ dots) */
   .music-indicator{
     position:relative;
-    width:34px; height:34px;
+    width:30px; height:30px;
     display:flex; align-items:center; justify-content:center;
-    background:none; border:none; padding:0;
+    background:rgba(183,156,251,0.1);
+    border:1px solid rgba(183,156,251,0.16);
+    border-radius:50%;
+    padding:0;
     color:var(--paper);
     cursor:pointer;
-    transition:color 0.25s ease, transform 0.2s ease;
+    transition:color 0.25s ease, transform 0.2s ease, background 0.25s ease, border-color 0.25s ease;
   }
-  .music-indicator:hover{ transform:scale(1.15); }
-  .music-indicator svg{ width:24px; height:24px; }
+  .music-indicator:hover{
+    transform:scale(1.1);
+    background:rgba(183,156,251,0.2);
+    border-color:rgba(183,156,251,0.4);
+  }
+  .music-indicator svg{ width:19px; height:19px; }
+  body.light-theme .music-indicator{
+    background:rgba(90,60,180,0.06);
+    border-color:rgba(90,60,180,0.14);
+  }
+  body.light-theme .music-indicator:hover{
+    background:rgba(90,60,180,0.14);
+    border-color:rgba(90,60,180,0.3);
+  }
   .mi-wave{
     opacity:0;
     transform:translateX(-3px) scale(0.7);
@@ -1998,7 +2074,7 @@
   .music-indicator .mi-slash{
     position:absolute;
     left:50%; top:50%;
-    width:24px; height:24px;
+    width:19px; height:19px;
     transform:translate(-50%,-50%);
     pointer-events:none;
   }
@@ -2034,6 +2110,8 @@
     width:0%;
     border-radius:0 999px 999px 0;
     background:linear-gradient(90deg, var(--violet-light), var(--violet-deep));
+    /* always renders at full colour/brightness — playback progress is independent of mute state */
+    box-shadow:0 0 8px rgba(167,139,250,0.55);
   }
   body.light-theme .music-progress{ background:rgba(90,90,105,0.2); }
   .music-track-name{
@@ -2089,8 +2167,9 @@
   }
   /* Horizontal volume slider */
   .music-volume{
-    width:90px;
-    height:14px;
+    position:relative;
+    width:78px;
+    height:16px;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -2099,11 +2178,12 @@
   }
   .music-volume-track{
     position:relative;
-    width:84px;
+    width:100%;
     height:4px;
     border-radius:999px;
     background:rgba(183,156,251,0.18);
     overflow:hidden;
+    transition:background 0.25s ease;
   }
   .music-volume:hover .music-volume-track{
     background:rgba(183,156,251,0.3);
@@ -2115,7 +2195,25 @@
     border-radius:999px;
     background:linear-gradient(90deg, var(--violet-light), var(--violet-deep));
   }
+  .music-volume-thumb{
+    position:absolute;
+    top:50%; left:0%;
+    width:10px; height:10px;
+    border-radius:50%;
+    background:#ffffff;
+    box-shadow:0 0 0 2px var(--violet-light), 0 2px 5px rgba(0,0,0,0.45);
+    transform:translate(-50%,-50%) scale(0.85);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.2s ease, transform 0.2s ease;
+  }
+  .music-volume:hover .music-volume-thumb,
+  .music-volume:active .music-volume-thumb{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1);
+  }
   body.light-theme .music-volume-track{ background:rgba(90,90,105,0.25); }
+  body.light-theme .music-volume-thumb{ box-shadow:0 0 0 2px var(--violet-deep), 0 2px 5px rgba(0,0,0,0.25); }
   .epilogue-letter [data-reveal]{
     opacity:0;
     transform:translateY(12px);
@@ -2179,13 +2277,13 @@
   /* colour-coded dedications (Mom & Dad keeps the violet default) */
   .epilogue-letter .epilogue-dedication:nth-of-type(2) .epilogue-addressee{ color:#FB4B70; } /* teachers */
   .epilogue-letter .epilogue-dedication:nth-of-type(3) .epilogue-addressee{ color:#22D3EE; } /* friends */
-  .epilogue-letter .epilogue-dedication:nth-of-type(4) .epilogue-addressee{ color:#22C55E; } /* the internet */
+  .epilogue-letter .epilogue-dedication:nth-of-type(4) .epilogue-addressee{ color:#ADBE2F; } /* the internet */
   .epilogue-letter .epilogue-dedication:nth-of-type(5) .epilogue-addressee{ color:#FFD100; } /* the AIs */
   .epilogue-letter .epilogue-dedication:nth-of-type(6) .epilogue-addressee{ color:#F472B6; } /* younger self */
   .epilogue-letter .epilogue-dedication:nth-of-type(7) .epilogue-addressee{ color:#FFFFFF; } /* and to you */
   body.light-theme .epilogue-letter .epilogue-dedication:nth-of-type(2) .epilogue-addressee{ color:#C21E44; }
   body.light-theme .epilogue-letter .epilogue-dedication:nth-of-type(3) .epilogue-addressee{ color:#0E7490; }
-  body.light-theme .epilogue-letter .epilogue-dedication:nth-of-type(4) .epilogue-addressee{ color:#15803D; }
+  body.light-theme .epilogue-letter .epilogue-dedication:nth-of-type(4) .epilogue-addressee{ color:#7A8A1E; }
   body.light-theme .epilogue-letter .epilogue-dedication:nth-of-type(5) .epilogue-addressee{ color:#A98A00; }
   body.light-theme .epilogue-letter .epilogue-dedication:nth-of-type(6) .epilogue-addressee{ color:#BE2A70; }
   body.light-theme .epilogue-letter .epilogue-dedication:nth-of-type(7) .epilogue-addressee{ color:#17121F; }
@@ -2259,9 +2357,6 @@
   .project-card:hover::before{
     opacity:1;
     transform:scale(1.1);
-  }
-  .project-card:hover .project-visual svg{
-    transform:scale(1.1) rotate(-4deg);
   }
   .project-card:hover .project-title{
     color:#ffffff;
@@ -2364,18 +2459,6 @@
     filter:brightness(1.1);
   }
   .project-link-btn svg{ width:15px; height:15px; }
-  .project-visual{
-    position:absolute;
-    top:38px; right:36px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    pointer-events:none;
-  }
-  .project-visual svg{
-    width:58px; height:58px;
-    transition:transform 0.5s cubic-bezier(.34,1.56,.64,1);
-  }
   /* ---------- Projects section: #22C55E green theme ---------- */
   #projects .project-card{
     border-color:rgba(34,197,94,0.22);
@@ -2405,7 +2488,6 @@
     box-shadow:0 10px 24px -12px rgba(21,128,61,0.7);
   }
   #projects .project-link-btn:hover{ box-shadow:0 16px 32px -12px rgba(21,128,61,0.85); }
-  #projects .project-visual{ color:#4ADE80; }
   body.light-theme #projects .project-card{
     border-color:rgba(21,128,61,0.25);
     background:linear-gradient(160deg, rgba(34,197,94,0.1), rgba(255,255,255,0.85) 55%);
@@ -2422,7 +2504,6 @@
   }
   @media (max-width:560px){
     .project-card{ padding:32px 26px; }
-    .project-visual{ display:none; }
     .project-title{ padding-right:0; }
   }
 
@@ -2486,8 +2567,8 @@
 
   .apple{
     position:absolute;
-    width:48px; height:48px;
-    margin:-24px 0 0 -24px;
+    width:68px; height:68px;
+    margin:-34px 0 0 -34px;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -2495,7 +2576,9 @@
     -webkit-tap-highlight-color:transparent;
     opacity:0;
     transform:translateY(-14px) scale(0.4);
-    transition:opacity 0.5s cubic-bezier(.34,1.56,.64,1), transform 0.5s cubic-bezier(.34,1.56,.64,1);
+    z-index:5;
+    transition:opacity 0.5s cubic-bezier(.34,1.56,.64,1), transform 0.5s cubic-bezier(.34,1.56,.64,1),
+      left 0.75s cubic-bezier(.65,0,.35,1), top 0.75s cubic-bezier(.65,0,.35,1);
   }
   .tree-scene.is-grown .apple{
     opacity:1;
@@ -2507,21 +2590,28 @@
   .apple:nth-of-type(4){ transition-delay:0.95s; }
   .apple-body{
     position:relative;
-    width:36px; height:36px;
+    width:54px; height:54px;
     display:block;
     filter:drop-shadow(0 6px 10px rgba(0,0,0,0.5));
-    transition:transform 0.35s cubic-bezier(.34,1.56,.64,1), filter 0.35s ease;
+    transition:transform 0.4s cubic-bezier(.34,1.56,.64,1), filter 0.4s ease;
     user-select:none;
   }
   .apple:hover .apple-body, .apple:focus-visible .apple-body{
     transform:scale(1.15) rotate(-4deg);
   }
   .apple.is-active .apple-body{
-    transform:scale(1.2);
     filter:drop-shadow(0 0 6px rgba(74,222,128,0.85)) drop-shadow(0 8px 14px rgba(0,0,0,0.5));
   }
   .apple:focus-visible{ outline:none; }
   .apple:focus-visible .apple-body{ filter:drop-shadow(0 0 5px #4ADE80) drop-shadow(0 6px 10px rgba(0,0,0,0.5)); }
+
+  /* the clicked apple itself becomes hidden while its card is open (see the FLIP
+     transition in JS) so there's only ever one apple on screen at a time */
+  /* apples that have been viewed rest near the trunk, slightly smaller */
+  .apple.is-grounded .apple-body{ transform:scale(0.76); }
+  .apple.is-grounded:hover .apple-body, .apple.is-grounded:focus-visible .apple-body{
+    transform:scale(0.9) rotate(-4deg);
+  }
   .apple-label{
     position:absolute;
     bottom:calc(100% + 8px);
@@ -2546,81 +2636,230 @@
     transform:translateX(-50%) translateY(0);
   }
 
-  .project-display{
-    position:relative;
-    max-width:560px;
-    margin:56px auto 0;
+  /* Project detail is a centred modal: hidden by default, opened by clicking an apple */
+  .project-modal-backdrop{
+    position:fixed;
+    inset:0;
+    z-index:80;
+    background:rgba(4,5,9,0.6);
+    opacity:0;
+    pointer-events:none;
+    backdrop-filter:blur(0px);
+    -webkit-backdrop-filter:blur(0px);
+    transition:opacity 0.4s cubic-bezier(.4,0,.2,1), backdrop-filter 0.4s cubic-bezier(.4,0,.2,1), -webkit-backdrop-filter 0.4s cubic-bezier(.4,0,.2,1);
   }
-  .project-display .project-card{
+  .project-modal-backdrop.is-visible{
+    opacity:1;
+    pointer-events:auto;
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+  }
+  .project-display{
+    position:fixed;
+    top:50%; left:50%;
+    z-index:81;
+    width:calc(100vw - 40px);
+    max-width:920px;
+    max-height:94vh;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+    margin:0;
+    opacity:0;
+    pointer-events:none;
+    transform:translate(-50%,-50%) translateY(16px) scale(0.9);
+    transition:opacity 0.4s cubic-bezier(.4,0,.2,1), transform 0.45s cubic-bezier(.34,1.56,.64,1);
+  }
+  .project-display::-webkit-scrollbar{ display:none; width:0; height:0; }
+  .project-display.is-open{
+    opacity:1;
+    pointer-events:auto;
+    transform:translate(-50%,-50%) translateY(0) scale(1);
+  }
+  .project-modal-close{
+    position:absolute;
+    top:8px; right:8px;
+    z-index:6;
+    width:34px; height:34px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(10,10,14,0.55);
+    border:1px solid rgba(255,255,255,0.15);
+    color:#ffffff;
+    cursor:pointer;
+    transition:background 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+  }
+  .project-modal-close:hover{
+    background:rgba(229,57,47,0.45);
+    border-color:rgba(255,122,99,0.6);
+    transform:scale(1.08);
+  }
+  .project-modal-close svg{ width:16px; height:16px; }
+  @media (prefers-reduced-motion: reduce){
+    .project-modal-backdrop, .project-display{ transition:none; }
+    .apple{ transition:opacity 0.2s ease, left 0.01s, top 0.01s; }
+  }
+  /* ID-based (not ancestor-based): #projectDisplay gets moved to document.body
+     at runtime so position:fixed is never at the mercy of an ancestor's transform,
+     which means selectors requiring "inside #projects" would silently stop matching */
+  #projectDisplay.project-display .project-card{
     display:none;
     width:100%;
     max-width:none;
-    padding:76px 46px 52px;
-    border-radius:36px;
-    clip-path:url(#appleCardClip);
-    animation:appleCardIn 0.5s cubic-bezier(.16,1,.3,1);
-  }
-  .project-display .project-card.is-active{ display:block; }
-  .project-display::before{
-    content:"";
-    position:absolute;
-    top:-30px; left:50%;
-    width:56px; height:42px;
-    transform:translateX(-42%);
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 46'%3E%3Cpath d='M28,46 C26,30 24,18 30,4' stroke='%233D2A16' stroke-width='7' stroke-linecap='round' fill='none'/%3E%3Cpath d='M30,10 C42,2 54,6 58,16 C46,20 34,18 30,10 Z' fill='%238BC34A' stroke='%232b1a0f' stroke-width='3'/%3E%3C/svg%3E");
-    background-size:contain;
-    background-repeat:no-repeat;
-    pointer-events:none;
-    z-index:2;
-  }
-  #projects .project-display .project-card{
-    border-color:rgba(229,57,47,0.32);
-    background:linear-gradient(165deg, rgba(229,57,47,0.12), rgba(20,10,10,0.55) 55%);
-  }
-  #projects .project-display .project-card::before{
-    background:radial-gradient(circle, rgba(229,57,47,0.22), transparent 65%);
-  }
-  #projects .project-display .project-card:hover{
-    border-color:rgba(255,122,99,0.55);
-    box-shadow:0 24px 48px -20px rgba(168,30,30,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
-  }
-  body.light-theme #projects .project-display .project-card{
-    border-color:rgba(168,30,30,0.28);
-    background:linear-gradient(165deg, rgba(229,57,47,0.14), rgba(255,255,255,0.85) 55%);
-  }
-  @keyframes appleCardIn{
-    from{ opacity:0; transform:translateY(14px); }
-    to{ opacity:1; transform:translateY(0); }
-  }
-  .project-dots{
-    display:flex;
-    justify-content:center;
-    gap:10px;
-    margin-top:22px;
-  }
-  .project-dot{
-    width:9px; height:9px;
-    border-radius:50%;
-    background:rgba(74,222,128,0.25);
-    border:none;
-    cursor:pointer;
     padding:0;
-    transition:background 0.3s ease, transform 0.3s ease;
+    border:none;
+    border-radius:0;
+    background:none;
+    overflow:visible;
+    isolation:isolate;
   }
-  .project-dot.is-active{
-    background:#4ADE80;
-    transform:scale(1.3);
+  #projectDisplay.project-display .project-card::before{ content:none; }
+  #projectDisplay.project-display .project-card.is-active{ display:block; }
+  /* the card is a fixed, centred focal point while zoomed in - it shouldn't
+     lift/shift on hover the way the old flat project-grid cards used to */
+  #projectDisplay.project-display .project-card:hover{
+    transform:none;
+    border-color:transparent;
+    box-shadow:none;
+  }
+
+  /* the text lives directly inside the apple's own belly (mapped by eye against
+     the actual artwork: neck/stem end ~34%, taper begins ~90%), so content per
+     project is kept short on purpose rather than clipped to fit */
+  .apple-card{
+    position:relative;
+    width:100%;
+    max-width:840px;
+    aspect-ratio:1 / 1;
+    margin:0 auto;
+  }
+  .apple-card-bg{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    filter:drop-shadow(0 20px 34px rgba(0,0,0,0.55));
+  }
+  .apple-card-content{
+    position:absolute;
+    top:35%; left:14%; right:14%; bottom:9%;
+    z-index:2;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    overflow:hidden;
+    opacity:0;
+    transform:translateY(6px);
+    transition:opacity 0.2s ease, transform 0.2s ease;
+  }
+  /* the text only reveals once the apple has mostly finished growing into place,
+     so early in the zoom you just see a plain apple silhouette scaling up, not a
+     smear of shrunk-down text */
+  .project-display.is-open .apple-card-content{
+    opacity:1;
+    transform:translateY(0);
+    transition:opacity 0.35s ease 0.22s, transform 0.35s ease 0.22s;
+  }
+  .apple-card-icon-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:4px;
+  }
+  .apple-card-flourish{ width:20px; height:1px; background:rgba(255,255,255,0.45); flex-shrink:0; }
+  .apple-card-emblem{
+    width:22px; height:22px;
+    color:#FFE8C2;
+    flex-shrink:0;
+  }
+  .apple-card-title{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:clamp(18px, 6.6vw, 25px);
+    letter-spacing:0.02em;
+    text-transform:uppercase;
+    color:#fff;
+    text-shadow:0 2px 8px rgba(0,0,0,0.45);
+    margin:4px 0 7px;
+    line-height:1.05;
+  }
+  .apple-card-divider{
+    width:56%;
+    height:1px;
+    background:rgba(255,255,255,0.35);
+    margin:5px 0;
+    flex-shrink:0;
+  }
+  .apple-card-desc{
+    font-family:'Quicksand', sans-serif;
+    font-weight:600;
+    font-size:clamp(10.5px, 3vw, 12.5px);
+    line-height:1.38;
+    color:#FDE9B8;
+    margin:5px 0;
+    max-width:96%;
+  }
+  .apple-card-tags{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:5px;
+    margin:6px 0;
+    width:100%;
+  }
+  .apple-tag{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    flex:0 0 auto;
+    gap:3px;
+    padding:3px 8px;
+    border-radius:999px;
+    border:1.2px solid rgba(var(--tag),0.75);
+    background:rgba(var(--tag),0.18);
+    color:rgb(var(--tag));
+    font-family:'Quicksand', sans-serif;
+    font-weight:700;
+    font-size:clamp(7.5px, 1.3vw, 9px);
+    white-space:nowrap;
+  }
+  .apple-tag svg{ width:9px; height:9px; flex-shrink:0; }
+  .apple-card-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    margin-top:7px;
+    padding:7px 16px;
+    border-radius:999px;
+    border:1.5px solid rgba(255,255,255,0.55);
+    background:rgba(0,0,0,0.28);
+    color:#fff;
+    font-family:'Quicksand', sans-serif;
+    font-weight:800;
+    font-size:clamp(10px, 2.6vw, 12px);
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    text-decoration:none;
+    flex-shrink:0;
+    transition:background 0.25s ease, transform 0.25s ease;
+  }
+  .apple-card-btn:hover{ background:rgba(0,0,0,0.45); transform:scale(1.05); }
+  .apple-card-btn svg{ width:12px; height:12px; }
+  @media (max-width:420px){
+    .apple-card{ max-width:640px; }
   }
   @media (max-width:560px){
-    .apple{ width:28px; height:28px; margin:-14px 0 0 -14px; }
-    .apple-body{ width:21px; height:21px; }
+    .apple{ width:42px; height:42px; margin:-21px 0 0 -21px; }
+    .apple-body{ width:32px; height:32px; }
     .apple-label{ display:none; }
   }
   @media (prefers-reduced-motion: reduce){
     .tree-scene, .apple, .apple-body{ transition:none; }
     .tree-scene{ opacity:1; transform:none; }
     .apple{ opacity:1; transform:none; }
-    .project-display .project-card{ animation:none; }
+    #projectDisplay .project-card{ animation:none; }
   }
 
   .stats-inner{
@@ -3066,6 +3305,7 @@
         <div class="music-volume-track">
           <div class="music-volume-fill" id="musicVolumeFill"></div>
         </div>
+        <div class="music-volume-thumb" id="musicVolumeThumb"></div>
       </div>
     </div>
         <div class="music-progress" aria-hidden="true"><div class="music-progress-fill" id="musicProgressFill"></div></div>
@@ -7496,144 +7736,119 @@
         </div>
       </div>
 
-      <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-        <defs>
-          <clipPath id="appleCardClip" clipPathUnits="objectBoundingBox">
-            <path d="M0.5,0.045 C0.42,0.005 0.34,0.0 0.26,0.015 C0.1,0.045 0.0,0.16 0.0,0.32 L0.0,0.68 C0.0,0.84 0.08,0.955 0.22,0.985 C0.32,1.0 0.4,0.995 0.46,0.985 C0.5,0.978 0.5,0.978 0.54,0.985 C0.6,0.995 0.68,1.0 0.78,0.985 C0.92,0.955 1.0,0.84 1.0,0.68 L1.0,0.32 C1.0,0.16 0.9,0.045 0.74,0.015 C0.66,0.0 0.58,0.005 0.5,0.045 Z"/>
-          </clipPath>
-        </defs>
-      </svg>
-
       <div class="project-display" id="projectDisplay">
+        <button class="project-modal-close" id="projectModalClose" type="button" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
 
         <div class="project-card is-active" data-project-index="0">
-          <div class="project-info">
-            <h3 class="project-title">Scaccomatto Chess App</h3>
-            <ul class="project-bullets">
-              <li>Developed a real-time multiplayer chess platform leveraging Java AWT/Swing for the user interface and Java networking sockets.</li>
-              <li>Implemented matchmaking systems and an ELO rating mechanism to facilitate competitive play.</li>
-              <li>Ensured live move synchronization between players to enhance the interactive gaming experience.</li>
-              <li>Focused on scalable and responsive game design under tight deadlines, demonstrating strong system design and algorithm skills.</li>
-            </ul>
-            <p class="project-stack-label">Technology Stack</p>
-            <div class="project-tags">
-              <span class="project-tag">Java</span>
-              <span class="project-tag">Real-time Multiplayer</span>
-              <span class="project-tag">Socket Programming</span>
-              <span class="project-tag">ELO System</span>
-              <span class="project-tag">Game Development</span>
+          <div class="apple-card">
+            <svg class="apple-card-bg" aria-hidden="true"><use href="#appleIcon"></use></svg>
+            <div class="apple-card-content">
+              <div class="apple-card-icon-row">
+                <span class="apple-card-flourish"></span>
+                <svg class="apple-card-emblem" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="7" r="4"/><rect x="9" y="14" width="6" height="3" rx="1"/><path d="M8 21h8l-1.5-6h-5L8 21Z"/></svg>
+                <span class="apple-card-flourish"></span>
+              </div>
+              <h3 class="apple-card-title">Scaccomatto</h3>
+              <div class="apple-card-divider"></div>
+              <p class="apple-card-desc">Real-time multiplayer chess in Java, with live move sync and ELO ratings.</p>
+              <div class="apple-card-divider"></div>
+              <div class="apple-card-tags">
+                <span class="apple-tag" style="--tag:245,166,35;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h13v6a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V9Z"/><path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M7 6V4M10.5 6V4M14 6V4"/></svg>Java</span>
+                <span class="apple-tag" style="--tag:34,197,94;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="17" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="17" cy="19" r="2.6"/><path d="M8.3 10.8 14.7 6.7M8.3 13.2 14.7 17.3"/></svg>Sockets</span>
+                <span class="apple-tag" style="--tag:74,222,128;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="9" r="3.2"/><path d="M2.5 20a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="8" r="2.6"/><path d="M15 12.5a4.5 4.5 0 0 1 6.5 4"/></svg>Multiplayer</span>
+                <span class="apple-tag" style="--tag:200,155,108;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4v1a3 3 0 0 0 3 3M17 5h3v1a3 3 0 0 1-3 3"/><path d="M12 13v4M8 21h8"/></svg>ELO</span>
+              </div>
+              <a href="project-placeholder.html?project=Scaccomatto%20Chess%20App" class="apple-card-btn">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7Z"/></svg>
+                Open Project
+              </a>
             </div>
-            <a href="project-placeholder.html?project=Scaccomatto%20Chess%20App" class="project-link-btn">View Project
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
-            </a>
-          </div>
-          <div class="project-visual">
-            <svg viewBox="0 0 24 24" fill="none">
-              <defs><linearGradient id="pg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4ADE80"/><stop offset="1" stop-color="#15803D"/></linearGradient></defs>
-              <path d="M9.5 3a2.5 2.5 0 0 0-2.5 2.5v.6A2.5 2.5 0 0 0 5 8.5v1A2.5 2.5 0 0 0 3.5 12 2.5 2.5 0 0 0 5 14.4v.1a2.5 2.5 0 0 0 2 2.45V18a3 3 0 0 0 3 3h.5a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1Z" fill="url(#pg1)"/>
-              <path d="M14.5 3a2.5 2.5 0 0 1 2.5 2.5v.6a2.5 2.5 0 0 1 2 2.4v1a2.5 2.5 0 0 1 1.5 2.5 2.5 2.5 0 0 1-1.5 2.4v.1a2.5 2.5 0 0 1-2 2.45V18a3 3 0 0 1-3 3h-.5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" fill="url(#pg1)" opacity="0.85"/>
-            </svg>
           </div>
         </div>
 
         <div class="project-card" data-project-index="1">
-          <div class="project-info">
-            <h3 class="project-title">API Optimization Suite</h3>
-            <ul class="project-bullets">
-              <li>Designed and refactored backend REST APIs to cut average response times and reduce server load.</li>
-              <li>Introduced caching layers and query optimization to eliminate redundant database calls.</li>
-              <li>Built monitoring hooks to track latency and error rates across endpoints in real time.</li>
-              <li>Documented and standardized API contracts to streamline future feature development.</li>
-            </ul>
-            <p class="project-stack-label">Technology Stack</p>
-            <div class="project-tags">
-              <span class="project-tag">Node.js</span>
-              <span class="project-tag">REST APIs</span>
-              <span class="project-tag">Caching</span>
-              <span class="project-tag">Performance Tuning</span>
+          <div class="apple-card">
+            <svg class="apple-card-bg" aria-hidden="true"><use href="#appleIcon"></use></svg>
+            <div class="apple-card-content">
+              <div class="apple-card-icon-row">
+                <span class="apple-card-flourish"></span>
+                <svg class="apple-card-emblem" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg>
+                <span class="apple-card-flourish"></span>
+              </div>
+              <h3 class="apple-card-title">API Optimizer</h3>
+              <div class="apple-card-divider"></div>
+              <p class="apple-card-desc">Refactored REST APIs with caching and monitoring to cut response times.</p>
+              <div class="apple-card-divider"></div>
+              <div class="apple-card-tags">
+                <span class="apple-tag" style="--tag:245,166,35;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 20 7.5V16.5L12 21 4 16.5V7.5Z"/><path d="M4 7.5 12 12M12 12 20 7.5M12 12V21"/></svg>Node.js</span>
+                <span class="apple-tag" style="--tag:34,197,94;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="17" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="17" cy="19" r="2.6"/><path d="M8.3 10.8 14.7 6.7M8.3 13.2 14.7 17.3"/></svg>REST APIs</span>
+                <span class="apple-tag" style="--tag:74,222,128;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>Caching</span>
+                <span class="apple-tag" style="--tag:200,155,108;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,13 7,13 9,7 13,19 16,13 22,13"/></svg>Monitoring</span>
+              </div>
+              <a href="project-placeholder.html?project=API%20Optimization%20Suite" class="apple-card-btn">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7Z"/></svg>
+                Open Project
+              </a>
             </div>
-            <a href="project-placeholder.html?project=API%20Optimization%20Suite" class="project-link-btn">View Project
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
-            </a>
-          </div>
-          <div class="project-visual">
-            <svg viewBox="0 0 24 24" fill="none">
-              <defs><linearGradient id="pg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4ADE80"/><stop offset="1" stop-color="#15803D"/></linearGradient></defs>
-              <rect x="3" y="4" width="18" height="16" rx="3" fill="none" stroke="url(#pg2)" stroke-width="1.6"/>
-              <path d="M8 9l-3 3 3 3" stroke="url(#pg2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-              <path d="M16 9l3 3-3 3" stroke="url(#pg2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-              <path d="M13 8l-2 8" stroke="url(#pg2)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-            </svg>
           </div>
         </div>
 
         <div class="project-card" data-project-index="2">
-          <div class="project-info">
-            <h3 class="project-title">Motion-Driven Portfolio</h3>
-            <ul class="project-bullets">
-              <li>Built a fully animated personal site using Next.js with scroll-triggered reveals and parallax layers.</li>
-              <li>Used Framer Motion to choreograph micro-interactions across navigation, cards, and hero sections.</li>
-              <li>Optimized rendering to keep animations smooth across desktop and mobile viewports.</li>
-              <li>Iterated on layout and typography to create a distinct, modern visual identity.</li>
-            </ul>
-            <p class="project-stack-label">Technology Stack</p>
-            <div class="project-tags">
-              <span class="project-tag">Next.js</span>
-              <span class="project-tag">Framer Motion</span>
-              <span class="project-tag">React</span>
-              <span class="project-tag">Web Animation</span>
+          <div class="apple-card">
+            <svg class="apple-card-bg" aria-hidden="true"><use href="#appleIcon"></use></svg>
+            <div class="apple-card-content">
+              <div class="apple-card-icon-row">
+                <span class="apple-card-flourish"></span>
+                <svg class="apple-card-emblem" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 14.2 9.3 21 12 14.2 14.7 12 22 9.8 14.7 3 12 9.8 9.3Z"/></svg>
+                <span class="apple-card-flourish"></span>
+              </div>
+              <h3 class="apple-card-title">Motion Portfolio</h3>
+              <div class="apple-card-divider"></div>
+              <p class="apple-card-desc">Animated Next.js site with scroll reveals and Framer Motion micro-interactions.</p>
+              <div class="apple-card-divider"></div>
+              <div class="apple-card-tags">
+                <span class="apple-tag" style="--tag:245,166,35;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 22 20H2Z"/></svg>Next.js</span>
+                <span class="apple-tag" style="--tag:34,197,94;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 14.2 9.3 21 12 14.2 14.7 12 22 9.8 14.7 3 12 9.8 9.3Z"/></svg>Framer Motion</span>
+                <span class="apple-tag" style="--tag:74,222,128;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><ellipse cx="12" cy="12" rx="9" ry="3.6"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(120 12 12)"/></svg>React</span>
+                <span class="apple-tag" style="--tag:200,155,108;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,13 7,13 9,7 13,19 16,13 22,13"/></svg>Animation</span>
+              </div>
+              <a href="project-placeholder.html?project=Motion-Driven%20Portfolio" class="apple-card-btn">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7Z"/></svg>
+                Open Project
+              </a>
             </div>
-            <a href="project-placeholder.html?project=Motion-Driven%20Portfolio" class="project-link-btn">View Project
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
-            </a>
-          </div>
-          <div class="project-visual">
-            <svg viewBox="0 0 24 24" fill="none">
-              <defs><linearGradient id="pg3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4ADE80"/><stop offset="1" stop-color="#15803D"/></linearGradient></defs>
-              <circle cx="7" cy="17" r="2.4" fill="url(#pg3)"/>
-              <circle cx="12" cy="7" r="2.4" fill="url(#pg3)" opacity="0.85"/>
-              <circle cx="18" cy="14" r="2.4" fill="url(#pg3)" opacity="0.7"/>
-              <path d="M7 17 12 7 18 14" stroke="url(#pg3)" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.6"/>
-            </svg>
           </div>
         </div>
 
         <div class="project-card" data-project-index="3">
-          <div class="project-info">
-            <h3 class="project-title">Linux Dev Toolkit</h3>
-            <ul class="project-bullets">
-              <li>Created a collection of shell scripts and dotfiles to automate daily development environment setup.</li>
-              <li>Configured a custom terminal workflow with tiling window management for faster context switching.</li>
-              <li>Wrote utilities to streamline Git workflows, backups, and system maintenance tasks.</li>
-              <li>Documented setup steps so the toolkit can be reproduced on a fresh machine in minutes.</li>
-            </ul>
-            <p class="project-stack-label">Technology Stack</p>
-            <div class="project-tags">
-              <span class="project-tag">Linux</span>
-              <span class="project-tag">Bash</span>
-              <span class="project-tag">Automation</span>
-              <span class="project-tag">Dotfiles</span>
+          <div class="apple-card">
+            <svg class="apple-card-bg" aria-hidden="true"><use href="#appleIcon"></use></svg>
+            <div class="apple-card-content">
+              <div class="apple-card-icon-row">
+                <span class="apple-card-flourish"></span>
+                <svg class="apple-card-emblem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 9l4 3-4 3M13 15h5"/></svg>
+                <span class="apple-card-flourish"></span>
+              </div>
+              <h3 class="apple-card-title">Dev Toolkit</h3>
+              <div class="apple-card-divider"></div>
+              <p class="apple-card-desc">Shell scripts and dotfiles that automate a full Linux dev environment setup.</p>
+              <div class="apple-card-divider"></div>
+              <div class="apple-card-tags">
+                <span class="apple-tag" style="--tag:245,166,35;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 9l4 3-4 3M13 15h5"/></svg>Linux</span>
+                <span class="apple-tag" style="--tag:34,197,94;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 9l4 3-4 3M13 15h5"/></svg>Bash</span>
+                <span class="apple-tag" style="--tag:74,222,128;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.8"/><path d="M12 3v3.4M12 17.6V21M21 12h-3.4M6.4 12H3M18.4 5.6l-2.4 2.4M8 13.6l-2.4 2.4M18.4 18.4l-2.4-2.4M8 10.4 5.6 8"/></svg>Automation</span>
+                <span class="apple-tag" style="--tag:200,155,108;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 20 7.5V16.5L12 21 4 16.5V7.5Z"/><path d="M4 7.5 12 12M12 12 20 7.5M12 12V21"/></svg>Dotfiles</span>
+              </div>
+              <a href="project-placeholder.html?project=Linux%20Dev%20Toolkit" class="apple-card-btn">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7Z"/></svg>
+                Open Project
+              </a>
             </div>
-            <a href="project-placeholder.html?project=Linux%20Dev%20Toolkit" class="project-link-btn">View Project
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
-            </a>
-          </div>
-          <div class="project-visual">
-            <svg viewBox="0 0 24 24" fill="none">
-              <defs><linearGradient id="pg4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4ADE80"/><stop offset="1" stop-color="#15803D"/></linearGradient></defs>
-              <rect x="3" y="4" width="18" height="16" rx="3" fill="none" stroke="url(#pg4)" stroke-width="1.6"/>
-              <path d="M6.5 9l3.5 3-3.5 3" stroke="url(#pg4)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-              <path d="M12 15h5.5" stroke="url(#pg4)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-            </svg>
           </div>
         </div>
 
-        <div class="project-dots" id="projectDots" aria-hidden="true">
-          <button class="project-dot is-active" data-project="0" aria-label="Project 1"></button>
-          <button class="project-dot" data-project="1" aria-label="Project 2"></button>
-          <button class="project-dot" data-project="2" aria-label="Project 3"></button>
-          <button class="project-dot" data-project="3" aria-label="Project 4"></button>
-        </div>
       </div>
     </div>
   </div>
@@ -7647,7 +7862,40 @@
       <div class="divider"><span></span><i></i><span></span></div>
       <p class="content-section-sub">Milestones worth celebrating.</p>
     </div>
-    <div class="content-section-body"></div>
+    <div class="content-section-body">
+      <div class="trophy-grid" data-reveal>
+        <div class="trophy-card" style="--tr:167,109,255;">
+          <div class="trophy-icon">🧭</div>
+          <h3 class="trophy-title">The Origin Story</h3>
+          <p class="trophy-sub">About</p>
+        </div>
+        <div class="trophy-card" style="--tr:239,68,68;">
+          <div class="trophy-icon">📊</div>
+          <h3 class="trophy-title">The Numbers Don't Lie</h3>
+          <p class="trophy-sub">Stats</p>
+        </div>
+        <div class="trophy-card" style="--tr:34,211,238;">
+          <div class="trophy-icon">🎓</div>
+          <h3 class="trophy-title">The Learning Path</h3>
+          <p class="trophy-sub">Education</p>
+        </div>
+        <div class="trophy-card" style="--tr:34,197,94;">
+          <div class="trophy-icon">⚡</div>
+          <h3 class="trophy-title">Built From Scratch</h3>
+          <p class="trophy-sub">Projects</p>
+        </div>
+        <div class="trophy-card" style="--tr:255,209,0;">
+          <div class="trophy-icon">🏆</div>
+          <h3 class="trophy-title">Trophy Room</h3>
+          <p class="trophy-sub">Achievements</p>
+        </div>
+        <div class="trophy-card" style="--tr:245,246,248;">
+          <div class="trophy-icon">📖</div>
+          <h3 class="trophy-title">Reached the Epilogue</h3>
+          <p class="trophy-sub">Epilogue</p>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -7793,7 +8041,7 @@
       ['#about', '#8B5CF6'],
       ['#stats', '#FB4B70'],
       ['#education', '#22D3EE'],
-      ['#projects', '#22C55E'],
+      ['#projects', '#ADBE2F'],
       ['#achievements', '#FFD100'],
       ['#epilogue', '#F5F6F8']
     ];
@@ -8688,28 +8936,189 @@
 
   /* ---------- Projects: apple tree ---------- */
   const treeScene = document.getElementById('treeScene');
-  const appleEls = document.querySelectorAll('.apple');
+  const appleEls = Array.prototype.slice.call(document.querySelectorAll('.apple'));
   const projectCards = document.querySelectorAll('.project-display .project-card');
-  const projectDots = document.querySelectorAll('.project-dot');
+  const projectDisplay = document.getElementById('projectDisplay');
+  const projectModalClose = document.getElementById('projectModalClose');
 
   function selectProject(idx){
     appleEls.forEach(a => a.classList.toggle('is-active', a.getAttribute('data-project') === idx));
     projectCards.forEach(c => c.classList.toggle('is-active', c.getAttribute('data-project-index') === idx));
-    projectDots.forEach(d => d.classList.toggle('is-active', d.getAttribute('data-project') === idx));
+  }
+
+  /* Click an apple: it pulls forward and its card pops up over a blurred backdrop.
+     Close it (Escape / backdrop / ×) and it settles into a little pile at the
+     foot of the trunk, marking that project as seen. Grounded apples reopen the
+     same card with a lighter "lift" flourish instead of the full pull-forward. */
+  const GROUND_SLOTS = [
+    { left: 40, top: 84 },
+    { left: 46, top: 86.5 },
+    { left: 54, top: 86.5 },
+    { left: 60, top: 84 }
+  ];
+  const appleState = {};
+  appleEls.forEach(a => { appleState[a.getAttribute('data-project')] = 'hanging'; });
+  let groundedCount = 0;
+  let currentOpenIdx = null;
+
+  const modalBackdrop = document.createElement('div');
+  modalBackdrop.className = 'project-modal-backdrop';
+  document.body.appendChild(modalBackdrop);
+  /* re-home the modal at body level so it's never affected by an ancestor's
+     transform/filter (which would otherwise break position:fixed) */
+  if(projectDisplay) document.body.appendChild(projectDisplay);
+
+  function appleForIdx(idx){
+    return appleEls.find(a => a.getAttribute('data-project') === idx);
+  }
+
+  function groundApple(idx){
+    const apple = appleForIdx(idx);
+    if(!apple || appleState[idx] === 'grounded') return;
+    const slot = GROUND_SLOTS[groundedCount % GROUND_SLOTS.length];
+    groundedCount++;
+    apple.style.left = slot.left + '%';
+    apple.style.top = slot.top + '%';
+    apple.classList.add('is-grounded');
+    appleState[idx] = 'grounded';
+  }
+
+  /* The clicked apple IS the card: it flies from its own on-screen position/size
+     to the centred, full-size card (a FLIP transition), instead of a separate
+     "card" simply fading in somewhere else while the small apple stays put. */
+  function easeInOutCubic(t){ return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2; }
+
+  /* express a rect as an offset (dx,dy,scale) from #projectDisplay's own natural
+     centred/full-size layout, so (0,0,1,1) always means "settled, on-screen" */
+  function rectToOffset(rect, naturalRect){
+    return {
+      dx: (rect.left + rect.width/2) - (naturalRect.left + naturalRect.width/2),
+      dy: (rect.top + rect.height/2) - (naturalRect.top + naturalRect.height/2),
+      sx: Math.max(rect.width / naturalRect.width, 0.02),
+      sy: Math.max(rect.height / naturalRect.height, 0.02)
+    };
+  }
+
+  /* animates #projectDisplay's transform+opacity along a curved (quadratic
+     bezier) path between two offsets, instead of a straight-line interpolation */
+  /* No opacity fade anywhere in here on purpose: it's the same apple the whole
+     time, just changing size and position, never fading out and "respawning". */
+  function animateCardArc(fromOffset, toOffset, opts, onDone){
+    projectDisplay.style.opacity = '1';
+    if(reduceMotion){
+      projectDisplay.style.transform = 'translate(-50%,-50%) translate(' + toOffset.dx + 'px,' + toOffset.dy + 'px) scale(' + toOffset.sx + ',' + toOffset.sy + ')';
+      if(onDone) onDone();
+      return;
+    }
+    const duration = opts.duration || 540;
+    const arc = opts.arc || 0;
+    const midX = (fromOffset.dx + toOffset.dx) / 2;
+    const midY = (fromOffset.dy + toOffset.dy) / 2 + arc;
+    projectDisplay.style.transition = 'none';
+    const t0 = performance.now();
+    function step(now){
+      const raw = Math.min(1, (now - t0) / duration);
+      const t = easeInOutCubic(raw);
+      const mt = 1 - t;
+      const dx = mt*mt*fromOffset.dx + 2*mt*t*midX + t*t*toOffset.dx;
+      const dy = mt*mt*fromOffset.dy + 2*mt*t*midY + t*t*toOffset.dy;
+      const sx = fromOffset.sx + (toOffset.sx - fromOffset.sx) * t;
+      const sy = fromOffset.sy + (toOffset.sy - fromOffset.sy) * t;
+      projectDisplay.style.transform = 'translate(-50%,-50%) translate(' + dx + 'px,' + dy + 'px) scale(' + sx + ',' + sy + ')';
+      if(raw < 1){
+        requestAnimationFrame(step);
+      } else {
+        projectDisplay.style.transition = '';
+        if(onDone) onDone();
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  function openProject(idx){
+    if(currentOpenIdx !== null && currentOpenIdx !== idx){
+      const prevApple = appleForIdx(currentOpenIdx);
+      if(prevApple) prevApple.style.visibility = '';
+    }
+    currentOpenIdx = idx;
+    selectProject(idx);
+    modalBackdrop.classList.add('is-visible');
+
+    const originEl = appleForIdx(idx);
+    if(projectDisplay && originEl){
+      const startRect = originEl.getBoundingClientRect();
+      originEl.style.visibility = 'hidden'; // the apple becomes the card, not a duplicate of it
+      projectDisplay.classList.add('is-open');
+      const naturalRect = projectDisplay.getBoundingClientRect();
+      const fromOffset = rectToOffset(startRect, naturalRect);
+      const toOffset = { dx: 0, dy: 0, sx: 1, sy: 1 };
+      animateCardArc(fromOffset, toOffset, { duration: 540, arc: -120 });
+    } else if(projectDisplay){
+      projectDisplay.classList.add('is-open');
+    }
+    document.addEventListener('keydown', handleModalKeydown);
+  }
+
+  function closeProject(){
+    if(currentOpenIdx === null) return;
+    const idx = currentOpenIdx;
+    const originEl = appleForIdx(idx);
+    modalBackdrop.classList.remove('is-visible');
+
+    if(projectDisplay && originEl){
+      /* jump the (still-hidden) apple straight to its trunk-side resting slot
+         before measuring, so the card flies down to the ground in one curved
+         motion instead of back up to the canopy and then sliding down separately */
+      if(appleState[idx] !== 'grounded'){
+        const slot = GROUND_SLOTS[groundedCount % GROUND_SLOTS.length];
+        groundedCount++;
+        originEl.style.transition = 'none';
+        originEl.style.left = slot.left + '%';
+        originEl.style.top = slot.top + '%';
+        originEl.classList.add('is-grounded');
+        appleState[idx] = 'grounded';
+        void originEl.offsetWidth;
+        originEl.style.transition = '';
+      }
+
+      const naturalRect = projectDisplay.getBoundingClientRect();
+      const targetRect = originEl.getBoundingClientRect();
+      const fromOffset = { dx: 0, dy: 0, sx: 1, sy: 1 };
+      const toOffset = rectToOffset(targetRect, naturalRect);
+
+      /* drop the open-state class now (not at the end) so the text content's
+         fade-out starts immediately, instead of staying legible while the
+         card visually shrinks down to the ground */
+      projectDisplay.classList.remove('is-open');
+      animateCardArc(fromOffset, toOffset, { duration: 540, arc: 130 }, () => {
+        projectDisplay.style.transform = '';
+        projectDisplay.style.opacity = '';
+        originEl.style.visibility = '';
+      });
+    } else if(projectDisplay){
+      projectDisplay.classList.remove('is-open');
+      groundApple(idx);
+    }
+
+    currentOpenIdx = null;
+    document.removeEventListener('keydown', handleModalKeydown);
+  }
+
+  function handleModalKeydown(e){
+    if(e.key === 'Escape') closeProject();
   }
 
   appleEls.forEach(apple => {
-    apple.addEventListener('click', () => selectProject(apple.getAttribute('data-project')));
+    apple.addEventListener('click', () => openProject(apple.getAttribute('data-project')));
     apple.addEventListener('keydown', (e) => {
       if(e.key === 'Enter' || e.key === ' '){
         e.preventDefault();
-        selectProject(apple.getAttribute('data-project'));
+        openProject(apple.getAttribute('data-project'));
       }
     });
   });
-  projectDots.forEach(dot => {
-    dot.addEventListener('click', () => selectProject(dot.getAttribute('data-project')));
-  });
+  modalBackdrop.addEventListener('click', closeProject);
+  if(projectModalClose) projectModalClose.addEventListener('click', closeProject);
 
   const treeObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -8972,9 +9381,11 @@
     const musicVolume = document.getElementById('musicVolume');
     const musicVolumeTrack = musicVolume ? musicVolume.querySelector('.music-volume-track') : null;
     const musicVolumeFill = document.getElementById('musicVolumeFill');
+    const musicVolumeThumb = document.getElementById('musicVolumeThumb');
 
     function renderVolume(){
       if(musicVolumeFill) musicVolumeFill.style.width = (userVolume * 100) + '%';
+      if(musicVolumeThumb) musicVolumeThumb.style.left = (userVolume * 100) + '%';
     }
 
     function applyPointerVolume(e){

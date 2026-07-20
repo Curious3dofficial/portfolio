@@ -3034,6 +3034,243 @@
     background:rgba(255,255,255,0.85);
     border-color:rgba(91,33,182,0.35);
   }
+
+  /* ---------- "Resume under construction" popup ---------- */
+  .resume-popup-backdrop{
+    position:fixed;
+    inset:0;
+    z-index:90;
+    background:rgba(6,8,14,0.6);
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+    opacity:0;
+    pointer-events:none;
+    visibility:hidden;
+    transition:opacity 0.35s ease, visibility 0s linear 0.35s;
+  }
+  .resume-popup-backdrop.is-open{
+    opacity:1;
+    pointer-events:auto;
+    visibility:visible;
+    transition:opacity 0.35s ease;
+  }
+  .resume-popup{
+    position:fixed;
+    top:50%; left:50%;
+    z-index:95;
+    width:min(92vw, 400px);
+    box-sizing:border-box;
+    padding:34px 28px 26px;
+    border-radius:26px;
+    border:1px solid rgba(183,156,251,0.35);
+    background:linear-gradient(160deg, rgba(139,92,246,0.14), rgba(20,23,31,0.94) 45%);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 30px 70px -25px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.08);
+    text-align:center;
+    /* clip the caution tape's angled overhang to the card's rounded corners */
+    overflow:hidden;
+    opacity:0;
+    pointer-events:none;
+    visibility:hidden;
+    transform:translate(-50%,-50%) translateY(14px) scale(0.86);
+    transition:opacity 0.35s ease, transform 0.45s cubic-bezier(.34,1.56,.64,1), visibility 0s linear 0.45s;
+  }
+  .resume-popup.is-open{
+    opacity:1;
+    pointer-events:auto;
+    visibility:visible;
+    transform:translate(-50%,-50%) translateY(0) scale(1);
+    transition:opacity 0.35s ease, transform 0.45s cubic-bezier(.34,1.56,.64,1);
+  }
+  .resume-popup-close{
+    position:absolute;
+    top:12px; right:12px;
+    z-index:3;
+    width:36px; height:36px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:50%;
+    border:1px solid rgba(183,156,251,0.4);
+    background:rgba(20,23,31,0.6);
+    color:var(--paper);
+    cursor:pointer;
+    transition:transform 0.25s cubic-bezier(.34,1.56,.64,1), border-color 0.25s ease;
+  }
+  .resume-popup-close svg{ width:15px; height:15px; }
+  .resume-popup-close:hover{ transform:scale(1.1); border-color:var(--violet-light); }
+  .resume-popup-close:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--violet-light); }
+  /* diagonal caution-tape ribbon across the top-left corner */
+  .resume-tape{
+    position:absolute;
+    top:24px; left:-38px;
+    width:150px; height:22px;
+    transform:rotate(-38deg);
+    background:repeating-linear-gradient(45deg, #FFD100 0 12px, #15131F 12px 24px);
+    box-shadow:0 3px 8px rgba(0,0,0,0.35);
+    opacity:0.95;
+    pointer-events:none;
+  }
+  /* the little document being built */
+  .resume-doc{
+    position:relative;
+    width:96px;
+    margin:2px auto 16px;
+  }
+  .resume-doc-sheet{
+    position:relative;
+    width:88px; height:106px;
+    margin:0 auto;
+    border-radius:9px;
+    background:#F5F6F8;
+    box-shadow:0 10px 22px -8px rgba(0,0,0,0.55);
+    padding:12px 11px 0;
+    box-sizing:border-box;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    animation:resumeSheetBob 3.2s ease-in-out infinite;
+  }
+  @keyframes resumeSheetBob{
+    0%, 100%{ transform:translateY(0) rotate(-1deg); }
+    50%{ transform:translateY(-4px) rotate(1deg); }
+  }
+  .resume-doc-photo{
+    width:20px; height:20px;
+    border-radius:50%;
+    background:linear-gradient(135deg, var(--violet-light), var(--violet-deep));
+    margin-bottom:2px;
+    flex-shrink:0;
+  }
+  /* text lines that endlessly write themselves in, one after another */
+  .resume-doc-line{
+    display:block;
+    height:6px;
+    border-radius:3px;
+    background:linear-gradient(90deg, #A78BFA, #7C5CD6);
+    width:0;
+    animation:resumeLineWrite 5.2s ease-in-out infinite;
+  }
+  .resume-doc-line.l2{ animation-delay:0.9s; background:#C9CCD4; }
+  .resume-doc-line.l3{ animation-delay:1.8s; background:#C9CCD4; }
+  .resume-doc-line.l4{ animation-delay:2.7s; }
+  @keyframes resumeLineWrite{
+    0%{ width:0; }
+    18%{ width:100%; }
+    72%{ width:100%; }
+    86%{ width:0; }
+    100%{ width:0; }
+  }
+  .resume-doc-line.l2{ max-width:80%; }
+  .resume-doc-line.l4{ max-width:62%; }
+  .resume-doc-cone{
+    position:absolute;
+    bottom:-8px; left:-16px;
+    font-size:26px;
+    filter:drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+  }
+  .resume-doc-worker{
+    position:absolute;
+    bottom:-6px; right:-18px;
+    font-size:24px;
+    transform:rotate(8deg);
+    filter:drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+    animation:resumeWorkerPeek 3.2s ease-in-out infinite;
+  }
+  @keyframes resumeWorkerPeek{
+    0%, 100%{ transform:rotate(8deg) translateY(0); }
+    50%{ transform:rotate(4deg) translateY(-3px); }
+  }
+  .resume-popup-title{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:23px;
+    margin:0 0 10px;
+    color:var(--paper);
+  }
+  .resume-popup-copy{
+    font-family:'Quicksand', sans-serif;
+    font-weight:500;
+    font-size:14px;
+    line-height:1.6;
+    color:var(--fog);
+    margin:0 0 20px;
+  }
+  .resume-progress{
+    height:12px;
+    border-radius:999px;
+    background:rgba(183,156,251,0.15);
+    border:1px solid rgba(183,156,251,0.25);
+    overflow:hidden;
+    margin:0 6px;
+  }
+  .resume-progress-fill{
+    width:73%;
+    height:100%;
+    border-radius:999px;
+    background:repeating-linear-gradient(-45deg, #FFD100 0 10px, #E0A900 10px 20px);
+    background-size:28px 100%;
+    animation:resumeStripes 1.1s linear infinite;
+  }
+  @keyframes resumeStripes{
+    from{ background-position:0 0; }
+    to{ background-position:28px 0; }
+  }
+  .resume-progress-label{
+    font-family:'Quicksand', sans-serif;
+    font-weight:600;
+    font-size:12px;
+    color:var(--fog);
+    margin:8px 0 22px;
+  }
+  .resume-popup-actions{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .resume-popup-ok{
+    padding:12px 24px;
+    border-radius:999px;
+    border:1px solid rgba(183,156,251,0.5);
+    background:linear-gradient(135deg, rgba(139,92,246,0.35), rgba(91,33,182,0.25));
+    color:var(--paper);
+    font-family:'Quicksand', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    transition:transform 0.3s cubic-bezier(.34,1.56,.64,1), border-color 0.3s ease;
+  }
+  .resume-popup-ok:hover{ transform:translateY(-2px) scale(1.04); border-color:var(--violet-light); }
+  .resume-popup-ok:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--violet-light); }
+  .resume-popup-mail{
+    font-family:'Quicksand', sans-serif;
+    font-weight:700;
+    font-size:13px;
+    color:var(--violet-light);
+    text-decoration:none;
+    border-bottom:1.5px dashed rgba(183,156,251,0.5);
+    padding-bottom:2px;
+    transition:color 0.25s ease, border-color 0.25s ease;
+  }
+  .resume-popup-mail:hover{ color:var(--paper); border-color:var(--paper); }
+  .resume-popup-mail:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--violet-light); border-radius:4px; }
+  body.light-theme .resume-popup{
+    background:linear-gradient(160deg, rgba(139,92,246,0.10), rgba(255,255,255,0.96) 45%);
+    border-color:rgba(91,33,182,0.25);
+    box-shadow:0 30px 70px -25px rgba(0,0,0,0.35);
+  }
+  body.light-theme .resume-popup-close{
+    background:rgba(255,255,255,0.8);
+    border-color:rgba(91,33,182,0.3);
+  }
+  body.light-theme .resume-doc-sheet{ box-shadow:0 10px 22px -8px rgba(0,0,0,0.3); border:1px solid rgba(0,0,0,0.08); }
+  body.light-theme .resume-popup-backdrop{ background:rgba(240,238,250,0.55); }
+  @media (prefers-reduced-motion: reduce){
+    .resume-popup, .resume-popup-backdrop{ transition:none; }
+    .resume-doc-sheet, .resume-doc-worker, .resume-progress-fill{ animation:none; }
+    .resume-doc-line{ animation:none; width:100%; }
+  }
   @media (prefers-reduced-motion: reduce){
     .project-modal-backdrop, .project-display{ transition:none; }
     .apple{ transition:opacity 0.2s ease, left 0.01s, top 0.01s; }
@@ -6961,6 +7198,63 @@
     });
   }
 
+  /* ---------- "Resume under construction" popup ---------- */
+  /* runs on DOMContentLoaded: the popup's markup sits after this script in
+     the document (with the other overlay layers), so it doesn't exist yet
+     at script-execution time */
+  document.addEventListener('DOMContentLoaded', function initResumePopup(){
+    const resumeBtn = document.querySelector('.resume-btn');
+    const popup = document.getElementById('resumePopup');
+    const backdrop = document.getElementById('resumeBackdrop');
+    const closeBtn = document.getElementById('resumeClose');
+    const okBtn = document.getElementById('resumeOk');
+    if(!resumeBtn || !popup || !backdrop) return;
+
+    let lastFocused = null;
+
+    function onResumeKeydown(e){
+      if(e.key === 'Escape'){ closeResumePopup(); return; }
+      /* keep Tab inside the little dialog (close button, ok, mailto link) */
+      if(e.key === 'Tab'){
+        const focusables = popup.querySelectorAll('button, a[href]');
+        if(!focusables.length) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const active = document.activeElement;
+        if(e.shiftKey){
+          if(active === first || !popup.contains(active)){ e.preventDefault(); last.focus(); }
+        } else if(active === last || !popup.contains(active)){
+          e.preventDefault(); first.focus();
+        }
+      }
+    }
+
+    function openResumePopup(){
+      lastFocused = document.activeElement;
+      lockBodyScroll();
+      backdrop.classList.add('is-open');
+      popup.classList.add('is-open');
+      if(closeBtn) closeBtn.focus({ preventScroll:true });
+      document.addEventListener('keydown', onResumeKeydown);
+    }
+
+    function closeResumePopup(){
+      backdrop.classList.remove('is-open');
+      popup.classList.remove('is-open');
+      unlockBodyScroll();
+      document.removeEventListener('keydown', onResumeKeydown);
+      /* Safari doesn't focus buttons on click, so lastFocused can be <body> -
+         fall back to the resume button itself rather than dropping focus */
+      const target = (lastFocused && lastFocused !== document.body && document.contains(lastFocused)) ? lastFocused : resumeBtn;
+      target.focus({ preventScroll:true });
+    }
+
+    resumeBtn.addEventListener('click', openResumePopup);
+    backdrop.addEventListener('click', closeResumePopup);
+    if(closeBtn) closeBtn.addEventListener('click', closeResumePopup);
+    if(okBtn) okBtn.addEventListener('click', closeResumePopup);
+  });
+
   /* ---------- Chevron page-transition (ported) ---------- */
   const chevronTransitionDurationMs = 1500;
   const returnChevronPauseMs = 500;
@@ -7087,6 +7381,33 @@
     }, chevronTransitionDurationMs);
   });
 </script>
+
+<div class="resume-popup-backdrop" id="resumeBackdrop"></div>
+<div class="resume-popup" id="resumePopup" role="dialog" aria-modal="true" aria-labelledby="resumePopupTitle">
+  <button class="resume-popup-close" id="resumeClose" type="button" aria-label="Close">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <span class="resume-tape" aria-hidden="true"></span>
+  <div class="resume-doc" aria-hidden="true">
+    <div class="resume-doc-sheet">
+      <span class="resume-doc-photo"></span>
+      <span class="resume-doc-line l1"></span>
+      <span class="resume-doc-line l2"></span>
+      <span class="resume-doc-line l3"></span>
+      <span class="resume-doc-line l4"></span>
+    </div>
+    <span class="resume-doc-cone">🚧</span>
+    <span class="resume-doc-worker">👷</span>
+  </div>
+  <h3 class="resume-popup-title" id="resumePopupTitle">Resume under construction</h3>
+  <p class="resume-popup-copy">This document keeps getting rewritten &mdash; every time I build something new, a section goes back to the drawing board. Check back soon!</p>
+  <div class="resume-progress" aria-hidden="true"><div class="resume-progress-fill"></div></div>
+  <p class="resume-progress-label" aria-hidden="true">Formatting the good parts&hellip; 73%</p>
+  <div class="resume-popup-actions">
+    <button class="resume-popup-ok" id="resumeOk" type="button">I'll check back</button>
+    <a class="resume-popup-mail" href="mailto:aniruddha911xd@gmail.com">Email me instead</a>
+  </div>
+</div>
 
 <div class="chevron-transition" aria-hidden="true">
   <div class="chevron"></div>

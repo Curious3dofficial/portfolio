@@ -3083,22 +3083,6 @@
     transform:translate(-50%,-50%) translateY(0) scale(1);
     transition:opacity 0.35s ease, transform 0.45s cubic-bezier(.34,1.56,.64,1);
   }
-  .resume-popup-close{
-    position:absolute;
-    top:12px; right:12px;
-    z-index:3;
-    width:36px; height:36px;
-    display:flex; align-items:center; justify-content:center;
-    border-radius:50%;
-    border:1px solid rgba(183,156,251,0.4);
-    background:rgba(20,23,31,0.6);
-    color:var(--paper);
-    cursor:pointer;
-    transition:transform 0.25s cubic-bezier(.34,1.56,.64,1), border-color 0.25s ease;
-  }
-  .resume-popup-close svg{ width:15px; height:15px; }
-  .resume-popup-close:hover{ transform:scale(1.1); border-color:var(--violet-light); }
-  .resume-popup-close:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--violet-light); }
   /* diagonal caution-tape ribbon across the top-left corner */
   .resume-tape{
     position:absolute;
@@ -3209,7 +3193,7 @@
     border-radius:999px;
     background:repeating-linear-gradient(-45deg, #FFD100 0 10px, #E0A900 10px 20px);
     background-size:28px 100%;
-    animation:resumeStripes 1.1s linear infinite;
+    animation:resumeStripes 2.8s linear infinite;
   }
   @keyframes resumeStripes{
     from{ background-position:0 0; }
@@ -3243,26 +3227,10 @@
   }
   .resume-popup-ok:hover{ transform:translateY(-2px) scale(1.04); border-color:var(--violet-light); }
   .resume-popup-ok:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--violet-light); }
-  .resume-popup-mail{
-    font-family:'Quicksand', sans-serif;
-    font-weight:700;
-    font-size:13px;
-    color:var(--violet-light);
-    text-decoration:none;
-    border-bottom:1.5px dashed rgba(183,156,251,0.5);
-    padding-bottom:2px;
-    transition:color 0.25s ease, border-color 0.25s ease;
-  }
-  .resume-popup-mail:hover{ color:var(--paper); border-color:var(--paper); }
-  .resume-popup-mail:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--violet-light); border-radius:4px; }
   body.light-theme .resume-popup{
     background:linear-gradient(160deg, rgba(139,92,246,0.10), rgba(255,255,255,0.96) 45%);
     border-color:rgba(91,33,182,0.25);
     box-shadow:0 30px 70px -25px rgba(0,0,0,0.35);
-  }
-  body.light-theme .resume-popup-close{
-    background:rgba(255,255,255,0.8);
-    border-color:rgba(91,33,182,0.3);
   }
   body.light-theme .resume-doc-sheet{ box-shadow:0 10px 22px -8px rgba(0,0,0,0.3); border:1px solid rgba(0,0,0,0.08); }
   body.light-theme .resume-popup-backdrop{ background:rgba(240,238,250,0.55); }
@@ -7206,7 +7174,6 @@
     const resumeBtn = document.querySelector('.resume-btn');
     const popup = document.getElementById('resumePopup');
     const backdrop = document.getElementById('resumeBackdrop');
-    const closeBtn = document.getElementById('resumeClose');
     const okBtn = document.getElementById('resumeOk');
     if(!resumeBtn || !popup || !backdrop) return;
 
@@ -7214,7 +7181,7 @@
 
     function onResumeKeydown(e){
       if(e.key === 'Escape'){ closeResumePopup(); return; }
-      /* keep Tab inside the little dialog (close button, ok, mailto link) */
+      /* keep Tab inside the little dialog */
       if(e.key === 'Tab'){
         const focusables = popup.querySelectorAll('button, a[href]');
         if(!focusables.length) return;
@@ -7234,7 +7201,7 @@
       lockBodyScroll();
       backdrop.classList.add('is-open');
       popup.classList.add('is-open');
-      if(closeBtn) closeBtn.focus({ preventScroll:true });
+      if(okBtn) okBtn.focus({ preventScroll:true });
       document.addEventListener('keydown', onResumeKeydown);
     }
 
@@ -7251,7 +7218,6 @@
 
     resumeBtn.addEventListener('click', openResumePopup);
     backdrop.addEventListener('click', closeResumePopup);
-    if(closeBtn) closeBtn.addEventListener('click', closeResumePopup);
     if(okBtn) okBtn.addEventListener('click', closeResumePopup);
   });
 
@@ -7384,9 +7350,6 @@
 
 <div class="resume-popup-backdrop" id="resumeBackdrop"></div>
 <div class="resume-popup" id="resumePopup" role="dialog" aria-modal="true" aria-labelledby="resumePopupTitle">
-  <button class="resume-popup-close" id="resumeClose" type="button" aria-label="Close">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
-  </button>
   <span class="resume-tape" aria-hidden="true"></span>
   <div class="resume-doc" aria-hidden="true">
     <div class="resume-doc-sheet">
@@ -7402,10 +7365,9 @@
   <h3 class="resume-popup-title" id="resumePopupTitle">Resume under construction</h3>
   <p class="resume-popup-copy">This document keeps getting rewritten &mdash; every time I build something new, a section goes back to the drawing board. Check back soon!</p>
   <div class="resume-progress" aria-hidden="true"><div class="resume-progress-fill"></div></div>
-  <p class="resume-progress-label" aria-hidden="true">Formatting the good parts&hellip; 73%</p>
+  <p class="resume-progress-label" aria-hidden="true">Formatting the good parts&hellip;</p>
   <div class="resume-popup-actions">
     <button class="resume-popup-ok" id="resumeOk" type="button">I'll check back</button>
-    <a class="resume-popup-mail" href="mailto:aniruddha911xd@gmail.com">Email me instead</a>
   </div>
 </div>
 

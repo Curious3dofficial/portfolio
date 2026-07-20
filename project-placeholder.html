@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Project — Coming Soon | Aniruddha Mallick</title>
+<meta name="robots" content="noindex" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Baloo+2:wght@600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#0B0D12;
+    --mist:#14171F;
+    --paper:#F5F6F8;
+    --fog:#9AA1AE;
+    --green:#10CC1A;
+    --green-dark:#4D7A0A;
+    --green-mid:#7FB80E;
+  }
+  *{ box-sizing:border-box; }
+  html,body{
+    margin:0; padding:0; min-height:100%;
+    background:var(--void);
+    color:var(--paper);
+    font-family:'Quicksand',sans-serif;
+    overflow-x:hidden;
+  }
+
+  /* ---------- Chevron page-transition (ported from project-detail.html reference) ---------- */
+  .chevron-transition{
+    position:fixed;
+    inset:0;
+    width:100vw;
+    height:100vh;
+    overflow:hidden;
+    pointer-events:none;
+    z-index:50000;
+    background:transparent;
+  }
+  .chevron-transition .chevron{
+    position:absolute;
+    top:0;
+    height:100%;
+    width:110vw;
+    clip-path:polygon(0 0, 72% 0, 100% 50%, 72% 100%, 0 100%, 26% 50%);
+    transform:translateX(var(--cluster-shift, 58%));
+    will-change:transform;
+    z-index:1;
+  }
+  .chevron-transition .chevron:nth-child(1){ left:-140vw; background:#7FB80E; --phase3-shift:185%; --phase3-duration:0.74s; --back-start:231%; --back-duration:0.94s; }
+  .chevron-transition .chevron:nth-child(2){ left:-116vw; background:#4D7A0A; --phase3-shift:172%; --phase3-duration:0.80s; --back-start:223%; --back-duration:0.89s; }
+  .chevron-transition .chevron:nth-child(3){ left:-92vw;  background:#7FB80E; --phase3-shift:159%; --phase3-duration:0.86s; --back-start:215%; --back-duration:0.84s; }
+  .chevron-transition .chevron:nth-child(4){ left:-68vw;  background:#4D7A0A; --phase3-shift:146%; --phase3-duration:0.92s; --back-start:207%; --back-duration:0.79s; }
+  .chevron-transition .chevron:nth-child(5){ left:-44vw;  background:#7FB80E; --phase3-shift:133%; --phase3-duration:0.98s; --back-start:199%; --back-duration:0.74s; }
+  .chevron-transition .chevron:nth-child(6){ left:-20vw;  background:#4D7A0A; --phase3-shift:120%; --phase3-duration:1.04s; --back-start:191%; --back-duration:0.69s; }
+  .chevron-transition .chevron:nth-child(7){ left:4vw;    background:#7FB80E; --phase3-shift:107%; --phase3-duration:1.10s; --back-start:183%; --back-duration:0.64s; }
+  /* arrival: chevrons start fully covering the screen, then sweep off (phase3) to reveal the page */
+  .chevron-transition.phase3 .chevron{
+    transform:translateX(calc(var(--cluster-shift, 58%) + var(--phase3-shift, 120%)));
+    transition:transform var(--phase3-duration, 1s) cubic-bezier(.4,0,.2,1);
+  }
+  /* departure: a fresh overlay sweeps back in (mirrored clip-path) to cover the screen before leaving for the portfolio */
+  .chevron-transition.reverse-cover .chevron{
+    clip-path:polygon(100% 0, 28% 0, 0 50%, 28% 100%, 100% 100%, 74% 50%);
+    transform:translateX(calc(var(--cluster-shift, 58%) + var(--back-start, 200%)));
+    animation:chevron-cover-back var(--back-duration, 0.8s) cubic-bezier(.4,0,.2,1) forwards;
+  }
+  @keyframes chevron-cover-back{
+    from{ transform:translateX(calc(var(--cluster-shift, 58%) + var(--back-start, 200%))); }
+    to{ transform:translateX(var(--cluster-shift, 58%)); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .chevron-transition .chevron{ transition:none !important; animation:none !important; }
+  }
+
+  /* ---------- Page content ---------- */
+  .wrap{
+    position:relative;
+    z-index:2;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:32px 24px;
+    opacity:0;
+    transform:translateY(10px);
+    transition:opacity 0.6s ease 0.5s, transform 0.6s ease 0.5s;
+  }
+  .wrap.is-visible{
+    opacity:1;
+    transform:translateY(0);
+  }
+  .glow-blob{
+    position:fixed;
+    top:50%; left:50%;
+    width:640px; height:640px;
+    transform:translate(-50%,-50%);
+    background:radial-gradient(circle, rgba(16,204,26,0.16), transparent 70%);
+    pointer-events:none;
+    z-index:1;
+  }
+  .badge{
+    font-family:'Quicksand', sans-serif;
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--green);
+    background:rgba(16,204,26,0.12);
+    border:1px solid rgba(16,204,26,0.35);
+    padding:7px 16px;
+    border-radius:999px;
+    margin-bottom:22px;
+  }
+  .sprout{
+    font-size:52px;
+    line-height:1;
+    margin-bottom:6px;
+    filter:drop-shadow(0 8px 18px rgba(16,204,26,0.35));
+  }
+  h1{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:clamp(26px, 5vw, 40px);
+    margin:0 0 10px;
+    line-height:1.2;
+  }
+  #projectName{
+    color:var(--green);
+  }
+  p.lede{
+    font-family:'Quicksand', sans-serif;
+    font-weight:500;
+    font-size:16px;
+    color:var(--fog);
+    max-width:460px;
+    line-height:1.6;
+    margin:0 0 34px;
+  }
+  .back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:9px;
+    padding:13px 26px;
+    border-radius:999px;
+    border:1.5px solid rgba(16,204,26,0.5);
+    background:rgba(16,204,26,0.10);
+    color:var(--paper);
+    font-family:'Quicksand', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    text-decoration:none;
+    letter-spacing:0.02em;
+    transition:background 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+  }
+  .back-btn:hover{
+    background:rgba(16,204,26,0.2);
+    border-color:var(--green);
+    transform:translateY(-2px);
+  }
+  .back-btn svg{ width:16px; height:16px; flex-shrink:0; transition:transform 0.25s ease; }
+  .back-btn:hover svg{ transform:translateX(-3px); }
+
+  .footnote{
+    position:fixed;
+    bottom:20px;
+    left:0; right:0;
+    text-align:center;
+    font-family:'Quicksand', sans-serif;
+    font-size:12px;
+    color:var(--fog);
+    opacity:0.6;
+    z-index:2;
+  }
+</style>
+</head>
+<body>
+
+  <div class="chevron-transition" id="chevronTransition" aria-hidden="true">
+    <div class="chevron"></div>
+    <div class="chevron"></div>
+    <div class="chevron"></div>
+    <div class="chevron"></div>
+    <div class="chevron"></div>
+    <div class="chevron"></div>
+    <div class="chevron"></div>
+  </div>
+
+  <div class="glow-blob" aria-hidden="true"></div>
+
+  <div class="wrap" id="wrap">
+    <div class="sprout" aria-hidden="true">🌱</div>
+    <span class="badge">Still growing on the tree</span>
+    <h1>“<span id="projectName">This project</span>” isn’t picked yet</h1>
+    <p class="lede">This apple is still ripening. I'm actively building this project's page — come back soon to see it in full, or head back and explore the rest of the tree in the meantime.</p>
+    <a href="index.html#projects" class="back-btn" id="backLink">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to the tree
+    </a>
+  </div>
+
+  <div class="footnote">Aniruddha Mallick — Portfolio</div>
+
+<script>
+  (function(){
+    var params = new URLSearchParams(window.location.search);
+    var project = params.get('project');
+    var idx = params.get('idx');
+    var nameEl = document.getElementById('projectName');
+    if(project && nameEl){ nameEl.textContent = project; }
+    document.title = (project ? project + ' — Coming Soon' : 'Project — Coming Soon') + ' | Aniruddha Mallick';
+
+    /* carry the apple's index back to index.html so it can reopen the same
+       zoomed-in project card instead of just landing on the tree */
+    var backLink = document.getElementById('backLink');
+    if(backLink && idx !== null && idx !== ''){
+      backLink.setAttribute('href', 'index.html?openProject=' + encodeURIComponent(idx) + '#projects');
+    }
+  })();
+
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var wrapEl = document.getElementById('wrap');
+
+  var chevronIntro = document.querySelector('.chevron-transition');
+  var chevronPauseMs = 500;
+  var chevronExitMaxMs = 1120;
+  if(chevronIntro){
+    window.setTimeout(function(){
+      chevronIntro.classList.add('phase3');
+      wrapEl.classList.add('is-visible');
+    }, chevronPauseMs);
+
+    window.setTimeout(function(){
+      if(chevronIntro.parentElement){ chevronIntro.remove(); }
+    }, chevronPauseMs + chevronExitMaxMs + 140);
+  } else {
+    wrapEl.classList.add('is-visible');
+  }
+
+  var reverseChevronRedirectMs = 1500;
+  var reverseAnimating = false;
+  function runReverseToIndex(navigate){
+    if(reverseAnimating) return;
+    reverseAnimating = true;
+    try{ sessionStorage.setItem('chevronReturnToIndex', '1'); }catch(err){}
+
+    if(reduceMotion){
+      navigate();
+      return;
+    }
+
+    var reverseOverlay = document.createElement('div');
+    reverseOverlay.className = 'chevron-transition reverse-cover';
+    reverseOverlay.setAttribute('aria-hidden', 'true');
+    reverseOverlay.innerHTML =
+      '<div class="chevron"></div><div class="chevron"></div><div class="chevron"></div>' +
+      '<div class="chevron"></div><div class="chevron"></div><div class="chevron"></div><div class="chevron"></div>';
+    document.body.appendChild(reverseOverlay);
+
+    window.setTimeout(function(){
+      navigate();
+    }, reverseChevronRedirectMs);
+  }
+
+  document.addEventListener('click', function(event){
+    var link = event.target instanceof Element ? event.target.closest('a[href]') : null;
+    if(!link) return;
+    if(
+      event.defaultPrevented ||
+      link.target === '_blank' ||
+      link.hasAttribute('download') ||
+      event.metaKey || event.ctrlKey || event.shiftKey || event.altKey
+    ) return;
+
+    var href = link.getAttribute('href');
+    if(!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+
+    var targetUrl = new URL(link.href, window.location.href);
+    var targetFile = targetUrl.pathname.split('/').pop().toLowerCase();
+    if(targetFile !== 'index.html') return;
+
+    event.preventDefault();
+    runReverseToIndex(function(){
+      window.location.href = link.href;
+    });
+  });
+
+  /* browser back button should behave exactly like clicking "Back to the tree" -
+     same chevron animation AND same destination (including ?openProject=idx so
+     the same zoomed-in apple card reopens), not just a plain history.back()
+     which would land on whatever bare URL was previously in the history stack. */
+  history.pushState({ chevronTrap: true }, '', window.location.href);
+  window.addEventListener('popstate', function(event){
+    if(event.state && event.state.chevronTrap) return;
+    runReverseToIndex(function(){
+      var backLink = document.getElementById('backLink');
+      window.location.href = backLink ? backLink.getAttribute('href') : 'index.html#projects';
+    });
+  });
+</script>
+
+</body>
+</html>

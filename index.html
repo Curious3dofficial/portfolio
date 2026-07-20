@@ -142,6 +142,7 @@
     inset:0;
     width:100vw;
     height:100vh;
+    height:100dvh; /* track the real visible viewport on mobile (URL bar) */
     overflow:hidden;
     pointer-events:none;
     z-index:50000;
@@ -270,6 +271,7 @@
     position:fixed;
     top:0; left:0;
     width:100vw; height:100vh;
+    height:100dvh; /* mobile: cover the viewport even as the URL bar collapses */
     z-index:25000;
     pointer-events:none;
     opacity:0;
@@ -426,13 +428,29 @@
   }
 
   @media (max-width:900px){
+    /* left:50% + auto width caps a fixed element's shrink-to-fit width at
+       half the viewport, which forced the pill to wrap into 3-4 stacked
+       rows - span the bar edge-to-edge and centre the pill inside it
+       (the hide state's transform loses the translateX(-50%) accordingly) */
+    .navbar{ left:0; right:0; transform:none; display:flex; justify-content:center; }
+    .navbar.nav-hidden{ transform:translateY(-140%); }
     .nav-pill{ gap:16px; padding:12px 16px; flex-wrap:wrap; justify-content:center; max-width:88vw; }
     .nav-link{ font-size:12px; }
+  }
+  /* phones: tighten gaps/type further so all six links + the theme toggle
+     settle into two short rows */
+  @media (max-width:640px){
+    .navbar{ top:12px; }
+    .nav-pill{ gap:6px 14px; padding:8px 14px; border-radius:22px; max-width:94vw; }
+    .nav-link{ font-size:11px; }
   }
 
   .hero{
     position:relative; z-index:2;
     height:100vh; width:100%;
+    /* svh (smallest viewport) keeps the hero stable on mobile - dvh would
+       reflow the centred name every time the URL bar shows/hides */
+    height:100svh;
     display:flex; flex-direction:column;
     align-items:center; justify-content:center;
     text-align:center;
@@ -2362,6 +2380,11 @@
   .music-volume:focus-visible{
     box-shadow:0 0 0 2px var(--violet-light);
   }
+  /* the widget's one-row layout min-contents at ~343px - fine at 375px,
+     but it would spill on 320px-class phones without a slimmer slider */
+  @media (max-width:370px){
+    .music-volume{ width:54px; }
+  }
   .music-volume-track{
     position:relative;
     width:100%;
@@ -2953,6 +2976,7 @@
     width:calc(100vw - 40px);
     max-width:920px;
     max-height:94vh;
+    max-height:94dvh; /* mobile: respect the real visible viewport */
     /* padding gives the apple's drop-shadow glow room to fade out before it
        reaches this box's own edge - without it, overflow-y:auto (needed for
        tall cards on small screens) hard-clips the glow into a visible
@@ -3165,14 +3189,57 @@
     box-shadow:0 0 0 6px rgba(255,180,90,0.15);
   }
   .apple-card-btn-icon{ font-size:15px; line-height:1; flex-shrink:0; }
+  /* Small screens: at ~375px the card's inner content (title + desc + tags +
+     button) is taller than the apple-belly box it's clipped to, so the
+     "Pick Project" button gets cut off entirely. Reclaim space three ways:
+     shrink the modal's own padding so the square card can grow, widen the
+     belly inset a little, and tighten the type/gaps. */
+  @media (max-width:560px){
+    .project-display{ padding:26px 12px; }
+    .apple-card-content{
+      top:22%; left:9%; right:9%; bottom:8%;
+      /* worst-case safety net: if a long description + wrapped tags still
+         out-measure the belly on a tiny screen, let the content scroll
+         instead of clipping the button away (scrollbar stays hidden) */
+      overflow-y:auto;
+      justify-content:flex-start;
+      scrollbar-width:none;
+    }
+    .apple-card-content::-webkit-scrollbar{ display:none; }
+    /* auto margins re-centre the stack when it fits (justify-content:center
+       would make the overflowing top unreachable when it doesn't) */
+    .apple-card-content > :first-child{ margin-top:auto; }
+    .apple-card-content > :last-child{ margin-bottom:auto; }
+    .apple-card-title{ margin:4px 0 8px; flex-shrink:0; }
+    .apple-card-desc{ margin:0 0 10px; max-width:84%; flex-shrink:0; }
+    .apple-card-tags{ row-gap:7px; column-gap:7px; margin:0 0 10px; flex-shrink:0; }
+    .apple-tag{ padding:4px 10px; }
+    .apple-card-btn{ padding:9px 18px; }
+    .project-close{ top:8px; right:8px; }
+  }
   @media (max-width:420px){
     .apple-card{ max-width:640px; }
+    /* 320-400px class screens: the belly box loses another ~15px of height,
+       so trade a little type size and inset for the button's breathing room */
+    .apple-card-content{ top:20.5%; bottom:6%; }
+    .apple-card-title{ font-size:clamp(18px, 6.6vw, 26px); margin:2px 0 6px; }
+    .apple-card-tags{ margin:0 0 8px; }
+    .apple-card-btn{ padding:8px 16px; margin-top:2px; }
   }
   @media (max-width:560px){
     .apple{ width:55px; height:55px; margin:-27.5px 0 0 -27.5px; }
     .apple-body{ width:42px; height:42px; }
     .apple-label{ display:none; }
     .apple.is-grounded{ width:27px; height:27px; margin:-13.5px 0 0 -13.5px; }
+    /* grounded apples shrink to 27px - well under the ~44px comfortable
+       touch minimum - so give them an invisible expanded hit area. The
+       pseudo-element receives the tap and bubbles it to the .apple's own
+       click handler; visual size is unchanged. */
+    .apple.is-grounded::after{
+      content:'';
+      position:absolute;
+      inset:-9px;
+    }
     .basket-scene-back, .basket-scene-front, .basket-slots{ width:18%; min-width:46px; bottom:0%; }
   }
   @media (prefers-reduced-motion: reduce){
@@ -5052,7 +5119,9 @@
     delay += 0.1;
   });
 
-  const isTouch = window.matchMedia('(max-width: 640px)').matches;
+  /* pointer capability, not a width proxy: tablets count as touch, and a
+     narrow desktop window doesn't lose its mouse-driven effects */
+  const isTouch = window.matchMedia('(pointer: coarse)').matches;
 
   /* ---------- Fixed background canvas (hosts the EvilEye shader) ---------- */
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -5129,7 +5198,10 @@
     } catch(err){
       return; // WebGL unavailable - skip the eye, keep the rest of the page alive
     }
-    eyeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    /* phones commonly report DPR 3 - shading a full-screen quad at that
+       resolution is a battery drain for little visible gain on a small
+       screen, so cap touch devices harder than desktop */
+    eyeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, isTouch ? 1.5 : 2));
     eyeWrap.appendChild(eyeRenderer.domElement);
 
     const noiseSize = 256;
@@ -6440,7 +6512,13 @@
          .music-side after the volume bar / button swap). */
       const buttonRect = musicIndicator.getBoundingClientRect();
       const widgetRect = musicWidget.getBoundingClientRect();
-      musicHintEl.style.left = (buttonRect.left + buttonRect.width / 2) + 'px';
+      /* the hint is translateX(-50%)-centred on this point and its arrow art
+         is ~214px wide - on narrow screens centring on the mute button (far
+         right of the widget) pushed the arrow's left edge off-screen, so
+         clamp the centre point to keep the whole hint visible */
+      const halfHintW = (musicHintEl.offsetWidth || 214) / 2;
+      const desiredLeft = buttonRect.left + buttonRect.width / 2;
+      musicHintEl.style.left = Math.min(Math.max(desiredLeft, halfHintW + 8), window.innerWidth - halfHintW - 8) + 'px';
       musicHintEl.style.top = (widgetRect.bottom + 2) + 'px';
     }
 

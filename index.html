@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <script>
   try {
     if ('scrollRestoration' in history) {
@@ -71,15 +72,13 @@
   body.light-theme .social-icon{
     border-color:rgba(0,0,0,0.15);
   }
-  body.light-theme .resume-btn,
-  body.light-theme .cta{
+  body.light-theme .resume-btn{
     color:#15131F;
     background:linear-gradient(135deg, rgba(139,92,246,0.12), rgba(255,255,255,0.5));
     border-color:rgba(139,92,246,0.35);
     box-shadow:inset 0 1px 1px rgba(255,255,255,0.5), inset 0 -1px 6px rgba(0,0,0,0.08), 0 10px 24px -12px rgba(0,0,0,0.3);
   }
-  body.light-theme .resume-btn:hover,
-  body.light-theme .cta:hover{
+  body.light-theme .resume-btn:hover{
     box-shadow:0 16px 32px -12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
   }
   body.light-theme .project-card{
@@ -491,92 +490,6 @@
   }
 
 
-  .statline{
-    margin-top:38px;
-    font-family:'Quicksand', sans-serif;
-    font-weight:500;
-    font-size:15px;
-    color:var(--paper);
-    opacity:0;
-    animation:fadeUp 0.8s ease forwards;
-    animation-delay:0.85s;
-    min-height:20px;
-  }
-  .statline .cursor-caret{
-    display:inline-block;
-    width:8px; height:16px;
-    background:var(--violet-light);
-    margin-left:4px;
-    vertical-align:middle;
-    animation:blink 1s step-end infinite;
-  }
-
-  .location{
-    margin-top:14px;
-    font-family:'Quicksand', sans-serif;
-    font-weight:700;
-    font-size:14px;
-    color:var(--fog);
-    display:flex; align-items:center; gap:6px;
-    opacity:0;
-    animation:fadeUp 0.8s ease forwards;
-    animation-delay:0.6s;
-  }
-  .location svg{ flex-shrink:0; }
-
-  .cta{
-    margin-top:44px;
-    position:relative;
-    padding:16px 34px;
-    border-radius:999px;
-    border:1px solid rgba(183,156,251,0.5);
-    font-family:'Quicksand',sans-serif;
-    font-weight:600;
-    font-size:15px;
-    color:#ffffff;
-    background:linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03));
-    backdrop-filter:blur(16px) saturate(180%);
-    -webkit-backdrop-filter:blur(16px) saturate(180%);
-    box-shadow:inset 0 1px 1px rgba(255,255,255,0.35), inset 0 -1px 6px rgba(0,0,0,0.15), 0 8px 20px -10px rgba(0,0,0,0.35);
-    cursor:pointer;
-    opacity:0;
-    animation:fadeUp 0.8s ease forwards;
-    animation-delay:1.15s;
-    transform-origin:center;
-    will-change:transform;
-    transition:transform 0.4s cubic-bezier(.34,1.56,.64,1), box-shadow 0.4s ease, filter 0.4s ease, border-color 0.4s ease;
-  }
-  .cta:hover{
-    transform:translateY(-3px) scale(1.05);
-    box-shadow:0 14px 28px -8px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.25);
-    filter:brightness(1.08);
-    border-color:rgba(183,156,251,0.75);
-  }
-  .cta:active{
-    transform:translateY(-1px) scale(1.02);
-    transition:transform 0.15s ease;
-  }
-
-  .scroll-cue{
-    position:absolute;
-    bottom:40px; left:50%; transform:translateX(-50%);
-    z-index:2;
-    display:flex; flex-direction:column; align-items:center; gap:10px;
-    font-family:'Quicksand', sans-serif;
-    font-weight:500;
-    font-size:11px;
-    letter-spacing:0.2em;
-    text-transform:uppercase;
-    color:var(--fog);
-    opacity:0;
-    animation:fadeUp 0.8s ease forwards;
-    animation-delay:1.55s;
-  }
-  .scroll-cue .line{
-    width:1px; height:34px;
-    background:linear-gradient(var(--fog), transparent);
-    animation:pulseLine 2s ease-in-out infinite;
-  }
   .scroll-hint{
     position:absolute;
     bottom:40px; left:50%;
@@ -601,32 +514,10 @@
 
   @keyframes wordUp{ to{ transform:translateY(0); } }
 
-  /* ---------- Convex lens hover effect (per-character radial bulge) ---------- */
-  .name .word span .char{
-    display:inline-block;
-    transform-origin:50% 50%;
-    transition:transform 0.09s ease-out;
-    will-change:transform;
-  }
-  @keyframes fadeUp{
-    from{ opacity:0; transform:translateY(14px); }
-    to{ opacity:1; transform:translateY(0); }
-  }
-  @keyframes blink{ 50%{ opacity:0; } }
-  @keyframes pulseLine{
-    0%,100%{ opacity:0.3; transform:scaleY(0.7); transform-origin:top; }
-    50%{ opacity:1; transform:scaleY(1); transform-origin:top; }
-  }
-
   @media (prefers-reduced-motion: reduce){
     .name .word span{ animation:none; transform:translateY(0); }
     .name .word{ overflow:visible; }
-    .eyebrow,.tagline,.statline,.location,.cta,.scroll-cue,.scroll-hint{ animation:none; opacity:1; }
-    .scroll-cue .line{ animation:none; }
-  }
-
-  @media (max-width: 640px){
-    .cta{ cursor:pointer; }
+    .scroll-hint{ animation:none; opacity:1; }
   }
 
   /* ---------- Act II: About Me ---------- */
@@ -2111,12 +2002,18 @@
     opacity:0;
     z-index:15;
     pointer-events:none;
-    transition:transform 0.5s cubic-bezier(.4,0,.2,1), opacity 0.4s ease;
+    /* visibility keeps the widget's focusable controls (mute button, volume
+       slider) out of the tab order while it's hidden; the 0.4s delay on the
+       way out lets the fade finish before it goes untabbable */
+    visibility:hidden;
+    transition:transform 0.5s cubic-bezier(.4,0,.2,1), opacity 0.4s ease, visibility 0s linear 0.4s;
   }
   .music-widget.nav-slot-visible{
     transform:translateX(-50%) translateY(0);
     opacity:1;
     pointer-events:auto;
+    visibility:visible;
+    transition:transform 0.5s cubic-bezier(.4,0,.2,1), opacity 0.4s ease;
   }
   .music-trigger{
     position:relative;
@@ -2429,6 +2326,8 @@
     background:linear-gradient(90deg, var(--violet-light), var(--violet-deep));
     /* always renders at full colour/brightness — playback progress is independent of mute state */
     box-shadow:0 0 8px rgba(167,139,250,0.55);
+    /* smooths the ~4Hz timeupdate-driven width steps into continuous motion */
+    transition:width 0.3s linear;
   }
   body.light-theme .music-progress{ background:rgba(90,90,105,0.2); }
   .music-track-name{
@@ -2447,41 +2346,6 @@
     color:var(--fog);
     white-space:nowrap;
   }
-  .music-playpause{
-    position:relative;
-    flex-shrink:0;
-    width:38px;
-    height:38px;
-    border-radius:50%;
-    border:none;
-    background:linear-gradient(135deg, #5A6170, #3A404E);
-    color:#ffffff;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-    box-shadow:0 8px 18px -8px rgba(20,23,31,0.8);
-    transition:transform 0.3s cubic-bezier(.34,1.56,.64,1), box-shadow 0.3s ease;
-  }
-  .music-playpause:hover{
-    transform:scale(1.08);
-    box-shadow:0 10px 22px -8px rgba(20,23,31,0.95);
-  }
-  .music-playpause svg{ width:15px; height:15px; transition:opacity 0.2s ease, transform 0.2s ease; }
-  .music-playpause svg.icon-hide{ display:none; }
-  /* Circular ring that draws itself in while the score is audible (same draw as the stats circles) */
-  .music-playpause .music-ring{
-    position:absolute;
-    inset:-4px;
-    width:calc(100% + 8px);
-    height:calc(100% + 8px);
-    transform:rotate(-90deg);
-    pointer-events:none;
-    color:var(--violet-light);
-  }
-  .music-ring circle{
-    transition:stroke-dashoffset 0.45s cubic-bezier(.65,0,.35,1);
-  }
   /* Horizontal volume slider */
   .music-volume{
     position:relative;
@@ -2492,6 +2356,11 @@
     justify-content:center;
     cursor:pointer;
     touch-action:none;
+    border-radius:999px;
+    outline:none;
+  }
+  .music-volume:focus-visible{
+    box-shadow:0 0 0 2px var(--violet-light);
   }
   .music-volume-track{
     position:relative;
@@ -3035,16 +2904,6 @@
   /* a quick squash-and-settle the instant a grounded apple reappears in the
      basket, so it reads as landing/dropping in rather than just popping into
      place. Transform-only (no opacity) so it can never reintroduce a fade. */
-  @keyframes appleLand{
-    0%{ transform:scale(0.76,0.76); }
-    32%{ transform:scale(0.94,0.6); }
-    60%{ transform:scale(0.68,0.88); }
-    82%{ transform:scale(0.8,0.72); }
-    100%{ transform:scale(0.76,0.76); }
-  }
-  .apple.is-landing .apple-body{
-    animation:appleLand 0.42s cubic-bezier(.34,1.56,.64,1);
-  }
   .apple-label{
     position:absolute;
     bottom:calc(100% + 8px);
@@ -3115,6 +2974,41 @@
   .project-display.is-open{
     opacity:1;
     transform:translate(-50%,-50%) translateY(0) scale(1);
+  }
+  /* visible close affordance - Escape and the backdrop still work, but on
+     touch (and for discoverability generally) there needs to be a button */
+  .project-close{
+    position:absolute;
+    top:14px; right:14px;
+    z-index:5;
+    width:40px; height:40px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:50%;
+    border:1px solid rgba(183,156,251,0.45);
+    background:rgba(20,23,31,0.75);
+    color:var(--paper);
+    cursor:pointer;
+    /* the container is pointer-events:none while closed; only accept clicks
+       (and hover) once the card is actually open */
+    pointer-events:none;
+    transition:transform 0.25s cubic-bezier(.34,1.56,.64,1), border-color 0.25s ease, background 0.25s ease;
+  }
+  .project-display.is-open .project-close{
+    pointer-events:auto;
+  }
+  .project-close svg{ width:17px; height:17px; }
+  .project-close:hover{
+    transform:scale(1.1);
+    border-color:var(--violet-light);
+    background:rgba(30,26,50,0.9);
+  }
+  .project-close:focus-visible{
+    outline:none;
+    box-shadow:0 0 0 2px var(--violet-light);
+  }
+  body.light-theme .project-close{
+    background:rgba(255,255,255,0.85);
+    border-color:rgba(91,33,182,0.35);
   }
   @media (prefers-reduced-motion: reduce){
     .project-modal-backdrop, .project-display{ transition:none; }
@@ -3287,7 +3181,6 @@
     .apple{ opacity:1; transform:none; }
     .basket-scene-back, .basket-scene-front, .basket-slots{ opacity:1; transform:translateX(-50%); animation:none; }
     #projectDisplay .project-card{ animation:none; }
-    .apple.is-landing .apple-body{ animation:none; }
   }
 
   .stats-inner{
@@ -3844,7 +3737,7 @@
       <span class="music-status" id="musicStatus">DeVotchKa</span>
     </div>
     <div class="music-side" aria-hidden="false">
-      <div class="music-volume" id="musicVolume" aria-label="Volume">
+      <div class="music-volume" id="musicVolume" role="slider" tabindex="0" aria-label="Volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
         <div class="music-volume-track">
           <div class="music-volume-fill" id="musicVolumeFill"></div>
         </div>
@@ -4296,7 +4189,10 @@
         <div class="basket-slots" id="basketSlots" aria-hidden="false"></div>
       </div>
 
-      <div class="project-display" id="projectDisplay">
+      <div class="project-display" id="projectDisplay" role="dialog" aria-modal="true" aria-label="Project details">
+        <button class="project-close" id="projectClose" type="button" aria-label="Close project">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
 
         <div class="project-card is-active" data-project-index="0">
           <div class="apple-card">
@@ -5150,86 +5046,13 @@
         inner.removeEventListener('animationend', onNameReveal);
       }
     });
-    // Split into individual characters so each one can be independently
-    // scaled for the convex-lens bulge effect.
-    chunk.split('').forEach(letter => {
-      const charSpan = document.createElement('span');
-      charSpan.className = 'char';
-      charSpan.textContent = letter;
-      inner.appendChild(charSpan);
-    });
+    inner.textContent = chunk;
     wordSpan.appendChild(inner);
     heading.appendChild(wordSpan);
     delay += 0.1;
   });
 
-  /* ---------- Convex lens hover effect: radial bulge with falloff ---------- */
-  (function initNameLensBulge(){
-    const RADIUS = 90;    // reach of the lens from the cursor, in px
-    const MAX_SCALE = 1.9; // magnification directly under the cursor
-    const chars = heading.querySelectorAll('.char');
-
-    function updateBulge(clientX, clientY){
-      chars.forEach(ch => {
-        const r = ch.getBoundingClientRect();
-        const cx = r.left + r.width / 2;
-        const cy = r.top + r.height / 2;
-        const dist = Math.hypot(clientX - cx, clientY - cy);
-        const t = Math.max(0, 1 - dist / RADIUS);
-        const eased = t * t * (3 - 2 * t); // smoothstep — convex falloff, not linear
-        const scale = 1 + eased * (MAX_SCALE - 1);
-        ch.style.transform = `scale(${scale})`;
-      });
-    }
-
-    window.addEventListener('mousemove', (e) => updateBulge(e.clientX, e.clientY));
-  })();
-
-  /* ---------- Typewriter rotating stat line (statline removed from hero) ---------- */
-  const statEl = document.getElementById('statline');
-  if(statEl){
-    const phrases = ["1+ years shipping code", "3+ projects completed", "14+ technologies used"];
-    const caret = document.createElement('span');
-    caret.className = 'cursor-caret';
-
-    let phraseIndex = 0;
-    let charIndex = 0;
-    let deleting = false;
-    const typeSpeed = 55;
-    const deleteSpeed = 30;
-    const holdTime = 1400;
-
-    function typeLoop(){
-      const current = phrases[phraseIndex];
-      statEl.textContent = current.substring(0, charIndex);
-      statEl.appendChild(caret);
-
-      if(!deleting && charIndex < current.length){
-        charIndex++;
-        setTimeout(typeLoop, typeSpeed);
-      } else if(!deleting && charIndex === current.length){
-        deleting = true;
-        setTimeout(typeLoop, holdTime);
-      } else if(deleting && charIndex > 0){
-        charIndex--;
-        setTimeout(typeLoop, deleteSpeed);
-      } else {
-        deleting = false;
-        phraseIndex = (phraseIndex + 1) % phrases.length;
-        setTimeout(typeLoop, 250);
-      }
-    }
-    setTimeout(typeLoop, 900);
-  }
-
-  /* ---------- Mouse tracking (used for the reactive wireframe below) ---------- */
-  let mouseX = window.innerWidth/2, mouseY = window.innerHeight/2;
   const isTouch = window.matchMedia('(max-width: 640px)').matches;
-  if(!isTouch){
-    window.addEventListener('mousemove', (e) => {
-      mouseX = e.clientX; mouseY = e.clientY;
-    });
-  }
 
   /* ---------- Fixed background canvas (hosts the EvilEye shader) ---------- */
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -5239,6 +5062,12 @@
   (function initEvilEye(){
     const eyeWrap = wrap;
     if(!eyeWrap) return;
+    /* the Three.js CDN script can be blocked (adblock, offline) and WebGL
+       context creation can fail - either would throw here, and since this
+       whole file is one script block, an uncaught error would take down
+       everything below it (stats, projects, music, reveals). Degrade to a
+       plain background instead. */
+    if(typeof THREE === 'undefined') return;
 
     function hexToVec3(hex){
       const h = hex.replace('#', '');
@@ -5294,7 +5123,12 @@
     const eyeCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
     eyeCamera.position.z = 1;
 
-    const eyeRenderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+    let eyeRenderer;
+    try{
+      eyeRenderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+    } catch(err){
+      return; // WebGL unavailable - skip the eye, keep the rest of the page alive
+    }
     eyeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     eyeWrap.appendChild(eyeRenderer.domElement);
 
@@ -5455,6 +5289,12 @@
     }
 
     function animateEye(){
+      requestAnimationFrame(animateEye);
+      /* updateCanvasVisibility() fades the wrap to opacity 0 once the Stats
+         section approaches - past that point (or with the tab hidden) there's
+         nothing to see, so skip the GPU work entirely instead of shading a
+         full-screen quad every frame for the rest of the visit */
+      if(document.hidden || eyeWrap.style.opacity === '0') return;
       if(!reduceMotion){
         eyeMouse.x += (eyeMouse.tx - eyeMouse.x) * 0.05;
         eyeMouse.y += (eyeMouse.ty - eyeMouse.y) * 0.05;
@@ -5462,7 +5302,6 @@
         eyeUniforms.uTime.value = eyeClock.getElapsedTime();
       }
       eyeRenderer.render(eyeScene, eyeCamera);
-      requestAnimationFrame(animateEye);
     }
     animateEye();
 
@@ -5699,6 +5538,11 @@
 
   function selectProject(idx){
     projectCards.forEach(c => c.classList.toggle('is-active', c.getAttribute('data-project-index') === idx));
+    /* keep the dialog's accessible name in sync with what it's showing */
+    if(projectDisplay){
+      const activeTitle = projectDisplay.querySelector('.project-card.is-active .apple-card-title');
+      projectDisplay.setAttribute('aria-label', activeTitle ? activeTitle.textContent.trim() + ' — project details' : 'Project details');
+    }
   }
 
   /* Click an apple: it pulls forward and its card pops up over a blurred backdrop.
@@ -5770,21 +5614,14 @@
   /* re-home the modal at body level so it's never affected by an ancestor's
      transform/filter (which would otherwise break position:fixed) */
   if(projectDisplay) document.body.appendChild(projectDisplay);
+  const projectCloseBtn = document.getElementById('projectClose');
+  if(projectCloseBtn) projectCloseBtn.addEventListener('click', () => closeProject());
+  /* where keyboard focus was before the dialog opened, so closing can hand
+     it back instead of dropping it on <body> */
+  let lastFocusedBeforeModal = null;
 
   function appleForIdx(idx){
     return appleEls.find(a => a.getAttribute('data-project') === idx);
-  }
-
-  /* landing squash-bounce - turned off per request; kept as a no-op stub
-     (rather than ripping out call sites/CSS) so it's a one-line change to
-     bring back later if wanted */
-  const LAND_BOUNCE_ENABLED = false;
-  function landApple(apple){
-    if(!apple || !LAND_BOUNCE_ENABLED || reduceMotion) return;
-    apple.classList.remove('is-landing');
-    void apple.offsetWidth;
-    apple.classList.add('is-landing');
-    setTimeout(() => apple.classList.remove('is-landing'), 450);
   }
 
   function groundApple(idx){
@@ -5799,7 +5636,6 @@
     apple.style.zIndex = String(basketZIndex(slotIndex));
     apple.classList.add('is-grounded');
     appleState[idx] = 'grounded';
-    landApple(apple);
   }
 
   /* The clicked apple IS the card: it flies from its own on-screen position/size
@@ -5994,6 +5830,8 @@
     currentOpenIdx = idx;
     selectProject(idx);
     modalBackdrop.classList.add('is-visible');
+    lastFocusedBeforeModal = document.activeElement;
+    if(projectCloseBtn) projectCloseBtn.focus({ preventScroll:true });
 
     const originEl = appleForIdx(idx);
     if(projectDisplay && originEl){
@@ -6065,11 +5903,16 @@
         projectDisplay.style.transform = '';
         projectDisplay.style.opacity = '';
         originEl.style.visibility = '';
-        landApple(originEl);
+        /* hand keyboard focus back to the apple the dialog came from - it
+           only becomes focusable again once its visibility is restored */
+        originEl.focus({ preventScroll:true });
       });
     } else if(projectDisplay){
       projectDisplay.classList.remove('is-open');
       groundApple(idx);
+      if(lastFocusedBeforeModal && document.contains(lastFocusedBeforeModal)){
+        lastFocusedBeforeModal.focus({ preventScroll:true });
+      }
     }
 
     currentOpenIdx = null;
@@ -6077,7 +5920,25 @@
   }
 
   function handleModalKeydown(e){
-    if(e.key === 'Escape') closeProject();
+    if(e.key === 'Escape'){ closeProject(); return; }
+    /* trap Tab inside the dialog - without this, focus escapes to the apples
+       and page content behind the backdrop (still tabbable, just obscured) */
+    if(e.key === 'Tab' && projectDisplay){
+      const focusables = projectDisplay.querySelectorAll('.project-close, .project-card.is-active a[href], .project-card.is-active button');
+      if(!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+      if(e.shiftKey){
+        if(active === first || !projectDisplay.contains(active)){
+          e.preventDefault();
+          last.focus();
+        }
+      } else if(active === last || !projectDisplay.contains(active)){
+        e.preventDefault();
+        first.focus();
+      }
+    }
   }
 
   appleEls.forEach(apple => {
@@ -6281,6 +6142,11 @@
       toast.classList.remove('is-shown');
       toast.classList.add('is-leaving');
       toast.addEventListener('transitionend', () => toast.remove(), { once:true });
+      /* transitionend never fires under prefers-reduced-motion (or if the
+         tab is backgrounded mid-leave) - make sure the node still gets
+         removed instead of piling up invisibly. remove() on an already
+         detached node is a safe no-op. */
+      setTimeout(() => toast.remove(), 800);
     }, ACHIEVEMENT_VISIBLE_MS);
   }
 
@@ -6379,11 +6245,8 @@
   if(epilogueLetterEl){
     const musicWidget = document.querySelector('.music-widget');
     const musicArt = document.getElementById('musicArt');
-    const musicPlayPause = document.getElementById('musicPlayPause');
     const musicStatus = document.getElementById('musicStatus');
     const epilogueAudio = document.querySelector('.epilogue-audio');
-    const iconSound = musicPlayPause ? musicPlayPause.querySelector('.icon-sound') : null;
-    const iconMuted = musicPlayPause ? musicPlayPause.querySelector('.icon-muted') : null;
 
     /* UI-level mute intent — the real audio may still be fading out.
        displayedVolume is the single source of truth for "what volume is the
@@ -6404,12 +6267,14 @@
 
     function renderVolume(){
       if(musicVolumeFill) musicVolumeFill.style.width = (userVolume * 100) + '%';
+      if(musicVolume) musicVolume.setAttribute('aria-valuenow', Math.round(userVolume * 100));
     }
 
-    function applyPointerVolume(e){
-      if(!musicVolumeTrack || !epilogueAudio) return;
-      const rect = musicVolumeTrack.getBoundingClientRect();
-      userVolume = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    /* single path for any direct volume set (pointer drag OR keyboard) -
+       cancels an in-flight mute/unmute fade and applies the value 1:1 */
+    function setUserVolume(v){
+      if(!epilogueAudio) return;
+      userVolume = Math.max(0, Math.min(1, v));
       if(fadeRaf){ cancelAnimationFrame(fadeRaf); fadeRaf = null; }
       displayedVolume = userVolume;
       epilogueAudio.volume = userVolume;
@@ -6430,6 +6295,12 @@
       }
       renderVolume();
       updateMusicState();
+    }
+
+    function applyPointerVolume(e){
+      if(!musicVolumeTrack) return;
+      const rect = musicVolumeTrack.getBoundingClientRect();
+      setUserVolume((e.clientX - rect.left) / rect.width);
     }
 
     /* Replay: wither the whole letter away bottom-to-top (reusing the exact
@@ -6676,7 +6547,10 @@
       let lastMusicIndicatorClick = 0;
       musicIndicator.addEventListener('click', () => {
         const clickNow = performance.now();
-        if(clickNow - lastMusicIndicatorClick < 1000) return;
+        /* just enough to swallow accidental double-clicks - the scoreMuted/
+           displayedVolume state machine handles rapid re-toggles safely, so
+           anything longer only makes the button feel unresponsive */
+        if(clickNow - lastMusicIndicatorClick < 250) return;
         lastMusicIndicatorClick = clickNow;
         hideMusicHint();
         if(!epilogueAudio) return;
@@ -6747,27 +6621,24 @@
       musicVolume.addEventListener('pointermove', (e) => {
         if(e.buttons) applyPointerVolume(e);
       });
+      /* keyboard support for the role="slider": arrows nudge the volume in
+         5% steps (10% with Shift), matching the pointer path exactly - so
+         stepping up from silence also unmutes, and stepping down to 0 counts
+         as muted, same as a drag would */
+      musicVolume.addEventListener('keydown', (e) => {
+        const step = (e.shiftKey ? 0.10 : 0.05);
+        let delta = 0;
+        if(e.key === 'ArrowRight' || e.key === 'ArrowUp') delta = step;
+        else if(e.key === 'ArrowLeft' || e.key === 'ArrowDown') delta = -step;
+        else if(e.key === 'Home') { e.preventDefault(); if(musicVolumeFill) musicVolumeFill.classList.remove('is-fading'); setUserVolume(0); return; }
+        else if(e.key === 'End') { e.preventDefault(); if(musicVolumeFill) musicVolumeFill.classList.remove('is-fading'); setUserVolume(1); return; }
+        if(!delta) return;
+        e.preventDefault();
+        // same as pointerdown: keyboard nudges are instant, not eased
+        if(musicVolumeFill) musicVolumeFill.classList.remove('is-fading');
+        setUserVolume(userVolume + delta);
+      });
     }
-    const musicRingCircle = document.querySelector('.music-ring circle');
-    const RING_LEN = 131.9;
-    let ringAudible = null;
-
-    /* Both the draw (appear) and the erase (disappear) sweep clockwise:
-       appear runs 131.9 -> 0, erase continues 0 -> -131.9 instead of reversing */
-    function setRing(audible){
-      if(!musicRingCircle || audible === ringAudible) return;
-      ringAudible = audible;
-      if(audible){
-        musicRingCircle.style.transition = 'none';
-        musicRingCircle.style.strokeDashoffset = RING_LEN;
-        void musicRingCircle.getBoundingClientRect();
-        musicRingCircle.style.transition = '';
-        musicRingCircle.style.strokeDashoffset = 0;
-      } else {
-        musicRingCircle.style.strokeDashoffset = -RING_LEN;
-      }
-    }
-
     /* Volume-scaled version of the old fixed @keyframes musicArtPulse - a
        continuous sine wave (same 0.9s period) drives the glow ring's
        blur/spread/alpha every frame, all three scaled by displayedVolume
@@ -6824,8 +6695,6 @@
       fadeRaf = requestAnimationFrame(step);
     }
 
-    const iconReplay = musicPlayPause ? musicPlayPause.querySelector('.icon-replay') : null;
-
     function updateMusicState(){
       const ended = Boolean(epilogueAudio && epilogueAudio.ended);
       const playing = Boolean(epilogueAudio && !epilogueAudio.paused);
@@ -6839,13 +6708,8 @@
         musicIndicator.querySelectorAll('.mi-wave').forEach((w, i) => w.classList.toggle('on', i < lvl));
       }
       if(musicWidget) musicWidget.classList.toggle('is-playing', audible);
-      setRing(audible);
       setArtPulse(audible);
       if(musicStatus) musicStatus.textContent = 'DeVotchKa · ' + (ended ? 'Ended' : (audible ? 'Now playing' : (playing ? 'Muted' : 'Paused')));
-      if(iconSound) iconSound.classList.toggle('icon-hide', !audible || ended);
-      if(iconMuted) iconMuted.classList.toggle('icon-hide', audible || ended);
-      if(iconReplay) iconReplay.classList.toggle('icon-hide', !ended);
-      if(musicPlayPause) musicPlayPause.setAttribute('aria-label', ended ? 'Replay' : (audible ? 'Mute' : 'Unmute'));
     }
 
     function startEpilogueScore(){
@@ -6857,40 +6721,6 @@
       updateMusicState();
     }
 
-    if(musicPlayPause){
-      musicPlayPause.addEventListener('click', () => {
-        if(epilogueAudio && epilogueAudio.ended){
-          /* Replay from the top with the usual 1s fade-in */
-          epilogueAudio.currentTime = 0;
-          scoreMuted = false;
-          epilogueAudio.muted = false;
-          fadeVolume(0, userVolume, 400);
-          const replayAction = epilogueAudio.play();
-          if(replayAction && typeof replayAction.catch === 'function') replayAction.catch(() => {});
-          updateMusicState();
-          return;
-        }
-        if(epilogueAudio){
-          scoreMuted = !scoreMuted;
-          if(!scoreMuted){
-            /* Unmute: 1s fade in up to the user-set volume. play() is a no-op if already playing. */
-            const from = epilogueAudio.muted ? 0 : epilogueAudio.volume;
-            epilogueAudio.muted = false;
-            fadeVolume(from, userVolume, 400);
-            const action = epilogueAudio.play();
-            if(action && typeof action.catch === 'function') action.catch(() => {});
-          } else {
-            /* Mute: 1s fade out, then hard-mute */
-            fadeVolume(epilogueAudio.volume, 0, 400, () => {
-              epilogueAudio.muted = true;
-              epilogueAudio.volume = userVolume;
-            });
-          }
-        }
-        updateMusicState();
-      });
-    }
-
     if(epilogueAudio){
       epilogueAudio.addEventListener('play', updateMusicState);
       epilogueAudio.addEventListener('pause', updateMusicState);
@@ -6899,15 +6729,19 @@
     }
     updateMusicState();
 
-    /* Smooth play bar */
+    /* Play bar - driven by the audio element's own timeupdate events (~4Hz)
+       instead of a permanent rAF loop; the CSS width transition smooths the
+       coarser updates out visually */
     const musicProgressFill = document.getElementById('musicProgressFill');
     if(musicProgressFill && epilogueAudio){
-      (function tickProgress(){
+      const renderMusicProgress = () => {
         if(epilogueAudio.duration){
           musicProgressFill.style.width = ((epilogueAudio.currentTime / epilogueAudio.duration) * 100) + '%';
         }
-        requestAnimationFrame(tickProgress);
-      })();
+      };
+      epilogueAudio.addEventListener('timeupdate', renderMusicProgress);
+      epilogueAudio.addEventListener('seeked', renderMusicProgress);
+      renderMusicProgress();
     }
 
     const epilogueObserver = new IntersectionObserver((entries) => {
@@ -6931,7 +6765,12 @@
           epilogueObserver.unobserve(entry.target);
         }
       });
-    }, { threshold:0.1 });
+      /* threshold 0 + a bottom rootMargin instead of a fractional threshold:
+         the letter is thousands of px tall, so "10% of it visible" depended
+         on the viewport being tall enough to ever show that much at once.
+         This fires as soon as the letter's top crosses 80% down the viewport,
+         regardless of how tall the letter (or the screen) is. */
+    }, { threshold:0, rootMargin:'0px 0px -20% 0px' });
     epilogueObserver.observe(epilogueLetterEl);
   }
 
@@ -7069,6 +6908,8 @@
     const originEl = appleForIdx(idx);
     if(originEl) originEl.style.visibility = 'hidden';
     if(projectDisplay) projectDisplay.classList.add('is-open');
+    lastFocusedBeforeModal = document.activeElement;
+    if(projectCloseBtn) projectCloseBtn.focus({ preventScroll:true });
     document.addEventListener('keydown', handleModalKeydown);
   }
 

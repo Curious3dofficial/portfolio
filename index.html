@@ -3188,12 +3188,15 @@
     margin:0 6px;
   }
   .resume-progress-fill{
-    width:73%;
+    /* starts empty - JS drives it up to 73% on open so the fill itself is
+       a clearly visible motion, not just the marching stripes in place */
+    width:0%;
     height:100%;
     border-radius:999px;
     background:repeating-linear-gradient(-45deg, #FFD100 0 10px, #E0A900 10px 20px);
     background-size:28px 100%;
     animation:resumeStripes 2.8s linear infinite;
+    transition:width 1.8s cubic-bezier(.22,1,.36,1);
   }
   @keyframes resumeStripes{
     from{ background-position:0 0; }
@@ -3238,6 +3241,7 @@
     .resume-popup, .resume-popup-backdrop{ transition:none; }
     .resume-doc-sheet, .resume-doc-worker, .resume-progress-fill{ animation:none; }
     .resume-doc-line{ animation:none; width:100%; }
+    .resume-progress-fill{ transition:none; width:73%; }
   }
   @media (prefers-reduced-motion: reduce){
     .project-modal-backdrop, .project-display{ transition:none; }
@@ -4064,7 +4068,7 @@
 
         <div class="quote-card">
           <span class="quote-mark">&ldquo;</span>
-          <p>I like turning hard problems into systems that just work.</p>
+          <p>They say real progress is invisible. I show them my GitHub contribution graph.</p>
           <span class="quote-sign">— Aniruddha</span>
         </div>
 
@@ -7175,6 +7179,8 @@
     const popup = document.getElementById('resumePopup');
     const backdrop = document.getElementById('resumeBackdrop');
     const okBtn = document.getElementById('resumeOk');
+    const progressFill = document.querySelector('.resume-progress-fill');
+    const RESUME_PROGRESS_TARGET = '73%';
     if(!resumeBtn || !popup || !backdrop) return;
 
     let lastFocused = null;
@@ -7203,6 +7209,23 @@
       popup.classList.add('is-open');
       if(okBtn) okBtn.focus({ preventScroll:true });
       document.addEventListener('keydown', onResumeKeydown);
+      if(progressFill){
+        if(reduceMotion){
+          progressFill.style.width = RESUME_PROGRESS_TARGET;
+        } else {
+          /* the fill was reset to 0 (transition disabled) when the popup last
+             closed - re-enable the transition and kick it up to target on
+             the next frame so the fill-in motion actually replays every
+             time the popup opens, not just the first time */
+          progressFill.style.transition = 'none';
+          progressFill.style.width = '0%';
+          void progressFill.offsetWidth;
+          progressFill.style.transition = '';
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => { progressFill.style.width = RESUME_PROGRESS_TARGET; });
+          });
+        }
+      }
     }
 
     function closeResumePopup(){
@@ -7214,6 +7237,13 @@
          fall back to the resume button itself rather than dropping focus */
       const target = (lastFocused && lastFocused !== document.body && document.contains(lastFocused)) ? lastFocused : resumeBtn;
       target.focus({ preventScroll:true });
+      /* reset instantly (no transition) so the next open starts from 0 again */
+      if(progressFill){
+        progressFill.style.transition = 'none';
+        progressFill.style.width = '0%';
+        void progressFill.offsetWidth;
+        progressFill.style.transition = '';
+      }
     }
 
     resumeBtn.addEventListener('click', openResumePopup);

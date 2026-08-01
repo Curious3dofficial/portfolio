@@ -1443,468 +1443,189 @@
     min-height:120px;
   }
 
-  /* ---------- Education: milestone journey path (zigzag) ---------- */
-  .edu-path{
+  /* ---------- Education: mountain climb ----------
+     A single horizontal illustration (assets/lightmountain.svg, a
+     tightly-cropped viewBox of the source art - trims the large empty
+     sky margin the original canvas had above/below the ridge) instead of
+     a tall scroll-driven column - the 5 stages sit as waypoints along the
+     mountain's own ridge line, base (earliest) to summit (most recent). No
+     scroll-linked animation: the whole scene fades/rises in once when it
+     enters view, then each waypoint reveals its full detail on hover/focus. */
+  .edu-climb-wrap{
+    /* full-bleed out of .content-section-inner's 1080px cap - at 3x size
+       the graphic is wider than that (and than most viewports), so it
+       needs to scroll horizontally within its own row rather than being
+       squeezed back down to the container width */
+    width:100vw;
     position:relative;
-    padding:6px 0;
+    left:50%;
+    right:50%;
+    margin-left:-50vw;
+    margin-right:-50vw;
+    overflow-x:auto;
+    overflow-y:visible;
+    padding:8px 0 28px;
+    -webkit-overflow-scrolling:touch;
+    /* hide the horizontal scrollbar track/thumb - that's the "line" along
+       the bottom edge, not anything in the mountain artwork itself (the
+       SVG's painted content ends with clean transparency, confirmed by
+       pixel-checking the rendered art). Still fully scrollable via touch/
+       trackpad/shift+wheel/drag, just without a visible bar. */
+    scrollbar-width:none;
+    -ms-overflow-style:none;
   }
-  .edu-svg{
-    position:absolute;
-    top:0; left:0;
-    overflow:visible;
-    pointer-events:none;
-    z-index:0;
-  }
-  .edu-svg path{
-    fill:none;
-    stroke-linecap:round;
-  }
-  .edu-svg .edu-path-bg{
-    stroke:rgba(139,92,246,0.18);
-    stroke-width:2;
-  }
-  .edu-svg .edu-path-fill{
-    stroke:var(--violet-light);
-    stroke-width:2;
-    filter:drop-shadow(0 0 6px rgba(139,92,246,0.6));
-  }
-  .edu-node{
+  .edu-climb-wrap::-webkit-scrollbar{ display:none; height:0; }
+  .edu-climb{
     position:relative;
-    display:grid;
-    grid-template-columns:1fr 52px 1fr;
-    align-items:start;
-    column-gap:22px;
-    margin-bottom:40px;
-    opacity:0;
-    transform:translateY(24px);
-    transition:opacity 0.7s cubic-bezier(.16,1,.3,1), transform 0.7s cubic-bezier(.16,1,.3,1);
-  }
-  .edu-node:last-child{ margin-bottom:0; }
-  .edu-node.is-visible{
-    opacity:1;
-    transform:translateY(0);
-  }
-  .edu-node .edu-card{ grid-column:1; justify-self:end; }
-  .edu-node:nth-child(even) .edu-card{ grid-column:3; justify-self:start; }
-  .edu-badge{
-    grid-column:2;
-    justify-self:center;
-    width:40px; height:40px;
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-family:'Baloo 2', sans-serif;
-    font-weight:700;
-    font-size:13px;
-    color:var(--paper);
-    background:linear-gradient(160deg, rgba(139,92,246,0.35), rgba(20,23,31,0.9));
-    border:1px solid rgba(139,92,246,0.4);
-    flex-shrink:0;
-    z-index:1;
-    transition:border-color 0.4s ease, box-shadow 0.4s ease;
-  }
-  .edu-node.is-current .edu-badge{
-    border-color:var(--violet-light);
-    animation:eduPulse 2.2s ease-in-out infinite;
-  }
-  @keyframes eduPulse{
-    0%, 100%{ box-shadow:0 0 0 0 rgba(183,156,251,0.5); }
-    50%{ box-shadow:0 0 0 8px rgba(183,156,251,0); }
-  }
-  .edu-card{
-    position:relative;
-    width:100%;
-    max-width:290px;
-    padding:16px 18px 15px;
-    border-radius:16px;
-    border:1px solid rgba(139,92,246,0.22);
-    background:linear-gradient(160deg, rgba(139,92,246,0.08), rgba(20,23,31,0.5) 55%);
-    overflow:hidden;
-    isolation:isolate;
-    transition:transform 0.4s cubic-bezier(.16,1,.3,1), border-color 0.4s ease, box-shadow 0.4s ease;
-  }
-  .edu-card::before{
-    content:"";
-    position:absolute;
-    top:-40%; right:-15%;
-    width:60%; height:180%;
-    background:radial-gradient(circle, rgba(139,92,246,0.2), transparent 65%);
-    z-index:-1;
-    opacity:0.5;
-    pointer-events:none;
-  }
-  .edu-node:hover .edu-card{
-    transform:translateY(-3px);
-    border-color:rgba(183,156,251,0.5);
-    box-shadow:0 16px 32px -18px rgba(91,33,182,0.4);
-  }
-  .edu-top-row{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-    margin-bottom:7px;
-  }
-  .edu-year{
-    font-family:'Baloo 2', sans-serif;
-    font-weight:700;
-    font-size:12px;
-    letter-spacing:0.1em;
-    color:var(--violet-light);
-  }
-  .edu-status{
-    font-family:'Quicksand', sans-serif;
-    font-weight:600;
-    font-size:10px;
-    letter-spacing:0.03em;
-    padding:3px 10px;
-    border-radius:999px;
-    color:var(--paper);
-    border:1px solid rgba(139,92,246,0.3);
-    background:#241541;
-    white-space:nowrap;
-  }
-  .edu-node.is-current .edu-status{
-    border-color:rgba(183,156,251,0.7);
-    color:var(--violet-light);
-  }
-  .edu-title{
-    font-family:'Outfit', sans-serif;
-    font-weight:700;
-    font-size:15px;
-    line-height:1.25;
-    color:var(--paper);
-    margin:0 0 3px;
-  }
-  .edu-institution{
-    font-family:'Quicksand', sans-serif;
-    font-weight:600;
-    font-size:12px;
-    color:var(--fog);
-    margin:0 0 8px;
-  }
-  .edu-desc{
-    font-family:'Quicksand', sans-serif;
-    font-size:12.5px;
-    line-height:1.5;
-    color:var(--fog);
-    margin:0 0 10px;
-  }
-  .edu-tags{
-    display:flex;
-    flex-wrap:wrap;
-    gap:6px;
-  }
-  .edu-tag{
-    display:inline-flex;
-    align-items:center;
-    gap:5px;
-    padding:4px 11px;
-    border-radius:999px;
-    border:1px solid rgba(139,92,246,0.3);
-    background:#241541;
-    font-family:'Quicksand', sans-serif;
-    font-weight:600;
-    font-size:10.5px;
-    color:var(--paper);
-  }
-  .edu-tag::before{
-    content:"";
-    width:4px; height:4px;
-    border-radius:50%;
-    background:var(--violet-light);
-    flex-shrink:0;
-  }
-  body.light-theme .edu-badge{
-    background:linear-gradient(160deg, rgba(139,92,246,0.15), rgba(255,255,255,0.9));
-  }
-  body.light-theme .edu-card{
-    background:linear-gradient(160deg, rgba(139,92,246,0.10), rgba(255,255,255,0.85) 55%);
-    border-color:rgba(139,92,246,0.25);
-  }
-  body.light-theme .edu-status,
-  body.light-theme .edu-tag{
-    background:#F1E7FE;
-    border-color:rgba(139,92,246,0.25);
-    color:var(--violet-deep);
-  }
-  /* ---------- Education section: cyan theme ---------- */
-  #education .edu-svg .edu-path-bg{ stroke:rgba(34,211,238,0.18); }
-  #education .edu-svg .edu-path-fill{ stroke:#67E8F9; filter:drop-shadow(0 0 6px rgba(34,211,238,0.6)); }
-  #education .edu-badge{
-    background:linear-gradient(160deg, rgba(34,211,238,0.32), rgba(20,23,31,0.9));
-    border-color:rgba(34,211,238,0.4);
-  }
-  #education .edu-node.is-current .edu-badge{
-    border-color:#67E8F9;
-    animation:eduPulseCyan 2.2s ease-in-out infinite;
-  }
-  @keyframes eduPulseCyan{
-    0%, 100%{ box-shadow:0 0 0 0 rgba(103,232,249,0.5); }
-    50%{ box-shadow:0 0 0 8px rgba(103,232,249,0); }
-  }
-  #education .edu-card{
-    border-color:rgba(34,211,238,0.22);
-    background:linear-gradient(160deg, rgba(34,211,238,0.08), rgba(20,23,31,0.5) 55%);
-  }
-  #education .edu-card::before{
-    background:radial-gradient(circle, rgba(34,211,238,0.18), transparent 65%);
-  }
-  #education .edu-node:hover .edu-card{
-    border-color:rgba(103,232,249,0.5);
-    box-shadow:0 16px 32px -18px rgba(8,145,178,0.45);
-  }
-  #education .edu-year{ color:#67E8F9; }
-  #education .edu-status{ border-color:rgba(34,211,238,0.3); background:#0B2830; }
-  #education .edu-node.is-current .edu-status{ border-color:rgba(103,232,249,0.7); color:#67E8F9; }
-  #education .edu-tag{ border-color:rgba(34,211,238,0.3); background:#0B2830; }
-  #education .edu-tag::before{ background:#67E8F9; }
-  body.light-theme #education .edu-badge{
-    background:linear-gradient(160deg, rgba(34,211,238,0.15), rgba(255,255,255,0.9));
-  }
-  body.light-theme #education .edu-card{
-    background:linear-gradient(160deg, rgba(34,211,238,0.1), rgba(255,255,255,0.85) 55%);
-    border-color:rgba(14,116,144,0.3);
-  }
-  body.light-theme #education .edu-status,
-  body.light-theme #education .edu-tag{
-    background:#DFF6FA;
-    border-color:rgba(14,116,144,0.3);
-    color:#0E7490;
-  }
-  /* ---------- Education: level-select ---------- */
-  .lvl-grid{
-    display:grid;
-    grid-template-columns:repeat(5, 1fr);
-    gap:18px;
-    align-items:stretch;
-  }
-  .lvl-tile{
-    position:relative;
-    display:flex;
-    flex-direction:column;
-    padding:12px 16px 18px;
-    border-radius:16px;
-    border:1px solid rgba(34,211,238,0.16);
-    background:linear-gradient(165deg, rgba(34,211,238,0.06), rgba(20,23,31,0.55) 60%);
-    transition:transform 0.35s cubic-bezier(.16,1,.3,1), border-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease, filter 0.3s ease;
-  }
-  .lvl-tile:hover{
-    transform:translateY(-4px);
-    border-color:rgba(103,232,249,0.5);
-    box-shadow:0 18px 36px -18px rgba(8,145,178,0.55);
-  }
-  .lvl-rail{
-    position:relative;
-    height:26px;
-    margin:0 -17px 8px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
-  .lvl-rail::before, .lvl-rail::after{
-    content:'';
-    position:absolute;
-    top:50%; height:2.5px; margin-top:-1.25px;
-    background:rgba(34,211,238,0.14);
-    border-radius:2px;
-  }
-  .lvl-rail::before{ left:-19px; right:calc(50% + 15px); transform-origin:left center; }
-  .lvl-rail::after{ left:calc(50% + 15px); right:-19px; transform-origin:left center; }
-  .lvl-tile:first-child .lvl-rail::before{ display:none; }
-  .lvl-tile:last-child .lvl-rail::after{ display:none; }
-  .lvl-tile.is-done .lvl-rail::before,
-  .lvl-tile.is-done .lvl-rail::after,
-  .lvl-tile.is-current .lvl-rail::before{
-    background:linear-gradient(90deg, #22D3EE, #67E8F9);
-    box-shadow:0 0 8px rgba(34,211,238,0.45);
-  }
-  .lvl-dot{
-    position:relative;
-    z-index:1;
-    width:22px; height:22px;
-    border-radius:50%;
-    display:flex; align-items:center; justify-content:center;
-    background:#10222B;
-    border:2px solid rgba(34,211,238,0.35);
-    color:#9AA1AE;
-    font-style:normal;
-  }
-  .lvl-dot svg{ width:11px; height:11px; }
-  .lvl-tile.is-done .lvl-dot{
-    background:linear-gradient(150deg, #22D3EE, #0FA8C4);
-    border-color:transparent;
-    color:#06272E;
-    box-shadow:0 0 10px rgba(34,211,238,0.45);
-  }
-  .lvl-tile.is-current .lvl-dot{
-    background:#0E2A33;
-    border-color:#67E8F9;
-  }
-  .lvl-tile.is-current .lvl-dot::after{
-    content:'';
-    width:8px; height:8px;
-    border-radius:50%;
-    background:#67E8F9;
-  }
-  .lvl-tile.is-locked .lvl-dot{ border-style:dashed; }
-  .lvl-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
-  .lvl-num{
-    font-family:'Baloo 2', sans-serif;
-    font-weight:700;
-    font-size:11px;
-    letter-spacing:0.12em;
-    color:rgba(103,232,249,0.75);
-  }
-  .lvl-status{
-    font-family:'Quicksand', sans-serif;
-    font-weight:700;
-    font-size:9px;
-    letter-spacing:0.06em;
-    text-transform:uppercase;
-    padding:3px 9px;
-    border-radius:999px;
-    color:#67E8F9;
-    border:1px solid rgba(34,211,238,0.3);
-    background:rgba(34,211,238,0.08);
-    white-space:nowrap;
-  }
-  .lvl-tile.is-current .lvl-status{ color:#062A31; background:#22D3EE; border-color:#22D3EE; }
-  .lvl-tile.is-locked .lvl-status{ color:var(--fog); border-color:rgba(154,161,174,0.35); background:transparent; }
-  .lvl-year{ font-family:'Outfit', sans-serif; font-weight:800; font-size:24px; color:#67E8F9; margin:0 0 2px; }
-  .lvl-title{ font-family:'Outfit', sans-serif; font-weight:700; font-size:14.5px; line-height:1.3; color:var(--paper); margin:0 0 3px; }
-  .lvl-inst{ font-family:'Quicksand', sans-serif; font-weight:600; font-size:11.5px; color:var(--fog); margin:0 0 8px; }
-  .lvl-desc{ font-family:'Quicksand', sans-serif; font-size:11.8px; line-height:1.55; color:var(--fog); margin:0 0 10px; flex:1; }
-  .lvl-tile .edu-tags{ margin-top:auto; }
-  /* current level breathes */
-  .lvl-tile.is-current{ border-color:rgba(103,232,249,0.45); }
-  @keyframes lvlBreath{
-    0%, 100%{ box-shadow:0 0 0 -4px rgba(34,211,238,0), 0 14px 30px -18px rgba(8,145,178,0.5); }
-    50%{ box-shadow:0 0 22px -4px rgba(34,211,238,0.35), 0 14px 30px -18px rgba(8,145,178,0.5); }
-  }
-  /* entrance: hidden until revealed, then the meter fills level by level */
-  .lvl-grid:not(.revealed) .lvl-tile{ opacity:0; }
-  .lvl-grid:not(.revealed) .lvl-rail::before,
-  .lvl-grid:not(.revealed) .lvl-rail::after{ transform:scaleX(0); }
-  .lvl-grid:not(.revealed) .lvl-dot{ transform:scale(0); }
-  @keyframes lvlTileIn{ from{ opacity:0; transform:translateY(24px); } to{ opacity:1; transform:none; } }
-  @keyframes lvlTileInLock{ from{ opacity:0; transform:translateY(24px); } to{ opacity:0.55; transform:none; } }
-  @keyframes lvlSegIn{ from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
-  @keyframes lvlDotIn{ 0%{ transform:scale(0); } 60%{ transform:scale(1.28); } 100%{ transform:scale(1); } }
-  .lvl-grid.revealed .lvl-tile{ animation:lvlTileIn 0.6s cubic-bezier(.16,1,.3,1) calc(var(--d) + 0.1s) backwards; }
-  .lvl-grid.revealed .lvl-rail::before{ animation:lvlSegIn 0.28s cubic-bezier(.4,0,.2,1) var(--d) backwards; }
-  .lvl-grid.revealed .lvl-dot{ animation:lvlDotIn 0.4s cubic-bezier(.34,1.56,.64,1) calc(var(--d) + 0.12s) backwards; }
-  .lvl-grid.revealed .lvl-rail::after{ animation:lvlSegIn 0.28s cubic-bezier(.4,0,.2,1) calc(var(--d) + 0.18s) backwards; }
-  .lvl-grid.revealed .lvl-tile.is-current{
-    animation:lvlTileIn 0.6s cubic-bezier(.16,1,.3,1) calc(var(--d) + 0.1s) backwards,
-              lvlBreath 3.2s ease-in-out 1.8s infinite;
-  }
-  .lvl-grid.revealed .lvl-tile.is-locked{ animation-name:lvlTileInLock; }
-  /* locked level: dimmed until previewed */
-  .lvl-tile.is-locked{ opacity:0.55; border-style:dashed; filter:saturate(0.5); }
-  .lvl-tile.is-locked:hover{ opacity:1; filter:none; }
-  /* light theme */
-  body.light-theme .lvl-tile{
-    background:linear-gradient(165deg, rgba(34,211,238,0.09), rgba(255,255,255,0.92) 60%);
-    border-color:rgba(14,116,144,0.22);
-  }
-  body.light-theme .lvl-year{ color:#0E7490; }
-  body.light-theme .lvl-num{ color:rgba(14,116,144,0.8); }
-  body.light-theme .lvl-status{ color:#0E7490; border-color:rgba(14,116,144,0.35); background:rgba(34,211,238,0.1); }
-  body.light-theme .lvl-tile.is-current .lvl-status{ color:#ffffff; background:#0891B2; border-color:#0891B2; }
-  body.light-theme .lvl-rail::before, body.light-theme .lvl-rail::after{ background:rgba(14,116,144,0.15); }
-  body.light-theme .lvl-tile.is-done .lvl-rail::before,
-  body.light-theme .lvl-tile.is-done .lvl-rail::after,
-  body.light-theme .lvl-tile.is-current .lvl-rail::before{
-    background:linear-gradient(90deg, #22D3EE, #0891B2);
-  }
-  body.light-theme .lvl-dot{ background:#E8F8FB; border-color:rgba(14,116,144,0.4); }
-  @media (max-width:1020px){
-    .lvl-grid{ grid-template-columns:repeat(2, 1fr); }
-    .lvl-rail::before, .lvl-rail::after{ display:none; }
-  }
-  @media (max-width:600px){ .lvl-grid{ grid-template-columns:1fr; } }
-  @media (max-width:640px){
-    .edu-path{ padding-left:52px; }
-    .edu-node{
-      grid-template-columns:1fr;
-      padding-left:0;
-    }
-    .edu-badge{
-      position:absolute;
-      left:-52px; top:0;
-      grid-column:auto;
-      width:32px; height:32px;
-      font-size:11px;
-    }
-    .edu-node .edu-card,
-    .edu-node:nth-child(even) .edu-card{
-      grid-column:1;
-      justify-self:stretch;
-      max-width:none;
-    }
-  }
-  @media (prefers-reduced-motion: reduce){
-    .edu-node{ opacity:1; transform:none; transition:none; }
-    .edu-badge.is-current{ animation:none; }
-  }
-
-  /* ---------- Education: slideshow ---------- */
-  .edu-slideshow{
-    position:relative;
-    max-width:1100px;
+    width:1771.47px;
+    max-width:none;
     margin:0 auto;
-    border-radius:24px;
-    overflow:hidden;
-    background:#04060a;
-    box-shadow:0 30px 70px -30px rgba(0,0,0,0.6);
+    aspect-ratio:527.952/209.712;
     opacity:0;
     transform:translateY(24px);
     transition:opacity 0.8s cubic-bezier(.16,1,.3,1), transform 0.8s cubic-bezier(.16,1,.3,1);
   }
-  .edu-slide{
-    display:none;
-    width:100%;
-  }
-  .edu-slide.is-active{ display:block; }
-  .edu-slide-art{
-    width:100%;
-    height:auto;
-    display:block;
-  }
-  .edu-nav-btn{
+  .edu-climb-mountain{
     position:absolute;
-    bottom:18px;
-    width:44px; height:44px;
-    border-radius:50%;
-    display:flex; align-items:center; justify-content:center;
-    background:rgba(10,20,26,0.72);
-    border:1px solid rgba(103,232,249,0.35);
-    color:#8af0ff;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    user-select:none;
+    /* this crop's base tapers with natural antialiasing (pixel-checked -
+       no uniform pale rim-light band like the earlier crop had), so no
+       mask-image fade is needed here. */
+  }
+  .edu-stop{
+    position:absolute;
+    left:var(--sx);
+    top:var(--sy);
+    transform:translate(-50%, -50%);
+    z-index:2;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    background:none;
+    border:none;
+    padding:0;
+    font:inherit;
+    color:inherit;
     cursor:pointer;
-    backdrop-filter:blur(6px);
-    -webkit-backdrop-filter:blur(6px);
-    transition:background 0.25s ease, transform 0.25s ease, opacity 0.25s ease, border-color 0.25s ease;
+    -webkit-tap-highlight-color:transparent;
   }
-  .edu-nav-btn svg{ width:20px; height:20px; }
-  .edu-nav-prev{ left:18px; }
-  .edu-nav-next{ right:18px; }
-  .edu-nav-btn:hover:not(:disabled){
-    background:rgba(34,211,238,0.18);
-    border-color:rgba(103,232,249,0.6);
-    transform:scale(1.08);
+  .edu-stop-node{
+    width:clamp(22px, 3.4vw, 32px);
+    height:clamp(22px, 3.4vw, 32px);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(150deg, #22D3EE, #0FA8C4);
+    border:2px solid #D9FBFF;
+    color:#06272E;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:clamp(10px, 1.3vw, 13px);
+    box-shadow:0 0 0 0 rgba(103,232,249,0.5), 0 4px 14px -4px rgba(8,145,178,0.7);
+    transition:transform 0.3s cubic-bezier(.34,1.56,.64,1), box-shadow 0.3s ease;
   }
-  .edu-nav-btn:disabled{ opacity:0.28; cursor:default; }
-  @media (max-width:640px){
-    .edu-nav-btn{ width:38px; height:38px; bottom:12px; }
-    .edu-nav-prev{ left:12px; }
-    .edu-nav-next{ right:12px; }
+  .edu-stop:hover .edu-stop-node,
+  .edu-stop:focus-visible .edu-stop-node{
+    transform:scale(1.18);
+    box-shadow:0 0 0 8px rgba(103,232,249,0.22), 0 4px 14px -4px rgba(8,145,178,0.7);
   }
-  @media (prefers-reduced-motion: reduce){
-    .edu-slideshow{ opacity:1; transform:none; transition:none; }
+  .edu-stop-year-tag{
+    margin-top:6px;
+    padding:2px 8px;
+    border-radius:999px;
+    background:rgba(11,23,32,0.82);
+    border:1px solid rgba(34,211,238,0.35);
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:clamp(8.5px, 1vw, 10.5px);
+    letter-spacing:0.04em;
+    color:#8af0ff;
+    white-space:nowrap;
+    pointer-events:none;
   }
+  .edu-stop--label-above .edu-stop-year-tag{ order:-1; margin-top:0; margin-bottom:6px; }
+  .edu-stop-detail{
+    position:absolute;
+    top:calc(100% + 4px);
+    width:200px;
+    padding:12px 14px 11px;
+    border-radius:14px;
+    border:1px solid rgba(34,211,238,0.3);
+    background:linear-gradient(160deg, rgba(15,30,40,0.97), rgba(8,17,23,0.97));
+    box-shadow:0 18px 36px -16px rgba(0,0,0,0.6);
+    opacity:0;
+    transform:translateY(6px);
+    pointer-events:none;
+    transition:opacity 0.25s ease, transform 0.25s ease;
+    z-index:4;
+    text-align:left;
+  }
+  .edu-stop--label-above .edu-stop-detail{ top:auto; bottom:calc(100% + 4px); }
+  .edu-stop:hover .edu-stop-detail,
+  .edu-stop:focus-visible .edu-stop-detail,
+  .edu-stop:focus-within .edu-stop-detail{
+    opacity:1;
+    transform:translateY(0);
+    pointer-events:auto;
+  }
+  .edu-stop-title{
+    font-family:'Outfit', sans-serif;
+    font-weight:700;
+    font-size:13.5px;
+    line-height:1.25;
+    color:var(--paper);
+    margin:0 0 3px;
+  }
+  .edu-stop-inst{
+    font-family:'Quicksand', sans-serif;
+    font-weight:600;
+    font-size:10.5px;
+    color:#8af0ff;
+    margin:0 0 6px;
+  }
+  .edu-stop-desc{
+    font-family:'Quicksand', sans-serif;
+    font-size:10.8px;
+    line-height:1.5;
+    color:var(--fog);
+    margin:0;
+  }
+  /* staggered pop-in, cascading from the parent's single [data-reveal]
+     toggle rather than each stop needing its own observer/transform */
+  .edu-stop-node, .edu-stop-year-tag{
+    opacity:0;
+    transform:scale(0.5);
+    transition:opacity 0.5s ease, transform 0.5s cubic-bezier(.34,1.56,.64,1);
+    transition-delay:calc(var(--i) * 0.12s);
+  }
+  .edu-stop-year-tag{ transform:scale(0.85) translateY(6px); }
+  .edu-climb.is-visible .edu-stop-node{ opacity:1; transform:scale(1); }
+  .edu-climb.is-visible .edu-stop-year-tag{ opacity:1; transform:scale(1) translateY(0); }
 
+  body.light-theme .edu-stop-node{ border-color:#ffffff; }
+  body.light-theme .edu-stop-year-tag{
+    background:rgba(255,255,255,0.9);
+    border-color:rgba(14,116,144,0.3);
+    color:#0E7490;
+  }
+  body.light-theme .edu-stop-detail{
+    background:linear-gradient(160deg, rgba(255,255,255,0.98), rgba(240,249,255,0.98));
+    border-color:rgba(14,116,144,0.25);
+  }
+  body.light-theme .edu-stop-inst{ color:#0E7490; }
+
+  /* .edu-climb-wrap now scrolls horizontally at every screen size (see
+     base rule above) since the graphic is wider than any viewport at its
+     current 3x size - no separate mobile-only override needed anymore. */
+  @media (prefers-reduced-motion: reduce){
+    .edu-climb{ transition:none; }
+    .edu-stop-node, .edu-stop-year-tag{ transition:opacity 0.2s ease; transform:none !important; }
+  }
   /* ---------- Achievements: trophy grid ---------- */
   .trophy-grid{
     display:grid;
@@ -4462,16 +4183,68 @@
       <p class="content-section-sub">One stage at a time.</p>
     </div>
     <div class="content-section-body">
-      <div class="edu-slideshow" id="eduSlideshow" data-reveal>
-        <div class="edu-slide is-active" data-slide="0">
-          <img class="edu-slide-art" src="assets/nursery.svg" alt="" aria-hidden="true">
-        </div>
-        <button class="edu-nav-btn edu-nav-prev" id="eduPrevBtn" type="button" aria-label="Previous stage">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      <!-- PLACEHOLDER CONTENT: institution names, years and descriptions
+           below are all placeholders - swap in the real details whenever
+           ready. 5 waypoints climb the mountain from base (--i:0, earliest)
+           to summit (--i:4, most recent); --sx/--sy position each one on
+           the ridge line, --i drives the reveal stagger. Label direction
+           (above/below the node) is set per-stop via the
+           edu-stop--label-above modifier, so it never gets clipped near
+           the top or bottom edge of the scene. -->
+      <div class="edu-climb-wrap">
+      <div class="edu-climb" id="eduClimb" data-reveal>
+        <img class="edu-climb-mountain" src="assets/lightmountain.svg" alt="" aria-hidden="true">
+
+        <button type="button" class="edu-stop edu-stop--label-above" style="--sx:8.4%; --sy:94.5%; --i:0;" aria-label="Nursery, 2009 to 2011">
+          <div class="edu-stop-node" aria-hidden="true">1</div>
+          <span class="edu-stop-year-tag">2009–2011</span>
+          <div class="edu-stop-detail">
+            <h3 class="edu-stop-title">Nursery</h3>
+            <p class="edu-stop-inst">Placeholder Pre-School</p>
+            <p class="edu-stop-desc">Where it all began - crayons, alphabet blocks, and a lot of finger painting.</p>
+          </div>
         </button>
-        <button class="edu-nav-btn edu-nav-next" id="eduNextBtn" type="button" aria-label="Next stage">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+
+        <button type="button" class="edu-stop" style="--sx:26.2%; --sy:70.4%; --i:1;" aria-label="Primary School, 2011 to 2016">
+          <div class="edu-stop-node" aria-hidden="true">2</div>
+          <span class="edu-stop-year-tag">2011–2016</span>
+          <div class="edu-stop-detail">
+            <h3 class="edu-stop-title">Primary School</h3>
+            <p class="edu-stop-inst">Placeholder Primary School</p>
+            <p class="edu-stop-desc">Learned to read, write, and that homework doesn't do itself.</p>
+          </div>
         </button>
+
+        <button type="button" class="edu-stop edu-stop--label-above" style="--sx:34.5%; --sy:67.1%; --i:2;" aria-label="Secondary School, 2016 to 2020">
+          <div class="edu-stop-node" aria-hidden="true">3</div>
+          <span class="edu-stop-year-tag">2016–2020</span>
+          <div class="edu-stop-detail">
+            <h3 class="edu-stop-title">Secondary School</h3>
+            <p class="edu-stop-inst">Placeholder Secondary School</p>
+            <p class="edu-stop-desc">First real exposure to science and maths clicking into place.</p>
+          </div>
+        </button>
+
+        <button type="button" class="edu-stop" style="--sx:50.2%; --sy:40.9%; --i:3;" aria-label="Higher Secondary, 2020 to 2022">
+          <div class="edu-stop-node" aria-hidden="true">4</div>
+          <span class="edu-stop-year-tag">2020–2022</span>
+          <div class="edu-stop-detail">
+            <h3 class="edu-stop-title">Higher Secondary</h3>
+            <p class="edu-stop-inst">Placeholder Higher Secondary, Science</p>
+            <p class="edu-stop-desc">Picked the science stream, and started tinkering with code on the side.</p>
+          </div>
+        </button>
+
+        <button type="button" class="edu-stop" style="--sx:64.9%; --sy:16.5%; --i:4;" aria-label="Bachelor's Degree, 2022 to 2026">
+          <div class="edu-stop-node" aria-hidden="true">5</div>
+          <span class="edu-stop-year-tag">2022–2026</span>
+          <div class="edu-stop-detail">
+            <h3 class="edu-stop-title">Bachelor's Degree</h3>
+            <p class="edu-stop-inst">Placeholder University, B.Tech Computer Science</p>
+            <p class="edu-stop-desc">Deep end of the pool - backend systems, APIs, and way too much coffee.</p>
+          </div>
+        </button>
+      </div>
       </div>
     </div>
   </div>
@@ -6618,31 +6391,36 @@
     leafObserver.observe(treeScene);
   })();
 
-  /* ---------- Education: slideshow ---------- */
+  /* ---------- Education: mountain climb ----------
+     The reveal/stagger/hover-card behavior is all still pure CSS (see the
+     generic [data-reveal] observer further down, and the .is-visible-keyed
+     stagger in the stylesheet). The one thing that DOES need JS: the
+     graphic is wider than the viewport, so margin:0 auto on an overflowing
+     child has no effect (auto margins resolve to 0 once the child is
+     bigger than its container) - it just starts scrolled flush left. This
+     centers the scroll position explicitly instead, and recomputes it on
+     resize, which also fires on browser zoom (zoom changes the effective
+     CSS pixel viewport size), so it stays centered rather than drifting
+     back to flush-left as the available width changes. Biased slightly past
+     dead-centre (0.58 instead of 0.5 of the overflow) so the visible window
+     leans a bit to the right of the graphic - expressed as a fraction of
+     the overflow amount rather than a fixed px offset, so the bias holds
+     proportionally at any zoom level instead of being a fixed nudge that's
+     barely noticeable when zoomed out and huge when zoomed in. */
   (function(){
-    const slideshow = document.getElementById('eduSlideshow');
-    if(!slideshow) return;
-    const slides = Array.prototype.slice.call(slideshow.querySelectorAll('.edu-slide'));
-    const prevBtn = document.getElementById('eduPrevBtn');
-    const nextBtn = document.getElementById('eduNextBtn');
-    let index = 0;
-
-    function render(){
-      slides.forEach((s, i) => s.classList.toggle('is-active', i === index));
-      if(prevBtn) prevBtn.disabled = index === 0;
-      if(nextBtn) nextBtn.disabled = index === slides.length - 1;
+    const climbWrap = document.querySelector('.edu-climb-wrap');
+    const climbEl = document.getElementById('eduClimb');
+    if(!climbWrap || !climbEl) return;
+    const CLIMB_SCROLL_BIAS = 0.58;
+    function centerClimb(){
+      const overflow = climbEl.offsetWidth - climbWrap.clientWidth;
+      climbWrap.scrollLeft = Math.max(0, overflow * CLIMB_SCROLL_BIAS);
     }
-    if(prevBtn){
-      prevBtn.addEventListener('click', () => {
-        if(index > 0){ index--; render(); }
-      });
-    }
-    if(nextBtn){
-      nextBtn.addEventListener('click', () => {
-        if(index < slides.length - 1){ index++; render(); }
-      });
-    }
-    render();
+    centerClimb();
+    window.addEventListener('resize', centerClimb);
+    /* fonts/images finishing load can change layout size after the first
+       paint - one more pass once everything's settled */
+    window.addEventListener('load', centerClimb);
   })();
 
   /* ---------- Achievement toasts ---------- */

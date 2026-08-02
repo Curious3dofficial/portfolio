@@ -1464,7 +1464,11 @@
     margin-right:-50vw;
     overflow-x:auto;
     overflow-y:visible;
-    padding:8px 0 28px;
+    /* generous top padding - the summit character (stage 5) stands well
+       above the mountain's own bounding box (arms-out pose, positioned
+       near the very top of the ridge), so without headroom here he gets
+       cut off by whatever sits above this section in normal document flow */
+    padding:170px 0 28px;
     -webkit-overflow-scrolling:touch;
     /* hide the horizontal scrollbar track/thumb - that's the "line" along
        the bottom edge, not anything in the mountain artwork itself (the
@@ -1477,7 +1481,7 @@
   .edu-climb-wrap::-webkit-scrollbar{ display:none; height:0; }
   .edu-climb{
     position:relative;
-    width:1771.47px;
+    width:1995.4998px;
     max-width:none;
     margin:0 auto;
     aspect-ratio:527.952/209.712;
@@ -1485,6 +1489,52 @@
     transform:translateY(24px);
     transition:opacity 0.8s cubic-bezier(.16,1,.3,1), transform 0.8s cubic-bezier(.16,1,.3,1);
   }
+  .edu-climb-shift{
+    /* Independent of the scroll-bias centering (which only has an effect
+       when the graphic actually overflows its wrap - on wide viewports
+       where it doesn't, that scroll-based nudge does nothing). This is a
+       plain pixel transform applied to an inner layer (not .edu-climb
+       itself, which carries [data-reveal] and gets its transform forced
+       via !important on reveal) - shifts the mountain art AND all the
+       waypoints together (they're both inside it, so their percentage-
+       based positions stay correctly aligned to the art) by a fixed
+       amount, unconditionally, regardless of overflow/zoom/screen width. */
+    position:absolute;
+    inset:0;
+    transform:translateX(125px);
+  }
+  .edu-hiker{
+    /* Feet-anchored, not centre-anchored like .edu-stop - left/top mark
+       where the character's feet touch the ridge, translate(-50%,-100%)
+       pulls the image up/left from that point rather than centring on it.
+       Each source SVG was cropped tight to its own content bbox (viewBox
+       trimmed to the character's silhouette + a few px pad), so the image's
+       own bottom edge IS the feet/shadow line - no per-pose margin to
+       account for. Sized as a % of .edu-climb-shift's own width (not a
+       fixed px value) so every character scales proportionally whenever
+       the mountain graphic itself is resized. height:auto preserves each
+       crop's own aspect ratio (poses differ - stage 5's arms-out summit
+       pose is much wider relative to its height than the others, so widths
+       are NOT uniform - each was back-calculated from a progressively
+       taller target height per stage, so the character visibly grows up
+       from toddler to adult across the climb, not just gains gear). */
+    position:absolute;
+    z-index:1;
+    height:auto;
+    pointer-events:none;
+    user-select:none;
+    transform:translate(-50%, -100%);
+    /* pivot at the feet (bottom-centre of the image), not the default
+       centre - so any per-stage rotation swivels the character around
+       the point already anchored to the ridge, instead of swinging his
+       feet off of it. */
+    transform-origin:50% 100%;
+  }
+  .edu-hiker--1{ width:3.27%; left:8.4%; top:96.5%; }
+  .edu-hiker--2{ width:4.4%; left:22.2%; top:80.4%; }
+  .edu-hiker--3{ width:5.5%; left:38.0%; top:69.16%; }
+  .edu-hiker--4{ width:6.125%; left:53.7%; top:43.33%; transform:translate(-50%, -100%) rotate(-10deg); }
+  .edu-hiker--5{ width:8.0808%; left:67.4%; top:16.11%; }
   .edu-climb-mountain{
     position:absolute;
     inset:0;
@@ -1513,42 +1563,6 @@
     cursor:pointer;
     -webkit-tap-highlight-color:transparent;
   }
-  .edu-stop-node{
-    width:clamp(22px, 3.4vw, 32px);
-    height:clamp(22px, 3.4vw, 32px);
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:linear-gradient(150deg, #22D3EE, #0FA8C4);
-    border:2px solid #D9FBFF;
-    color:#06272E;
-    font-family:'Baloo 2', sans-serif;
-    font-weight:700;
-    font-size:clamp(10px, 1.3vw, 13px);
-    box-shadow:0 0 0 0 rgba(103,232,249,0.5), 0 4px 14px -4px rgba(8,145,178,0.7);
-    transition:transform 0.3s cubic-bezier(.34,1.56,.64,1), box-shadow 0.3s ease;
-  }
-  .edu-stop:hover .edu-stop-node,
-  .edu-stop:focus-visible .edu-stop-node{
-    transform:scale(1.18);
-    box-shadow:0 0 0 8px rgba(103,232,249,0.22), 0 4px 14px -4px rgba(8,145,178,0.7);
-  }
-  .edu-stop-year-tag{
-    margin-top:6px;
-    padding:2px 8px;
-    border-radius:999px;
-    background:rgba(11,23,32,0.82);
-    border:1px solid rgba(34,211,238,0.35);
-    font-family:'Baloo 2', sans-serif;
-    font-weight:700;
-    font-size:clamp(8.5px, 1vw, 10.5px);
-    letter-spacing:0.04em;
-    color:#8af0ff;
-    white-space:nowrap;
-    pointer-events:none;
-  }
-  .edu-stop--label-above .edu-stop-year-tag{ order:-1; margin-top:0; margin-bottom:6px; }
   .edu-stop-detail{
     position:absolute;
     top:calc(100% + 4px);
@@ -1595,24 +1609,6 @@
     color:var(--fog);
     margin:0;
   }
-  /* staggered pop-in, cascading from the parent's single [data-reveal]
-     toggle rather than each stop needing its own observer/transform */
-  .edu-stop-node, .edu-stop-year-tag{
-    opacity:0;
-    transform:scale(0.5);
-    transition:opacity 0.5s ease, transform 0.5s cubic-bezier(.34,1.56,.64,1);
-    transition-delay:calc(var(--i) * 0.12s);
-  }
-  .edu-stop-year-tag{ transform:scale(0.85) translateY(6px); }
-  .edu-climb.is-visible .edu-stop-node{ opacity:1; transform:scale(1); }
-  .edu-climb.is-visible .edu-stop-year-tag{ opacity:1; transform:scale(1) translateY(0); }
-
-  body.light-theme .edu-stop-node{ border-color:#ffffff; }
-  body.light-theme .edu-stop-year-tag{
-    background:rgba(255,255,255,0.9);
-    border-color:rgba(14,116,144,0.3);
-    color:#0E7490;
-  }
   body.light-theme .edu-stop-detail{
     background:linear-gradient(160deg, rgba(255,255,255,0.98), rgba(240,249,255,0.98));
     border-color:rgba(14,116,144,0.25);
@@ -1624,7 +1620,6 @@
      current 3x size - no separate mobile-only override needed anymore. */
   @media (prefers-reduced-motion: reduce){
     .edu-climb{ transition:none; }
-    .edu-stop-node, .edu-stop-year-tag{ transition:opacity 0.2s ease; transform:none !important; }
   }
   /* ---------- Achievements: trophy grid ---------- */
   .trophy-grid{
@@ -4193,11 +4188,15 @@
            the top or bottom edge of the scene. -->
       <div class="edu-climb-wrap">
       <div class="edu-climb" id="eduClimb" data-reveal>
+      <div class="edu-climb-shift">
         <img class="edu-climb-mountain" src="assets/lightmountain.svg" alt="" aria-hidden="true">
+        <img class="edu-hiker edu-hiker--1" src="assets/hiker-1-nursery.png" alt="" aria-hidden="true">
+        <img class="edu-hiker edu-hiker--2" src="assets/hiker-2-primary.png" alt="" aria-hidden="true">
+        <img class="edu-hiker edu-hiker--3" src="assets/hiker-3-secondary.png" alt="" aria-hidden="true">
+        <img class="edu-hiker edu-hiker--4" src="assets/hiker-4-highersecondary.png" alt="" aria-hidden="true">
+        <img class="edu-hiker edu-hiker--5" src="assets/hiker-5-bachelors.png" alt="" aria-hidden="true">
 
         <button type="button" class="edu-stop edu-stop--label-above" style="--sx:8.4%; --sy:94.5%; --i:0;" aria-label="Nursery, 2009 to 2011">
-          <div class="edu-stop-node" aria-hidden="true">1</div>
-          <span class="edu-stop-year-tag">2009–2011</span>
           <div class="edu-stop-detail">
             <h3 class="edu-stop-title">Nursery</h3>
             <p class="edu-stop-inst">Placeholder Pre-School</p>
@@ -4206,8 +4205,6 @@
         </button>
 
         <button type="button" class="edu-stop" style="--sx:26.2%; --sy:70.4%; --i:1;" aria-label="Primary School, 2011 to 2016">
-          <div class="edu-stop-node" aria-hidden="true">2</div>
-          <span class="edu-stop-year-tag">2011–2016</span>
           <div class="edu-stop-detail">
             <h3 class="edu-stop-title">Primary School</h3>
             <p class="edu-stop-inst">Placeholder Primary School</p>
@@ -4216,8 +4213,6 @@
         </button>
 
         <button type="button" class="edu-stop edu-stop--label-above" style="--sx:34.5%; --sy:67.1%; --i:2;" aria-label="Secondary School, 2016 to 2020">
-          <div class="edu-stop-node" aria-hidden="true">3</div>
-          <span class="edu-stop-year-tag">2016–2020</span>
           <div class="edu-stop-detail">
             <h3 class="edu-stop-title">Secondary School</h3>
             <p class="edu-stop-inst">Placeholder Secondary School</p>
@@ -4226,8 +4221,6 @@
         </button>
 
         <button type="button" class="edu-stop" style="--sx:50.2%; --sy:40.9%; --i:3;" aria-label="Higher Secondary, 2020 to 2022">
-          <div class="edu-stop-node" aria-hidden="true">4</div>
-          <span class="edu-stop-year-tag">2020–2022</span>
           <div class="edu-stop-detail">
             <h3 class="edu-stop-title">Higher Secondary</h3>
             <p class="edu-stop-inst">Placeholder Higher Secondary, Science</p>
@@ -4236,14 +4229,13 @@
         </button>
 
         <button type="button" class="edu-stop" style="--sx:64.9%; --sy:16.5%; --i:4;" aria-label="Bachelor's Degree, 2022 to 2026">
-          <div class="edu-stop-node" aria-hidden="true">5</div>
-          <span class="edu-stop-year-tag">2022–2026</span>
           <div class="edu-stop-detail">
             <h3 class="edu-stop-title">Bachelor's Degree</h3>
             <p class="edu-stop-inst">Placeholder University, B.Tech Computer Science</p>
             <p class="edu-stop-desc">Deep end of the pool - backend systems, APIs, and way too much coffee.</p>
           </div>
         </button>
+      </div>
       </div>
       </div>
     </div>
@@ -6401,17 +6393,20 @@
      centers the scroll position explicitly instead, and recomputes it on
      resize, which also fires on browser zoom (zoom changes the effective
      CSS pixel viewport size), so it stays centered rather than drifting
-     back to flush-left as the available width changes. Biased slightly past
-     dead-centre (0.58 instead of 0.5 of the overflow) so the visible window
-     leans a bit to the right of the graphic - expressed as a fraction of
-     the overflow amount rather than a fixed px offset, so the bias holds
-     proportionally at any zoom level instead of being a fixed nudge that's
-     barely noticeable when zoomed out and huge when zoomed in. */
+     back to flush-left as the available width changes. Bias is a fraction
+     of the scrollable overflow (0.5 = dead centre); LOWER values scroll
+     less, leaving more of the graphic's right side visible on screen
+     (shifts the mountain right), HIGHER values scroll further, revealing
+     more of the left side (shifts the mountain left) - expressed as a
+     fraction of the overflow amount rather than a fixed px offset, so the
+     bias holds proportionally at any zoom level instead of being a fixed
+     nudge that's barely noticeable when zoomed out and huge when zoomed in. */
   (function(){
     const climbWrap = document.querySelector('.edu-climb-wrap');
     const climbEl = document.getElementById('eduClimb');
     if(!climbWrap || !climbEl) return;
-    const CLIMB_SCROLL_BIAS = 0.58;
+    const CLIMB_SCROLL_BIAS = 0.08;
+
     function centerClimb(){
       const overflow = climbEl.offsetWidth - climbWrap.clientWidth;
       climbWrap.scrollLeft = Math.max(0, overflow * CLIMB_SCROLL_BIAS);

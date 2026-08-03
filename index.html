@@ -1523,18 +1523,191 @@
     height:auto;
     pointer-events:none;
     user-select:none;
-    transform:translate(-50%, -100%);
     /* pivot at the feet (bottom-centre of the image), not the default
        centre - so any per-stage rotation swivels the character around
        the point already anchored to the ridge, instead of swinging his
        feet off of it. */
     transform-origin:50% 100%;
+    /* Reveal state: hidden/lowered by default, fades up into its anchored
+       position once the whole scene (.edu-climb) gets .is-visible - each
+       stage has its own transition-delay below so they walk in one at a
+       time (1 through 5) rather than all popping in together. The extra
+       translateY(28px) rides ON TOP of the feet-anchor translate(-50%,-100%)
+       already in place, so the "settle down into position" motion is
+       relative to each character's own correct spot, not the page. */
+    opacity:0;
+    transform:translate(-50%, -100%) translateY(28px);
+    transition:opacity 2.5s cubic-bezier(.16,1,.3,1), transform 2.5s cubic-bezier(.16,1,.3,1);
   }
-  .edu-hiker--1{ width:3.27%; left:8.4%; top:96.5%; }
-  .edu-hiker--2{ width:4.4%; left:22.2%; top:80.4%; }
-  .edu-hiker--3{ width:5.5%; left:38.0%; top:69.16%; }
-  .edu-hiker--4{ width:6.125%; left:53.7%; top:43.33%; transform:translate(-50%, -100%) rotate(-10deg); }
-  .edu-hiker--5{ width:8.0808%; left:67.4%; top:16.11%; }
+  .edu-climb.is-visible .edu-hiker{
+    opacity:1;
+    transform:translate(-50%, -100%);
+  }
+  .edu-hiker--1{ width:3.27%; left:8.4%; top:96.5%; transition-delay:1s; }
+  .edu-hiker--2{ width:4.4%; left:22.2%; top:80.4%; transition-delay:3s; }
+  .edu-hiker--3{ width:5.5%; left:38.0%; top:69.16%; transition-delay:5s; }
+  .edu-hiker--4{ width:6.125%; left:53.7%; top:43.33%; transition-delay:7s; transform:translate(-50%, -100%) translateY(28px) rotate(-10deg); filter:drop-shadow(0 0 10px rgba(34,211,238,0.45)); }
+  .edu-hiker--5{ width:8.0808%; left:67.4%; top:16.11%; transition-delay:9s; }
+  .edu-climb.is-visible .edu-hiker--4{
+    transform:translate(-50%, -100%) rotate(-10deg);
+  }
+  /* Stage 5 (summit) settles at a flat 50% opacity once revealed - no
+     breathing/looping, just a static dimmed state. */
+  .edu-climb.is-visible .edu-hiker--5{
+    opacity:0.5;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .edu-hiker{ transition:opacity 0.2s ease; transform:translate(-50%, -100%) !important; }
+    .edu-hiker--5{ opacity:0.5; }
+    .edu-hiker--4{ transform:translate(-50%, -100%) rotate(-10deg) !important; }
+  }
+
+  /* ---------- Flake (uneven white blob) ----------
+     Scoped to .edu-climb-shift (the mountain box itself), not the whole
+     viewport - sizes in % of that box, same pattern as the hikers, so it
+     stays confined to the education graphic.
+     .flake-group is the thing that actually moves (transform-driven sweep
+     + wavy translateY, via JS-set custom properties so many instances can
+     share one keyframe rule but travel different amounts); .flake is
+     painted inside it. */
+  .edu-wind-layer{
+    /* wider than the mountain's own box (not inset:0 anymore) - bleeds
+       300px into the empty space on either side, so the blizzard drifts
+       through the surrounding dark background too, not just over the
+       SVG itself. Vertical extent unchanged. */
+    position:absolute;
+    top:0;
+    bottom:0;
+    left:-300px;
+    right:-300px;
+    overflow:hidden;
+    pointer-events:none;
+    z-index:-1;
+  }
+  .flake-group{
+    position:absolute;
+    left:0;
+    width:0.6%;
+    aspect-ratio:5/3;
+    pointer-events:none;
+    /* the sweep used to animate `left` (a layout-triggering property) on
+       every one of these elements every frame - with ~20 particles all
+       animating in lockstep, that's what was actually causing the lag
+       ("blizzard" felt slow), not just the canvas trail. Now the whole
+       sweep is done via `transform` (see flakeWave below), which the
+       browser can composite on the GPU without any layout/paint per
+       frame. --travel (the container's width in px) is set once via JS
+       on the shared parent and inherited down.
+       No will-change here (deliberately) - with ~26 of these all
+       animating, forcing every one onto its own permanently-promoted
+       GPU layer creates more memory/layer-management overhead than it
+       saves; the browser already auto-promotes actively-transform-
+       animating elements on its own while they're actually running. */
+    animation-name:flakeWave;
+    /* linear, not ease-in-out - ease-in-out decelerates to near-zero
+       velocity at EVERY keyframe stop (8 of them), which reads as a
+       stutter/pulse rather than a wave. linear interpolation between the
+       alternating +wave-amp/0/-wave-amp stops instead connects them at a
+       constant speed, i.e. an actual continuous up/down wave with no
+       pauses. */
+    animation-timing-function:linear;
+    animation-iteration-count:infinite;
+    /* paused by default - only runs while .edu-climb-wrap has
+       .is-in-view (set by an IntersectionObserver in JS), same idea as
+       the hero background skipping its render work once it's scrolled
+       out of view. */
+    animation-play-state:paused;
+  }
+  .edu-climb-wrap.is-in-view .flake-group{
+    animation-play-state:running;
+  }
+  .flake{
+    position:absolute;
+    inset:0;
+    background:#fff;
+    /* uneven/blobby, not a clean oval - four different corner radii */
+    border-radius:62% 38% 55% 45% / 48% 60% 40% 52%;
+  }
+  /* elongated streak running through the flake and tapering to a wispy
+     point on BOTH sides, centered on the flake - only used by the rare
+     flake+wind particles now. */
+  .wind{
+    position:absolute;
+    top:50%;
+    left:50%;
+    width:520%;
+    height:60%;
+    transform:translate(-50%, -50%);
+    background:linear-gradient(to right,
+      transparent 0%,
+      rgba(255,255,255,0.18) 12%,
+      rgba(255,255,255,0.55) 33%,
+      rgba(255,255,255,0.85) 50%,
+      rgba(255,255,255,0.55) 67%,
+      rgba(255,255,255,0.18) 88%,
+      transparent 100%);
+    border-radius:50%;
+    /* no filter:blur here (deliberately) - blur is more expensive to
+       composite than a plain transform, especially on an element that's
+       also opacity-fading in flakeWaveRare. the gradient itself already
+       fades to transparent on both ends, so it reads as soft without it. */
+  }
+  @keyframes flakeWave{
+    0%   { transform:translate(calc(var(--travel, 2000px) * -0.06),   0); }
+    12.5%{ transform:translate(calc(var(--travel, 2000px) * 0.0675),  var(--wave-amp, -24px)); }
+    25%  { transform:translate(calc(var(--travel, 2000px) * 0.195),   0); }
+    37.5%{ transform:translate(calc(var(--travel, 2000px) * 0.3225),  calc(var(--wave-amp, -24px) * -1)); }
+    50%  { transform:translate(calc(var(--travel, 2000px) * 0.45),    0); }
+    62.5%{ transform:translate(calc(var(--travel, 2000px) * 0.5775),  var(--wave-amp, -24px)); }
+    75%  { transform:translate(calc(var(--travel, 2000px) * 0.705),   0); }
+    87.5%{ transform:translate(calc(var(--travel, 2000px) * 0.8325),  calc(var(--wave-amp, -24px) * -1)); }
+    100% { transform:translate(calc(var(--travel, 2000px) * 0.96),    0); }
+  }
+
+  /* Rare flake+wind variant: the exact same 9-point sweep/wave path as
+     flakeWave above, just squeezed into the LAST 15% of a much longer
+     cycle (idle + invisible for the first 84%) instead of spanning the
+     whole cycle. That decouples "how fast it physically moves" from "how
+     often it shows up" - the JS picks animation-duration so that 15% of
+     it equals the same sweep time used for the mini flakes, so the
+     motion speed matches even though the full loop (and therefore how
+     rarely it recurs) is much longer. */
+  .flake-group--rare{
+    animation-name:flakeWaveRare;
+  }
+  @keyframes flakeWaveRare{
+    0%,84%  { transform:translate(calc(var(--travel, 2000px) * -0.06),   0); opacity:0; }
+    85%     { transform:translate(calc(var(--travel, 2000px) * -0.06),   0); opacity:1; }
+    86.875% { transform:translate(calc(var(--travel, 2000px) * 0.0675),  var(--wave-amp, -24px)); }
+    88.75%  { transform:translate(calc(var(--travel, 2000px) * 0.195),   0); }
+    90.625% { transform:translate(calc(var(--travel, 2000px) * 0.3225),  calc(var(--wave-amp, -24px) * -1)); }
+    92.5%   { transform:translate(calc(var(--travel, 2000px) * 0.45),    0); }
+    94.375% { transform:translate(calc(var(--travel, 2000px) * 0.5775),  var(--wave-amp, -24px)); }
+    96.25%  { transform:translate(calc(var(--travel, 2000px) * 0.705),   0); opacity:1; }
+    98.125% { transform:translate(calc(var(--travel, 2000px) * 0.8325),  calc(var(--wave-amp, -24px) * -1)); opacity:0.4; }
+    100%    { transform:translate(calc(var(--travel, 2000px) * 0.96),    0); opacity:0; }
+  }
+
+  /* Mini flakes: the .flake itself spins continuously (separate animation
+     on the child, so the rotation is independent of the group's own
+     transform-driven sweep/wave-drift movement). */
+  .flake--mini{
+    animation-name:flakeSpin;
+    animation-timing-function:linear;
+    animation-iteration-count:infinite;
+    animation-play-state:paused;
+  }
+  .edu-climb-wrap.is-in-view .flake--mini{
+    animation-play-state:running;
+  }
+  @keyframes flakeSpin{
+    from{ transform:rotate(0deg); }
+    to{ transform:rotate(var(--spin-deg, 360deg)); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .edu-wind-layer{ display:none; }
+  }
+
   .edu-climb-mountain{
     position:absolute;
     inset:0;
@@ -4190,6 +4363,7 @@
       <div class="edu-climb" id="eduClimb" data-reveal>
       <div class="edu-climb-shift">
         <img class="edu-climb-mountain" src="assets/lightmountain.svg" alt="" aria-hidden="true">
+        <div class="edu-wind-layer" id="eduWind" aria-hidden="true"></div>
         <img class="edu-hiker edu-hiker--1" src="assets/hiker-1-nursery.png" alt="" aria-hidden="true">
         <img class="edu-hiker edu-hiker--2" src="assets/hiker-2-primary.png" alt="" aria-hidden="true">
         <img class="edu-hiker edu-hiker--3" src="assets/hiker-3-secondary.png" alt="" aria-hidden="true">
@@ -6416,6 +6590,140 @@
     /* fonts/images finishing load can change layout size after the first
        paint - one more pass once everything's settled */
     window.addEventListener('load', centerClimb);
+  })();
+
+  /* ---------- Education: blizzard visibility gate ----------
+     Same idea as the hero background (animateEye) skipping its render
+     work once scrolled out of view: only run the blizzard (particles +
+     canvas wind trail) while .edu-climb-wrap is actually on screen. A
+     single IntersectionObserver naturally covers both "scrolled in from
+     the top" and "about to leave at the bottom" - toggling .is-in-view
+     on the wrap, which the CSS above uses to pause/resume every
+     .flake-group / .flake--mini animation. The canvas trail reads this
+     same class directly in its own draw loop below. */
+  (function(){
+    const climbWrap = document.querySelector('.edu-climb-wrap');
+    if(!climbWrap) return;
+    const blizzardObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        climbWrap.classList.toggle('is-in-view', entry.isIntersecting);
+      });
+    }, { threshold: 0 });
+    blizzardObserver.observe(climbWrap);
+  })();
+
+  /* ---------- Education: particle travel distance ----------
+     flakeWave (see CSS) now sweeps particles via `transform:translate()`
+     instead of animating `left` - transform is GPU-compositable, `left`
+     isn't (it was forcing a layout recalc on every animated particle,
+     every frame, which was the real source of the lag). transform's own
+     percentage units are relative to the ELEMENT's own tiny size though,
+     not its parent, so the sweep distance has to be an actual px value -
+     --travel is measured once here and set on the shared layer; every
+     .flake-group inherits it automatically via normal CSS custom-
+     property inheritance.
+     Measured from the layer's OWN clientWidth (not the mountain box) -
+     since .edu-wind-layer now extends 300px past the mountain's edges on
+     each side (left:-300px/right:-300px in the CSS), its clientWidth
+     already includes that extra 600px, so the sweep naturally covers the
+     full widened area instead of stopping at the SVG's own bounds. */
+  (function(){
+    const windLayer = document.getElementById('eduWind');
+    if(!windLayer) return;
+    function syncTravel(){
+      const px = windLayer.clientWidth || 2600;
+      windLayer.style.setProperty('--travel', px + 'px');
+    }
+    syncTravel();
+    window.addEventListener('resize', syncTravel);
+    window.addEventListener('load', syncTravel);
+  })();
+
+  /* ---------- Education: mini flakes ----------
+     Small flakes, spinning continuously as they drift via the shared
+     flakeWave travel/wave motion, with a .flake--mini child that rotates
+     on its own separate timer. */
+  (function(){
+    const windLayer = document.getElementById('eduWind');
+    if(!windLayer) return;
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const COUNT = 12;
+    const rand = (min, max) => min + Math.random() * (max - min);
+    const frag = document.createDocumentFragment();
+
+    for(let i = 0; i < COUNT; i++){
+      const group = document.createElement('div');
+      group.className = 'flake-group';
+
+      const top = rand(0, 100);
+      const size = rand(0.12, 0.35);       // smaller than the wind-flake range
+      const duration = rand(1.8, 2.7);     // horizontal speed - wider spread, moderately slow
+      const delay = -Math.random() * duration;
+      const waveAmp = rand(10, 26);
+
+      group.style.top = top + '%';
+      group.style.width = (1.1 * size).toFixed(2) + '%';
+      group.style.animationDuration = duration.toFixed(2) + 's';
+      group.style.animationDelay = delay.toFixed(2) + 's';
+      group.style.setProperty('--wave-amp', waveAmp.toFixed(0) + 'px');
+
+      const flake = document.createElement('div');
+      flake.className = 'flake flake--mini';
+      const spinDur = rand(0.8, 2.2);
+      const spinDeg = (Math.random() < 0.5 ? -1 : 1) * rand(360, 900);
+      flake.style.animationDuration = spinDur.toFixed(2) + 's';
+      flake.style.setProperty('--spin-deg', spinDeg.toFixed(0) + 'deg');
+      group.appendChild(flake);
+
+      frag.appendChild(group);
+    }
+    windLayer.appendChild(frag);
+  })();
+
+  /* ---------- Education: rare flake+wind particles ----------
+     Just 3-4 flakes, each with a .wind streak through it, using
+     flakeWaveRare (see CSS) - same physical sweep speed as the mini
+     flakes below (the SWEEP_FRACTION math makes sure of that), just
+     confined to a small window of a much longer, mostly-idle cycle, so
+     they still show up rarely rather than as a constant stream. */
+  (function(){
+    const windLayer = document.getElementById('eduWind');
+    if(!windLayer) return;
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const COUNT = 3 + Math.round(Math.random()); // 3 or 4
+    const SWEEP_FRACTION = 0.15; // must match the 85%->100% window in flakeWaveRare
+    const rand = (min, max) => min + Math.random() * (max - min);
+    const frag = document.createDocumentFragment();
+
+    for(let i = 0; i < COUNT; i++){
+      const group = document.createElement('div');
+      group.className = 'flake-group flake-group--rare';
+
+      const top = rand(0, 100);
+      const size = rand(0.35, 0.7);
+      const sweepTime = rand(1.8, 2.7);              // same range as the mini flakes' duration - matches their speed
+      const duration = sweepTime / SWEEP_FRACTION;   // stretches the surrounding idle/cycle time, not the sweep itself
+      const delay = -Math.random() * duration;
+      const waveAmp = rand(18, 36);
+
+      group.style.top = top + '%';
+      group.style.width = (1.1 * size).toFixed(2) + '%';
+      group.style.animationDuration = duration.toFixed(2) + 's';
+      group.style.animationDelay = delay.toFixed(2) + 's';
+      group.style.setProperty('--wave-amp', waveAmp.toFixed(0) + 'px');
+
+      const wind = document.createElement('div');
+      wind.className = 'wind';
+      const flake = document.createElement('div');
+      flake.className = 'flake';
+      group.appendChild(wind);
+      group.appendChild(flake);
+
+      frag.appendChild(group);
+    }
+    windLayer.appendChild(frag);
   })();
 
   /* ---------- Achievement toasts ---------- */

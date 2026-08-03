@@ -93,28 +93,13 @@
     border-color:rgba(139,92,246,0.5);
     box-shadow:0 20px 40px -18px rgba(91,33,182,0.3);
   }
-  body.light-theme .project-card:hover .project-title{
-    color:var(--violet-deep);
-  }
-  body.light-theme .project-tag{
-    background:#F1E7FE;
-    border-color:rgba(139,92,246,0.25);
-  }
-  body.light-theme .project-link-btn{
-    box-shadow:0 10px 24px -12px rgba(0,0,0,0.35);
-  }
-  body.light-theme .project-link-btn:hover{
-    box-shadow:0 16px 32px -12px rgba(0,0,0,0.45);
-  }
   body.light-theme .epilogue-lead,
   body.light-theme .epilogue-line,
   body.light-theme .epilogue-para,
-  body.light-theme .epilogue-emphasis,
-  body.light-theme .epilogue-final{
+  body.light-theme .epilogue-emphasis{
     color:#15131F;
   }
   body.light-theme .epilogue-addressee,
-  body.light-theme .epilogue-until,
   body.light-theme .epilogue-signature{
     color:var(--violet-deep);
   }
@@ -289,6 +274,34 @@
   #theme-transition-layer.reset{
     transition:none;
     clip-path:circle(0% at var(--reveal-x, 100%) var(--reveal-y, 0%));
+  }
+  /* Chevron page-transitions and the theme-toggle reveal are both driven
+     entirely by fixed JS setTimeout delays, not animation/transition
+     events - so disabling the visual motion here doesn't break their
+     timing. The chevron entry snaps straight to its "covering" end state
+     (animation:none + the "to" keyframe's transform) instead of skipping
+     motion AND leaving a gap where the chevrons never actually cover the
+     screen; the exit (return-phase3) and theme clip-path/icon-spin/native
+     view-transition animations are simply switched off, since JS still
+     flips their classes on the same timers regardless. */
+  @media (prefers-reduced-motion: reduce){
+    .chevron-transition.active .chevron{
+      animation:none;
+      transform:translateX(var(--cluster-shift, 58%));
+    }
+    .chevron-transition.return-intro.return-phase3 .chevron{
+      transition:none;
+    }
+    ::view-transition-old(root),
+    ::view-transition-new(root){
+      animation:none !important;
+    }
+    #theme-transition-layer{
+      transition:none;
+    }
+    .theme-toggle.switching .theme-icon{
+      animation:none;
+    }
   }
   *{ box-sizing:border-box; }
   html,body{
@@ -1119,33 +1132,16 @@
     box-shadow:none;
   }
 
-  /* ---------- Inverted tiles: white in dark mode, black in light mode (folder cell excluded) ---------- */
-  .fact-card:not(.fact-folder-cell){
-    background:#F4F0FA;
-    border-color:rgba(20,10,40,0.1);
-  }
-  .fact-card:not(.fact-folder-cell) h4{ color:#191320; }
-  .fact-card:not(.fact-folder-cell) p{ color:#5B21B6; }
-  .fact-card:not(.fact-folder-cell) .fact-tag{ color:#5F6270; }
-  body.light-theme .fact-card:not(.fact-folder-cell){
-    background:#171A23;
-    border-color:rgba(255,255,255,0.1);
-    box-shadow:0 10px 24px -14px rgba(20,10,40,0.55);
-  }
-  body.light-theme .fact-card:not(.fact-folder-cell) h4{ color:#F5F6F8; }
-  body.light-theme .fact-card:not(.fact-folder-cell) p{ color:var(--violet-light); }
-  body.light-theme .fact-card:not(.fact-folder-cell) .fact-tag{ color:#9AA1AE; }
-  /* ghost placeholders stay ghosts in both themes */
-  .fact-card.in-folder:not(.fact-folder-cell){
-    background:transparent;
-    border:1.5px dashed rgba(183,156,251,0.22);
-    box-shadow:none;
-  }
-  body.light-theme .fact-card.in-folder:not(.fact-folder-cell){
-    background:transparent;
-    border:1.5px dashed rgba(90,70,140,0.32);
-    box-shadow:none;
-  }
+  /* NOTE: an older "Inverted tiles: white in dark mode, black in light
+     mode" block used to live here, styling .fact-card:not(.fact-folder-cell)
+     with the opposite color scheme from Contrast pass above. It was
+     permanently dead code - Contrast pass's selectors are one class more
+     specific (.fact-grid .fact-card:not(...) vs plain
+     .fact-card:not(...)), and every .fact-card lives inside .fact-grid, so
+     Contrast pass always won regardless of source order and this block
+     never actually rendered. Removed rather than fixed, since Contrast
+     pass is clearly the maintained system (per-accent doodles, fc-java/
+     fc-chess overrides, ghost-placeholder handling all key off it). */
 
   /* ---------- Folder cell: square bento slot holding the folder reveal ---------- */
   .fact-folder-cell{
@@ -1205,30 +1201,6 @@
   /* Freeze the back while cards are in flight — if it shifted mid-flight, the
      minis' coordinate frame would move and they'd land off-centre */
   .learning-folder.busy .learning-folder__back{ transform:translateY(-4px); transition:none; }
-  .learning-paper{
-    position:absolute;
-    z-index:2;
-    bottom:10%; left:50%;
-    transform:translate(-50%, 10%);
-    width:70%; height:78%;
-    background:var(--void);
-    border:1px solid rgba(183,156,251,0.4);
-    box-shadow:0 6px 14px -8px rgba(91,33,182,0.7);
-    border-radius:7px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    padding:4px;
-    font-family:'Quicksand', sans-serif;
-    font-weight:700;
-    font-size:9.5px;
-    color:var(--paper);
-    opacity:0;
-    transition:transform 0.35s cubic-bezier(.34,1.1,.64,1), opacity 0.3s ease;
-  }
-  .learning-paper-2{ width:80%; height:68%; }
-  .learning-paper-3{ width:90%; height:58%; }
   /* Actual mini cards stacked inside the folder */
   .fact-grid .fact-folder-cell{ z-index:9; }
   .mini-stack{
@@ -1364,20 +1336,15 @@
   .learning-folder-label-text{
     display:inline-block;
   }
-  .learning-folder.open .learning-paper{ opacity:1; }
-  .learning-folder.open .learning-paper-1{ transform:translate(-115%, -60%) rotateZ(-14deg); }
-  .learning-folder.open .learning-paper-2{ transform:translate(8%, -68%) rotateZ(13deg); }
-  .learning-folder.open .learning-paper-3{ transform:translate(-50%, -92%) rotateZ(4deg); }
-  .learning-folder.open .learning-paper-1:hover{ transform:translate(-115%, -60%) rotateZ(-14deg) scale(1.08); }
-  .learning-folder.open .learning-paper-2:hover{ transform:translate(8%, -68%) rotateZ(13deg) scale(1.08); }
-  .learning-folder.open .learning-paper-3:hover{ transform:translate(-50%, -92%) rotateZ(4deg) scale(1.08); }
   .learning-folder:focus-visible .learning-folder__back{
     outline:2px solid var(--violet-light);
     outline-offset:4px;
     border-radius:8px;
   }
   @media (prefers-reduced-motion: reduce){
-    .learning-folder__back, .learning-folder__front, .learning-paper{ transition:none; }
+    .learning-folder__back, .learning-folder__front{ transition:none; }
+    .learning-folder-label{ transition:none; }
+    .mini-card{ transition:none; }
   }
 
   [data-reveal].is-visible{
@@ -1549,7 +1516,7 @@
   .edu-hiker--1{ width:3.27%; left:8.4%; top:96.5%; transition-delay:1s; }
   .edu-hiker--2{ width:4.4%; left:22.2%; top:80.4%; transition-delay:3s; }
   .edu-hiker--3{ width:5.5%; left:38.0%; top:69.16%; transition-delay:5s; }
-  .edu-hiker--4{ width:6.125%; left:53.7%; top:43.33%; transition-delay:7s; transform:translate(-50%, -100%) translateY(28px) rotate(-10deg); filter:drop-shadow(0 0 10px rgba(34,211,238,0.45)); }
+  .edu-hiker--4{ width:6.125%; left:53.7%; top:43.33%; transition-delay:7s; transform:translate(-50%, -100%) translateY(28px) rotate(-10deg); filter:drop-shadow(0 0 10px rgba(34,211,238,0.22)); }
   .edu-hiker--5{ width:8.0808%; left:67.4%; top:16.11%; transition-delay:9s; }
   .edu-climb.is-visible .edu-hiker--4{
     transform:translate(-50%, -100%) rotate(-10deg);
@@ -1960,6 +1927,12 @@
     color:#D3D3DA;
     text-shadow:0 2px 8px rgba(0,0,0,0.85), 0 1px 3px rgba(0,0,0,0.9);
     margin:0;
+    transition:color 0.25s ease;
+  }
+  /* Zoomed/hovered state goes back to full white instead of staying
+     grayish - the dimmer tone is only meant to read as "at rest". */
+  .edu-stop-detail.is-hovered .edu-stop-desc{
+    color:#FFFFFF;
   }
   /* Light theme: flip the white text to the same dark ink used elsewhere
      on the page in light mode, instead of white-on-light being unreadable. */
@@ -2033,6 +2006,9 @@
   }
   @media (max-width:460px){
     .trophy-grid{ grid-template-columns:1fr; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .trophy-grid{ transition:none; }
   }
 
   /* ---------- Achievement toasts ---------- */
@@ -2187,8 +2163,9 @@
     overflow:hidden;
   }
   /* soft violet halo breathing around the art while audio is actually
-     playing - same 0.9s rhythm as the EQ bars (eqBounce) so the two read
-     as one synced "now playing" pulse. Driven entirely by JS now (see
+     playing - same 0.9s rhythm the old EQ bars used to run at (since
+     removed - the mute/volume UI replaced them) so it still reads as a
+     "now playing" pulse. Driven entirely by JS now (see
      runArtPulse) instead of a fixed-amplitude @keyframes animation, so the
      glow's peak size/brightness can scale live with the volume slider -
      the values baked in here previously (11px blur, 4px spread, 0.6 alpha)
@@ -2207,22 +2184,6 @@
     gap:8px;
     width:auto;
     padding-right:4px;
-  }
-  .music-eq{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:2.5px;
-    height:14px;
-  }
-  .music-eq span{
-    width:2.5px;
-    height:5px;
-    border-radius:2px;
-    background:var(--violet-light);
-  }
-  .music-widget.is-playing .music-eq span{
-    animation:eqBounce 0.9s ease-in-out infinite;
   }
   /* mute/unmute indicator (replaces the EQ dots) */
   .music-indicator{
@@ -2433,13 +2394,6 @@
     .music-hint-arrow{ animation:none; }
     .music-hint-rays, .music-hint-pulse{ animation:none !important; }
   }
-  .music-eq span:nth-child(1){ animation-delay:0s; animation-duration:0.75s; }
-  .music-eq span:nth-child(2){ animation-delay:0.18s; animation-duration:0.95s; }
-  .music-eq span:nth-child(3){ animation-delay:0.08s; animation-duration:0.65s; }
-  @keyframes eqBounce{
-    0%,100%{ height:4px; }
-    50%{ height:13px; }
-  }
   .music-info{
     display:flex;
     flex-direction:column;
@@ -2623,27 +2577,6 @@
   body.light-theme .epilogue-letter .epilogue-dedication:nth-of-type(5) .epilogue-divider{ background:rgba(169,138,0,0.4); }
   body.light-theme .epilogue-letter .epilogue-dedication:nth-of-type(6) .epilogue-divider{ background:rgba(190,42,112,0.4); }
   body.light-theme .epilogue-letter .epilogue-dedication:nth-of-type(7) .epilogue-divider{ background:rgba(23,18,31,0.4); }
-  .epilogue-ai-list .epilogue-line{
-    text-align:left;
-    margin-bottom:4px;
-  }
-  .epilogue-final{
-    font-family:'Caveat', cursive;
-    font-style:italic;
-    font-weight:600;
-    font-size:28px;
-    color:#ffffff;
-    text-align:left;
-    margin:0 0 6px;
-  }
-  .epilogue-until{
-    font-family:'Baloo 2', sans-serif;
-    font-weight:700;
-    font-size:19px;
-    color:var(--violet-light);
-    text-align:left;
-    margin:36px 0 22px;
-  }
   .epilogue-signature{
     font-family:'Dancing Script', cursive;
     font-weight:700;
@@ -2657,12 +2590,14 @@
     .epilogue-line, .epilogue-para{ font-size:20px; }
   }
 
-  /* ---------- Project tiles ---------- */
-  .project-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:28px;
-  }
+  /* ---------- Project tiles ----------
+     NOTE: this used to also hold .project-grid/.project-title/
+     .project-bullets/.project-stack-label/.project-tags/.project-tag/
+     .project-link-btn plus their #projects green-theme and body.light-theme
+     variants - all dead code from the old flat project-grid layout, before
+     it became the apple-tree modal below. .project-card itself is still
+     live (the 8 modal cards each carry this class - see ~4750+), so it and
+     its real variants stay; everything else was removed. */
   .project-card{
     position:relative;
     display:block;
@@ -2694,107 +2629,6 @@
     opacity:1;
     transform:scale(1.1);
   }
-  .project-card:hover .project-title{
-    color:#ffffff;
-  }
-  .project-title{
-    font-family:'Baloo 2', sans-serif;
-    font-weight:700;
-    font-size:14px;
-    letter-spacing:0.14em;
-    text-transform:uppercase;
-    color:var(--violet-light);
-    margin:0 0 20px;
-    padding-right:70px;
-    transition:color 0.3s ease;
-  }
-  .project-bullets{
-    list-style:none;
-    margin:0 0 26px;
-    padding:0;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-  }
-  .project-bullets li{
-    position:relative;
-    padding-left:20px;
-    font-size:14.5px;
-    line-height:1.55;
-    color:var(--fog);
-  }
-  .project-bullets li::before{
-    content:"";
-    position:absolute;
-    left:0; top:7px;
-    width:6px; height:6px;
-    border-radius:50%;
-    background:var(--violet);
-  }
-  .project-stack-label{
-    font-family:'Quicksand', sans-serif;
-    font-weight:700;
-    font-size:14px;
-    color:var(--paper);
-    margin:0 0 14px;
-  }
-  .project-tags{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-    margin-bottom:30px;
-  }
-  .project-tag{
-    display:inline-flex;
-    align-items:center;
-    gap:7px;
-    padding:8px 16px;
-    border-radius:999px;
-    border:1px solid rgba(139,92,246,0.3);
-    background:#241541;
-    font-family:'Quicksand', sans-serif;
-    font-weight:600;
-    font-size:13px;
-    color:var(--paper);
-    transition:border-color 0.3s ease, background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  .project-tag:hover{
-    transform:scale(1.08);
-    border-color:rgba(183,156,251,0.7);
-    box-shadow:0 0 16px rgba(139,92,246,0.45);
-  }
-  .project-tag::before{
-    content:"";
-    width:6px; height:6px;
-    border-radius:50%;
-    background:var(--violet-light);
-    flex-shrink:0;
-  }
-  .project-card:hover .project-tag{
-    border-color:rgba(183,156,251,0.55);
-  }
-  .project-link-btn{
-    display:inline-flex;
-    align-items:center;
-    gap:9px;
-    padding:14px 26px;
-    border-radius:999px;
-    border:none;
-    font-family:'Quicksand', sans-serif;
-    font-weight:700;
-    font-size:14.5px;
-    color:#ffffff;
-    text-decoration:none;
-    background:linear-gradient(120deg, var(--violet), var(--violet-deep));
-    box-shadow:0 10px 24px -12px rgba(91,33,182,0.7);
-    transition:transform 0.4s cubic-bezier(.34,1.56,.64,1), box-shadow 0.4s ease, filter 0.4s ease;
-  }
-  .project-link-btn:hover{
-    transform:translateY(-3px) scale(1.03);
-    box-shadow:0 16px 32px -12px rgba(91,33,182,0.85);
-    filter:brightness(1.1);
-  }
-  .project-link-btn svg{ width:15px; height:15px; }
   /* ---------- Projects section: #22C55E green theme ---------- */
   #projects .project-card{
     border-color:rgba(34,197,94,0.22);
@@ -2807,40 +2641,12 @@
     border-color:rgba(74,222,128,0.55);
     box-shadow:0 24px 48px -20px rgba(21,128,61,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
   }
-  #projects .project-title{ color:#4ADE80; }
-  #projects .project-bullets li::before{ background:#22C55E; }
-  #projects .project-tag{
-    border-color:rgba(34,197,94,0.3);
-    background:#0F2A1C;
-  }
-  #projects .project-tag::before{ background:#4ADE80; }
-  #projects .project-tag:hover{
-    border-color:rgba(110,231,160,0.7);
-    box-shadow:0 0 16px rgba(34,197,94,0.45);
-  }
-  #projects .project-card:hover .project-tag{ border-color:rgba(110,231,160,0.55); }
-  #projects .project-link-btn{
-    background:linear-gradient(120deg, #22C55E, #15803D);
-    box-shadow:0 10px 24px -12px rgba(21,128,61,0.7);
-  }
-  #projects .project-link-btn:hover{ box-shadow:0 16px 32px -12px rgba(21,128,61,0.85); }
   body.light-theme #projects .project-card{
     border-color:rgba(21,128,61,0.25);
     background:linear-gradient(160deg, rgba(34,197,94,0.1), rgba(255,255,255,0.85) 55%);
   }
-  body.light-theme #projects .project-title{ color:#15803D; }
-  body.light-theme #projects .project-bullets li::before{ background:#15803D; }
-  body.light-theme #projects .project-tag{
-    background:#E7F7EC;
-    border-color:rgba(21,128,61,0.3);
-  }
-  body.light-theme #projects .project-tag::before{ background:#15803D; }
-  @media (max-width:980px){
-    .project-grid{ grid-template-columns:1fr; }
-  }
   @media (max-width:560px){
     .project-card{ padding:32px 26px; }
-    .project-title{ padding-right:0; }
   }
 
   /* ---------- Projects: apple tree ---------- */
@@ -3327,6 +3133,7 @@
   }
   body.light-theme .resume-doc-sheet{ box-shadow:0 10px 22px -8px rgba(0,0,0,0.3); border:1px solid rgba(0,0,0,0.08); }
   body.light-theme .resume-popup-backdrop{ background:rgba(240,238,250,0.55); }
+  body.light-theme .project-modal-backdrop{ background:rgba(240,238,250,0.55); }
   @media (prefers-reduced-motion: reduce){
     .resume-popup, .resume-popup-backdrop{ transition:none; }
     .resume-doc-sheet, .resume-doc-worker, .resume-progress-fill{ animation:none; }
@@ -3564,7 +3371,15 @@
     .basket-scene-back, .basket-scene-front, .basket-slots{ width:18%; min-width:46px; bottom:0%; }
   }
   @media (prefers-reduced-motion: reduce){
-    .tree-scene, .apple, .apple-body, .basket-scene-back, .basket-scene-front, .basket-slots{ transition:none; }
+    /* .apple is deliberately left OUT of this blanket transition:none -
+       it has its own tuned reduced-motion transition declared earlier
+       (opacity 0.2s ease, left/top 0.01s - see the .apple rule above,
+       ~line 3284) so ground/basket repositioning still animates opacity
+       smoothly instead of hard-cutting, while position moves near-
+       instantly. This rule and that one are equal specificity, so
+       whichever comes later in the file would otherwise silently win and
+       wipe the other out - keeping .apple out of this list avoids that. */
+    .tree-scene, .apple-body, .basket-scene-back, .basket-scene-front, .basket-slots{ transition:none; }
     .tree-scene{ opacity:1; transform:none; }
     .apple{ opacity:1; transform:none; }
     .basket-scene-back, .basket-scene-front, .basket-slots{ opacity:1; transform:translateX(-50%); animation:none; }
@@ -3906,7 +3721,11 @@
   .mono-kicker{
     font-family:'Space Mono', monospace;
     font-weight:700;
-    font-size:19px;
+    /* clamp instead of a fixed px size - this row is deliberately
+       nowrap/never-wraps (see note above .mono-intro), so on narrow phone
+       widths a fixed size would get clipped by .mono-footer's own
+       overflow:hidden instead of shrinking to fit. */
+    font-size:clamp(11px, 4.2vw, 19px);
     letter-spacing:0.35em;
     color:rgba(255,255,255,0.55);
     margin:0 0 18px;
@@ -3915,7 +3734,9 @@
   .mono-headline{
     font-family:'Bebas Neue', 'Outfit', sans-serif;
     font-weight:400;
-    font-size:76px;
+    /* same reasoning as .mono-kicker above - scales down instead of
+       clipping on narrow screens. */
+    font-size:clamp(34px, 9vw, 76px);
     line-height:1;
     letter-spacing:0.02em;
     color:#F5F5F5;
@@ -3958,7 +3779,8 @@
   .mono-cta{ flex:0 1 auto; min-width:0; text-align:center; }
   .mono-cta-label{
     font-family:'Outfit', sans-serif;
-    font-size:25px;
+    /* same reasoning as .mono-kicker/.mono-headline above. */
+    font-size:clamp(15px, 5vw, 25px);
     color:rgba(255,255,255,0.6);
     margin:0 0 16px;
     white-space:nowrap;
@@ -4081,6 +3903,14 @@
     color:#B79CFB;
     filter:drop-shadow(0 0 4px rgba(139,92,246,0.75));
   }
+  /* the "white" hue reads fine against the dark epilogue background, but
+     would nearly vanish against the near-white --void this section flips
+     to in light theme - swap it to the same deep violet ink used
+     elsewhere for light-theme accents instead of pure white. */
+  body.light-theme .cursor-trail-dot.hue-white{
+    color:var(--violet-deep);
+    filter:drop-shadow(0 0 4px rgba(91,33,182,0.55));
+  }
   @keyframes sparklePop{
     0%{ opacity:0; transform:translate(-50%,-50%) scale(0) rotate(var(--rot0, 0deg)); }
     35%{ opacity:1; transform:translate(-50%,-50%) scale(1.2) rotate(var(--rot0, 0deg)); }
@@ -4118,6 +3948,13 @@
   .stardust-mote.hue-violet{
     color:#B79CFB;
     filter:drop-shadow(0 0 3px rgba(139,92,246,0.65));
+  }
+  /* same light-theme fix as .cursor-trail-dot.hue-white above - pure white
+     motes would be nearly invisible against the near-white light-theme
+     background. */
+  body.light-theme .stardust-mote.hue-white{
+    color:var(--violet-deep);
+    filter:drop-shadow(0 0 3px rgba(91,33,182,0.5));
   }
   @keyframes stardustFall{
     0%{ opacity:0.95; transform:translate(-50%,-50%) translate(0, 0) scale(1) rotate(var(--mote-rot0, 0deg)); }
@@ -4257,7 +4094,7 @@
 <div id="scrollProgress" class="scroll-progress"></div>
 
 <div id="canvas-wrap"></div>
-<div class="achievement-toasts" id="achievementToasts"></div>
+<div class="achievement-toasts" id="achievementToasts" aria-live="polite" aria-atomic="false"></div>
 
 <nav class="navbar nav-hidden">
   <div class="nav-pill">
@@ -5171,7 +5008,7 @@
     const scrollTop = window.scrollY;
     const docHeight = document.documentElement.scrollHeight - window.innerHeight;
     const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-    scrollProgress.style.width = pct + '%';
+    if(scrollProgress) scrollProgress.style.width = pct + '%';
     if(scrollProgressTrack) scrollProgressTrack.setAttribute('aria-valuenow', Math.round(pct));
   }
   /* Multi-colour bar: each section's colour occupies exactly its share of the
@@ -5535,10 +5372,6 @@
 
     function toggleLearningFolder(){
       if(factsAnimating) return;
-      /* stops the "click me" breathing pulse for good the first time the
-         folder is actually used - a permanent class, not tied to open/closed
-         state, so it stays lit even after the folder is later closed again */
-      learningFolder.classList.add('was-clicked');
       if(reduceMotionFacts){
         factsDeployed = !factsDeployed;
         factCards.forEach(c => c.classList.toggle('in-folder', !factsDeployed));
@@ -8408,6 +8241,21 @@
         const trigger = activeTrigger;
         closeMailPopup();
         if(trigger) trigger.focus({ preventScroll:true });
+        return;
+      }
+      /* role="menu"/"menuitem" implies arrow-key navigation between items,
+         not just Escape - wire up Up/Down to actually move focus, wrapping
+         at both ends. */
+      if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+        const items = Array.from(popup.querySelectorAll('.mail-popup-item'));
+        if(!items.length) return;
+        e.preventDefault();
+        const currentIndex = items.indexOf(document.activeElement);
+        const delta = e.key === 'ArrowDown' ? 1 : -1;
+        const nextIndex = currentIndex === -1
+          ? (delta === 1 ? 0 : items.length - 1)
+          : (currentIndex + delta + items.length) % items.length;
+        items[nextIndex].focus({ preventScroll:true });
       }
     }
 
@@ -8441,6 +8289,12 @@
       requestAnimationFrame(() => {
         positionMailPopup(trigger);
         popup.classList.add('is-visible');
+        /* move keyboard focus into the menu, matching its role="menu"
+           semantics - otherwise a keyboard user has to Tab past the other
+           footer social icons to reach the first item instead of landing
+           on it directly when the menu opens. */
+        const firstItem = popup.querySelector('.mail-popup-item');
+        if(firstItem) firstItem.focus({ preventScroll:true });
       });
       trigger.setAttribute('aria-expanded', 'true');
       document.addEventListener('click', onDocClick, true);

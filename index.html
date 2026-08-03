@@ -1453,16 +1453,19 @@
      enters view, then each waypoint reveals its full detail on hover/focus. */
   .edu-climb-wrap{
     /* full-bleed out of .content-section-inner's 1080px cap - at 3x size
-       the graphic is wider than that (and than most viewports), so it
-       needs to scroll horizontally within its own row rather than being
-       squeezed back down to the container width */
+       the graphic is wider than that (and than most viewports). User-
+       driven horizontal scrolling is disabled (overflow-x:hidden) - the
+       mountain's on-screen position is still whatever the JS centering
+       logic (see "Education: horizontal scroll centering" below) sets via
+       scrollLeft, that's untouched; visitors just can't drag/wheel/touch
+       -scroll it around anymore. */
     width:100vw;
     position:relative;
     left:50%;
     right:50%;
     margin-left:-50vw;
     margin-right:-50vw;
-    overflow-x:auto;
+    overflow-x:hidden;
     overflow-y:visible;
     /* generous top padding - the summit character (stage 5) stands well
        above the mountain's own bounding box (arms-out pose, positioned
@@ -1551,14 +1554,54 @@
   .edu-climb.is-visible .edu-hiker--4{
     transform:translate(-50%, -100%) rotate(-10deg);
   }
-  /* Stage 5 (summit) settles at a flat 50% opacity once revealed - no
-     breathing/looping, just a static dimmed state. */
+  /* Stage 5 (summit) settles at 50% opacity once revealed, then gets a
+     very slow, subtle breathing loop on TOP of that (drifting between
+     0.3 and 0.5, not all the way down to fully dim) - gated on .is-ready
+     (added once its own reveal transition finishes) so the loop only
+     starts after it's actually settled into place, not during the reveal
+     itself. Text is untouched - this only targets the hiker image. */
   .edu-climb.is-visible .edu-hiker--5{
     opacity:0.5;
   }
+  .edu-climb.is-visible .edu-hiker--5.is-ready{
+    animation:hiker5Breathe 4s ease-in-out infinite;
+  }
+  /* Victory-lap only: 1.5s after stage 4's bump fires in the relay, stage
+     5's TEXT (not the hiker) settles down to 20% opacity. Needs the extra
+     [data-hiker="5"].is-victory-dimmed specificity to beat the plain
+     "opacity:1" reveal rule above at equal-ish selector depth. */
+  .edu-climb.is-visible .edu-stop-detail[data-hiker="5"].is-victory-dimmed{
+    /* transition is a shorthand - listing only "opacity" here would wipe
+       out the inherited transform transition (same bug fixed earlier on
+       .is-bump-done), leaving the hover scale-up snapping instead of
+       animating. Keeping transform 0.25s ease here fixes that, and also
+       matches the requested 0.25s opacity timing on hover. */
+    opacity:0.9;
+    transition:opacity 0.25s ease, transform 0.25s ease;
+  }
+  /* Same recovery behavior as stages 1-4's .is-bump-done.is-hovered: once
+     dimmed, hovering stage 5's text/character brings it back to full
+     opacity, releasing drops it back to 20%. One extra class beyond the
+     rule above, so it always wins regardless of source order. */
+  .edu-climb.is-visible .edu-stop-detail[data-hiker="5"].is-victory-dimmed.is-hovered{
+    opacity:1;
+  }
+  @keyframes hiker5Breathe{
+    0%, 100%{ opacity:0.5; }
+    50%{ opacity:0.3; }
+  }
+  /* Grow the character on hover of its hit-box - .is-hovered is toggled
+     by JS (the hiker is a sibling of .edu-stop, not a descendant, so pure
+     CSS :hover can't reach it directly). Once fully revealed the hiker
+     also gets a fast transform transition so the scale pops immediately
+     instead of inheriting the slow 2.5s reveal easing. !important beats
+     the .is-visible base-transform rules above at equal specificity order. */
+  .edu-hiker.is-ready{ transition:opacity 0.25s ease, transform 0.25s ease; }
+  .edu-hiker.is-hovered{ transform:translate(-50%, -100%) scale(1.12) !important; }
+  .edu-hiker--4.is-hovered{ transform:translate(-50%, -100%) rotate(-10deg) scale(1.12) !important; }
   @media (prefers-reduced-motion: reduce){
     .edu-hiker{ transition:opacity 0.2s ease; transform:translate(-50%, -100%) !important; }
-    .edu-hiker--5{ opacity:0.5; }
+    .edu-hiker--5{ opacity:0.5; animation:none !important; }
     .edu-hiker--4{ transform:translate(-50%, -100%) rotate(-10deg) !important; }
   }
 
@@ -1583,6 +1626,14 @@
     overflow:hidden;
     pointer-events:none;
     z-index:-1;
+  }
+  /* Same particles, a second layer stacked ABOVE the mountain/hikers -
+     the opaque snow near the summit sits in front of the (behind-
+     everything) back layer, so particles spawned up there would be
+     invisible; the JS routes only the particles that land in that upper
+     band into this front layer instead, everything else stays behind. */
+  .edu-wind-layer--front{
+    z-index:6;
   }
   .flake-group{
     position:absolute;
@@ -1720,14 +1771,19 @@
        mask-image fade is needed here. */
   }
   .edu-stop{
+    /* purely an invisible hover/tap target now - the text used to live
+       inside it, but that made the text's position depend on this box,
+       which the JS below resizes to precisely match each hiker's real
+       rendered bbox (see "hover hit-boxes" JS). Sized generously to start
+       (bigger than any single hiker pose) so the hover zone is forgiving
+       before that JS measurement kicks in. */
     position:absolute;
     left:var(--sx);
     top:var(--sy);
+    width:7%;
+    height:11%;
     transform:translate(-50%, -50%);
     z-index:2;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
     background:none;
     border:none;
     padding:0;
@@ -1735,58 +1791,183 @@
     color:inherit;
     cursor:pointer;
     -webkit-tap-highlight-color:transparent;
+    /* no hover/tap until the character has fully faded in - see the
+       "hover hit-boxes" JS below, which adds .is-ready once each hiker's
+       own opacity transition finishes. */
+    pointer-events:none;
+  }
+  .edu-stop.is-ready{ pointer-events:auto; }
+  /* Global hover lock - hover/tap is disabled on EVERY character and its
+     text, no matter how "ready" any individual one is, until the
+     victory-lap bump sequence finishes and JS removes this class (see
+     that IIFE below). The extra .edu-climb-wrap ancestor class gives this
+     3-class selector higher specificity than the 2-class .is-ready rules
+     above, so it wins regardless of source order. */
+  .edu-climb-wrap.hover-locked .edu-stop,
+  .edu-climb-wrap.hover-locked .edu-stop-detail{
+    pointer-events:none;
   }
   .edu-stop-detail{
+    /* A free-standing sibling now, not nested inside .edu-stop - anchored
+       via its own --sx/--sy (the SAME fixed point as the button, set once
+       in the HTML), so resizing the button's hitbox for hover-precision
+       never moves the text. Position is independent; only the reveal
+       TIMING is kept in sync with the character, via a transition-delay
+       below that matches the corresponding .edu-hiker--N exactly.
+       --detail-rest/--detail-start (set per position-variant class) hold
+       the actual transform - swapping only the Y-offset between the two
+       is what produces the settle-down-into-place motion. */
     position:absolute;
-    top:calc(100% + 4px);
+    left:var(--sx);
+    top:var(--sy);
     width:200px;
-    padding:12px 14px 11px;
-    border-radius:14px;
-    border:1px solid rgba(34,211,238,0.3);
-    background:linear-gradient(160deg, rgba(15,30,40,0.97), rgba(8,17,23,0.97));
-    box-shadow:0 18px 36px -16px rgba(0,0,0,0.6);
     opacity:0;
-    transform:translateY(6px);
+    transform:var(--detail-start);
     pointer-events:none;
-    transition:opacity 0.25s ease, transform 0.25s ease;
+    transition:opacity 2.5s cubic-bezier(.16,1,.3,1), transform 2.5s cubic-bezier(.16,1,.3,1);
     z-index:4;
-    text-align:left;
+    text-align:center;
   }
-  .edu-stop--label-above .edu-stop-detail{ top:auto; bottom:calc(100% + 4px); }
-  .edu-stop:hover .edu-stop-detail,
-  .edu-stop:focus-visible .edu-stop-detail,
-  .edu-stop:focus-within .edu-stop-detail{
-    opacity:1;
-    transform:translateY(0);
+  /* Text gets its own hoverable hit-box too, once it's actually finished
+     appearing - hovering the text itself now triggers the same grow
+     effect as hovering the character (see JS below). */
+  .edu-stop-detail.is-ready{
     pointer-events:auto;
+    cursor:pointer;
+    /* fast, undelayed transition once fully revealed - so the hover-grow
+       effect below feels snappy instead of inheriting the slow 2.5s
+       reveal timing/delay. (Used to live on the now-removed .is-settled
+       "dim to 70% after 3s" rule - kept here on its own since that visual
+       effect was removed but the fast-transition behavior still matters.) */
+    transition:opacity 0.25s ease, transform 0.25s ease;
+  }
+  .edu-stop-detail--above{
+    --detail-rest:translate(calc(-50% - 20px), calc(-100% - 105px));
+    --detail-start:translate(calc(-50% - 20px), calc(-100% - 99px));
+  }
+  .edu-stop-detail--above-left{
+    --detail-rest:translate(calc(-100% + 20px), calc(-100% - 75px));
+    --detail-start:translate(calc(-100% + 20px), calc(-100% - 69px));
+  }
+  .edu-stop-detail--above-right{
+    --detail-rest:translate(14px, calc(-100% - 14px));
+    --detail-start:translate(14px, calc(-100% - 8px));
+  }
+  /* Stage 3 tuned individually - moved to above-and-left, overriding the
+     shared --above-right class it still carries in the HTML (stages 4 and
+     5 below get their own dedicated overrides too - each is scoped to its
+     own data-hiker="N" only, so tuning one never touches the others). */
+  .edu-stop-detail[data-hiker="3"]{
+    --detail-rest:translate(calc(-100% + 110px), calc(-100% - 160px));
+    --detail-start:translate(calc(-100% + 110px), calc(-100% - 154px));
+  }
+  /* Stage 4 tuned individually - moved to above-and-left, overriding the
+     shared --above-right class it still carries in the HTML (scoped to
+     data-hiker="4" only - stage 5 gets its own separate override below). */
+  .edu-stop-detail[data-hiker="4"]{
+    --detail-rest:translate(calc(-100% + 30px), calc(-100% - 155px));
+    --detail-start:translate(calc(-100% + 30px), calc(-100% - 149px));
+  }
+  /* Stage 5 tuned individually - own dedicated above-and-right offset
+     instead of the subtle 14px shared default. */
+  .edu-stop-detail[data-hiker="5"]{
+    --detail-rest:translate(62px, calc(-100% - 205px));
+    --detail-start:translate(62px, calc(-100% - 199px));
+  }
+  /* :not(.is-ready) matters here: this selector and .edu-stop-detail.is-ready
+     are BOTH 2-selector specificity, and this rule comes later in the file,
+     so without the :not() guard it would keep winning forever - even after
+     is-ready resets the transition to a fast 0-delay one - leaving the
+     original multi-second reveal delay permanently stuck on the element.
+     That's exactly why the victory-lap bump (is-hovered, held only 500ms)
+     never visibly played: the transform transition was still waiting out
+     its old 1s/3s/5s/7s/9s delay and got reversed before it ever started. */
+  .edu-stop-detail[data-hiker="1"]:not(.is-ready){ transition-delay:1s; }
+  .edu-stop-detail[data-hiker="2"]:not(.is-ready){ transition-delay:3s; }
+  .edu-stop-detail[data-hiker="3"]:not(.is-ready){ transition-delay:5s; }
+  .edu-stop-detail[data-hiker="4"]:not(.is-ready){ transition-delay:7s; }
+  .edu-stop-detail[data-hiker="5"]:not(.is-ready){ transition-delay:9s; }
+  .edu-climb.is-visible .edu-stop-detail{
+    opacity:1;
+    transform:var(--detail-rest);
+  }
+  /* Once a stage's turn in the victory-lap bump sequence is over (added
+     by JS below, right as it shrinks back down - or for stage 4, which
+     never shrinks, right after its own bump-in settles), its text eases
+     down to 90% opacity over 0.25s. Declared after .is-ready so it wins at
+     equal specificity once both classes are present together. */
+  /* Scoped under .edu-climb.is-visible too, not just .edu-stop-detail -
+     without that prefix this was only a 2-class selector, LOWER
+     specificity than the "opacity:1" reveal rule above (a 3-class
+     selector: .edu-climb.is-visible .edu-stop-detail), so the dim to 20%
+     was silently losing the cascade and never actually applying, even
+     though the transition itself was correctly set up. */
+  .edu-climb.is-visible .edu-stop-detail.is-bump-done{
+    /* transition is a shorthand - writing only "opacity ..." here would
+       silently wipe out the transform transition too (the cascade picks
+       ONE winning transition declaration for the whole element, it
+       doesn't merge property-lists across rules), which is exactly why
+       the shrink's scale-down wasn't animating: this class gets added in
+       the very same instant .is-hovered is removed, so the transform
+       change had no transition left to animate through and just snapped.
+       Keeping transform 0.25s ease here too fixes that.
+       Opacity duration is 0.25s to match transform - both are literally
+       "the bump" timing, so the post-sequence hover fade (below) moves in
+       lockstep with the zoom instead of lagging behind it. */
+    transition:opacity 0.25s ease, transform 0.25s ease;
+    opacity:0.9;
+  }
+  /* Grow the text in place on hover/focus - .is-hovered is toggled by JS
+     (mirroring the same toggle on the hiker) since the button and the
+     text are siblings now, not parent/child, so plain CSS :hover on the
+     button can't reach it. Needs the extra .is-visible-scoped specificity
+     to beat the "rest position" rule above at equal selector depth. */
+  .edu-climb.is-visible .edu-stop-detail.is-hovered{
+    transform:var(--detail-rest) scale(1.15);
+  }
+  /* After the bump sequence (.is-bump-done, resting at 90% above), hovering
+     that stage's text/character again brings it back to full opacity;
+     losing hover drops it back to 90% - both via the 0.25s bump-matched
+     transition set on .is-bump-done itself. This selector only needs to
+     out-specify the 90% rule for opacity (5 classes vs its 4), so it wins
+     regardless of source order. */
+  .edu-climb.is-visible .edu-stop-detail.is-bump-done.is-hovered{
+    opacity:1;
   }
   .edu-stop-title{
-    font-family:'Outfit', sans-serif;
+    font-family:'Baloo 2', sans-serif;
     font-weight:700;
-    font-size:13.5px;
-    line-height:1.25;
-    color:var(--paper);
-    margin:0 0 3px;
+    font-size:21px;
+    line-height:1.2;
+    color:#FFFFFF;
+    text-shadow:0 2px 10px rgba(0,0,0,0.85), 0 1px 3px rgba(0,0,0,0.9);
+    margin:0 0 2px;
   }
-  .edu-stop-inst{
-    font-family:'Quicksand', sans-serif;
-    font-weight:600;
-    font-size:10.5px;
-    color:#8af0ff;
-    margin:0 0 6px;
+  .edu-stop-emoji{
+    display:inline-block;
+    margin-right:6px;
+    font-size:0.85em;
+    text-shadow:none;
   }
   .edu-stop-desc{
-    font-family:'Quicksand', sans-serif;
-    font-size:10.8px;
-    line-height:1.5;
-    color:var(--fog);
+    font-family:'Baloo 2', sans-serif;
+    font-weight:600;
+    font-size:16px;
+    line-height:1.4;
+    /* just barely off pure white - a hair of grey to sit visually a step
+       below the title, still relying on the text-shadow below (not a
+       dimmer tone) for contrast against the mountain art. */
+    color:#D3D3DA;
+    text-shadow:0 2px 8px rgba(0,0,0,0.85), 0 1px 3px rgba(0,0,0,0.9);
     margin:0;
   }
-  body.light-theme .edu-stop-detail{
-    background:linear-gradient(160deg, rgba(255,255,255,0.98), rgba(240,249,255,0.98));
-    border-color:rgba(14,116,144,0.25);
+  /* Light theme: flip the white text to the same dark ink used elsewhere
+     on the page in light mode, instead of white-on-light being unreadable. */
+  body.light-theme .edu-stop-title,
+  body.light-theme .edu-stop-desc{
+    color:#15131F;
+    text-shadow:none;
   }
-  body.light-theme .edu-stop-inst{ color:#0E7490; }
 
   /* .edu-climb-wrap now scrolls horizontally at every screen size (see
      base rule above) since the graphic is wider than any viewport at its
@@ -4351,64 +4532,63 @@
       <p class="content-section-sub">One stage at a time.</p>
     </div>
     <div class="content-section-body">
-      <!-- PLACEHOLDER CONTENT: institution names, years and descriptions
-           below are all placeholders - swap in the real details whenever
-           ready. 5 waypoints climb the mountain from base (--i:0, earliest)
-           to summit (--i:4, most recent); --sx/--sy position each one on
-           the ridge line, --i drives the reveal stagger. Label direction
+      <!-- 5 waypoints climb the mountain from base (--i:0, earliest) to
+           summit (--i:4, most recent); --sx/--sy position each one on the
+           ridge line, --i drives the reveal stagger. Label direction
            (above/below the node) is set per-stop via the
            edu-stop--label-above modifier, so it never gets clipped near
-           the top or bottom edge of the scene. -->
-      <div class="edu-climb-wrap">
+           the top or bottom edge of the scene. Stage 4 (ISC, in progress)
+           gets the cyan glow and stage 5 (ITMO, target) sits at 50%
+           opacity - both already meant "current" / "aspirational" before
+           the real content was filled in, and happen to line up with it
+           exactly. -->
+      <div class="edu-climb-wrap hover-locked">
       <div class="edu-climb" id="eduClimb" data-reveal>
       <div class="edu-climb-shift">
         <img class="edu-climb-mountain" src="assets/lightmountain.svg" alt="" aria-hidden="true">
         <div class="edu-wind-layer" id="eduWind" aria-hidden="true"></div>
+        <div class="edu-wind-layer edu-wind-layer--front" id="eduWindFront" aria-hidden="true"></div>
         <img class="edu-hiker edu-hiker--1" src="assets/hiker-1-nursery.png" alt="" aria-hidden="true">
         <img class="edu-hiker edu-hiker--2" src="assets/hiker-2-primary.png" alt="" aria-hidden="true">
         <img class="edu-hiker edu-hiker--3" src="assets/hiker-3-secondary.png" alt="" aria-hidden="true">
         <img class="edu-hiker edu-hiker--4" src="assets/hiker-4-highersecondary.png" alt="" aria-hidden="true">
         <img class="edu-hiker edu-hiker--5" src="assets/hiker-5-bachelors.png" alt="" aria-hidden="true">
 
-        <button type="button" class="edu-stop edu-stop--label-above" style="--sx:8.4%; --sy:94.5%; --i:0;" aria-label="Nursery, 2009 to 2011">
-          <div class="edu-stop-detail">
-            <h3 class="edu-stop-title">Nursery</h3>
-            <p class="edu-stop-inst">Placeholder Pre-School</p>
-            <p class="edu-stop-desc">Where it all began - crayons, alphabet blocks, and a lot of finger painting.</p>
-          </div>
-        </button>
+        <button type="button" class="edu-stop" data-hiker="1" style="--sx:8.4%; --sy:94.5%; --i:0;" aria-label="2012, Nursery at Vivekananda Mission School"></button>
+        <button type="button" class="edu-stop" data-hiker="2" style="--sx:26.2%; --sy:70.4%; --i:1;" aria-label="2021, Learned Java and OOPS"></button>
+        <button type="button" class="edu-stop" data-hiker="3" style="--sx:34.5%; --sy:67.1%; --i:2;" aria-label="2025, Graduated ICSE"></button>
+        <button type="button" class="edu-stop" data-hiker="4" style="--sx:50.2%; --sy:40.9%; --i:3;" aria-label="2027, ISC aspirant"></button>
+        <button type="button" class="edu-stop" data-hiker="5" style="--sx:64.9%; --sy:16.5%; --i:4;" aria-label="2027 goal, ITMO University"></button>
 
-        <button type="button" class="edu-stop" style="--sx:26.2%; --sy:70.4%; --i:1;" aria-label="Primary School, 2011 to 2016">
-          <div class="edu-stop-detail">
-            <h3 class="edu-stop-title">Primary School</h3>
-            <p class="edu-stop-inst">Placeholder Primary School</p>
-            <p class="edu-stop-desc">Learned to read, write, and that homework doesn't do itself.</p>
-          </div>
-        </button>
-
-        <button type="button" class="edu-stop edu-stop--label-above" style="--sx:34.5%; --sy:67.1%; --i:2;" aria-label="Secondary School, 2016 to 2020">
-          <div class="edu-stop-detail">
-            <h3 class="edu-stop-title">Secondary School</h3>
-            <p class="edu-stop-inst">Placeholder Secondary School</p>
-            <p class="edu-stop-desc">First real exposure to science and maths clicking into place.</p>
-          </div>
-        </button>
-
-        <button type="button" class="edu-stop" style="--sx:50.2%; --sy:40.9%; --i:3;" aria-label="Higher Secondary, 2020 to 2022">
-          <div class="edu-stop-detail">
-            <h3 class="edu-stop-title">Higher Secondary</h3>
-            <p class="edu-stop-inst">Placeholder Higher Secondary, Science</p>
-            <p class="edu-stop-desc">Picked the science stream, and started tinkering with code on the side.</p>
-          </div>
-        </button>
-
-        <button type="button" class="edu-stop" style="--sx:64.9%; --sy:16.5%; --i:4;" aria-label="Bachelor's Degree, 2022 to 2026">
-          <div class="edu-stop-detail">
-            <h3 class="edu-stop-title">Bachelor's Degree</h3>
-            <p class="edu-stop-inst">Placeholder University, B.Tech Computer Science</p>
-            <p class="edu-stop-desc">Deep end of the pool - backend systems, APIs, and way too much coffee.</p>
-          </div>
-        </button>
+        <!-- Text cards live here, as siblings of the buttons above, NOT
+             nested inside them - .edu-stop's own box gets resized by JS
+             (hitbox-sync) to precisely match each hiker's rendered bbox
+             for hover-precision, and nesting the text inside would have
+             made its position drift with that resize. Anchored via their
+             own fixed --sx/--sy (same anchor point as the button), only
+             the reveal TIMING is kept in sync with the character (see
+             transition-delay per data-hiker in CSS) - positioning is
+             completely independent. -->
+        <div class="edu-stop-detail edu-stop-detail--above" data-hiker="1" style="--sx:8.4%; --sy:94.5%;" aria-hidden="true">
+          <h3 class="edu-stop-title"><span class="edu-stop-emoji" aria-hidden="true">🌱</span>2012</h3>
+          <p class="edu-stop-desc">Nursery at<br>Vivekananda Mission School</p>
+        </div>
+        <div class="edu-stop-detail edu-stop-detail--above-left" data-hiker="2" style="--sx:26.2%; --sy:70.4%;" aria-hidden="true">
+          <h3 class="edu-stop-title"><span class="edu-stop-emoji" aria-hidden="true">💻</span>2021</h3>
+          <p class="edu-stop-desc">Learned Java and OOPS</p>
+        </div>
+        <div class="edu-stop-detail edu-stop-detail--above-right" data-hiker="3" style="--sx:34.5%; --sy:67.1%;" aria-hidden="true">
+          <h3 class="edu-stop-title"><span class="edu-stop-emoji" aria-hidden="true">🎓</span>2025</h3>
+          <p class="edu-stop-desc">Graduated ICSE</p>
+        </div>
+        <div class="edu-stop-detail edu-stop-detail--above-right" data-hiker="4" style="--sx:50.2%; --sy:40.9%;" aria-hidden="true">
+          <h3 class="edu-stop-title"><span class="edu-stop-emoji" aria-hidden="true">🚀</span>2027</h3>
+          <p class="edu-stop-desc">ISC aspirant</p>
+        </div>
+        <div class="edu-stop-detail edu-stop-detail--above-right" data-hiker="5" style="--sx:64.9%; --sy:16.5%;" aria-hidden="true">
+          <h3 class="edu-stop-title"><span class="edu-stop-emoji" aria-hidden="true">🎯</span>2027 goal</h3>
+          <p class="edu-stop-desc">ITMO university</p>
+        </div>
       </div>
       </div>
       </div>
@@ -6612,6 +6792,337 @@
     blizzardObserver.observe(climbWrap);
   })();
 
+  /* ---------- Education: clicks are ignored entirely ----------
+     .edu-stop is a <button>, and clicking a button natively FOCUSES it -
+     which was firing the existing 'focus' listener (same effect as
+     hovering), leaving that stage stuck bumped/hovered until focus moved
+     elsewhere. Blocking the click on mousedown (before the browser gets a
+     chance to focus it) stops that, while leaving real keyboard Tab
+     navigation - which doesn't go through mousedown - completely intact.
+     Also swallows plain clicks anywhere else in the scene as a blanket
+     safety net, per "ignore all clicks in education section". */
+  (function(){
+    const climbWrap = document.querySelector('.edu-climb-wrap');
+    if(!climbWrap) return;
+    document.querySelectorAll('.edu-stop').forEach((stop) => {
+      stop.addEventListener('mousedown', (e) => e.preventDefault());
+    });
+    climbWrap.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+  })();
+
+  /* ---------- Education: hover hit-boxes match the actual characters ----------
+     .edu-stop buttons used to be a fixed-size box centered on a rough
+     --sx/--sy guess - close to each hiker, but not actually the same
+     shape/size, and each hiker pose/crop is a different size (toddler up
+     to arms-out summit pose). Instead of hand-tuning five separate boxes,
+     measure each hiker <img>'s REAL rendered position/size and copy it
+     directly onto its .edu-stop button (as exact left/top/width/height,
+     replacing the --sx/--sy anchor-point approach with inline styles,
+     which take priority over the CSS custom-property-driven values) -
+     so the hoverable area is precisely the character, whatever size or
+     pose it happens to be. Re-synced on resize/load and again once each
+     hiker's own reveal transition finishes (their rendered box shifts
+     slightly - translateY(28px) -> 0 - during that animation). */
+  (function(){
+    const shiftEl = document.querySelector('.edu-climb-shift');
+    if(!shiftEl) return;
+    const pairs = [1, 2, 3, 4, 5].map(n => ({
+      n,
+      hiker: document.querySelector('.edu-hiker--' + n),
+      stop: document.querySelector('.edu-stop[data-hiker="' + n + '"]'),
+      // no longer nested inside .stop - a free-standing sibling, found by
+      // its own data-hiker attribute (see "positioning independent" note
+      // in the CSS above).
+      detail: document.querySelector('.edu-stop-detail[data-hiker="' + n + '"]')
+    })).filter(p => p.hiker && p.stop);
+    if(!pairs.length) return;
+
+    function syncHitboxes(){
+      const shiftRect = shiftEl.getBoundingClientRect();
+      if(!shiftRect.width || !shiftRect.height) return;
+      pairs.forEach(({ hiker, stop }) => {
+        const r = hiker.getBoundingClientRect();
+        if(!r.width || !r.height) return;
+        stop.style.left = (((r.left - shiftRect.left) / shiftRect.width) * 100).toFixed(3) + '%';
+        stop.style.top = (((r.top - shiftRect.top) / shiftRect.height) * 100).toFixed(3) + '%';
+        stop.style.width = ((r.width / shiftRect.width) * 100).toFixed(3) + '%';
+        stop.style.height = ((r.height / shiftRect.height) * 100).toFixed(3) + '%';
+        stop.style.transform = 'none'; // left/top are now an exact top-left corner, not a center anchor point
+        // .edu-stop-detail is untouched here on purpose - it has its own
+        // fixed --sx/--sy anchor and never reads this resized box.
+      });
+    }
+    syncHitboxes();
+    window.addEventListener('resize', syncHitboxes);
+    window.addEventListener('load', syncHitboxes);
+    pairs.forEach(({ hiker }) => hiker.addEventListener('transitionend', syncHitboxes));
+
+    /* Text and character each watch their OWN reveal transition and react
+       independently - they share the same delay/duration values in CSS so
+       they still visually appear together, but neither one's JS state
+       waits on the other's transitionend event. */
+    pairs.forEach(({ hiker }) => {
+      hiker.addEventListener('transitionend', (e) => {
+        if(e.propertyName !== 'opacity') return;
+        // switches the hiker to a fast transform transition for the
+        // hover-grow effect, once its own fade-in has actually finished.
+        hiker.classList.add('is-ready');
+      });
+    });
+    pairs.forEach(({ stop, detail }) => {
+      if(!detail) return;
+      detail.addEventListener('transitionend', (e) => {
+        if(e.propertyName !== 'opacity') return;
+        // unlocks hover/tap on BOTH the button and the text itself (text
+        // gets its own hit-box too - see .edu-stop-detail.is-ready in the
+        // CSS), once ITS fade-in has finished.
+        stop.classList.add('is-ready');
+        detail.classList.add('is-ready');
+      });
+    });
+
+    /* Grow the character alongside its text on hover/focus of EITHER one -
+       the character's hit-box (.edu-stop) and the text (.edu-stop-detail)
+       are independent siblings now, so each needs its own listeners, but
+       both drive the exact same shared hover state. Stage 4 is excluded
+       entirely from having its OWN hover listeners - no hover-triggered
+       zoom from hovering IT directly. Its zoom instead gets driven
+       inversely by every other stage's hover state below: bumping any
+       other character immediately shrinks stage 4, and un-bumping any
+       other character immediately re-bumps stage 4 - so stage 4 reads as
+       "shrunk for as long as you're hovering someone else", back to its
+       normal zoomed-in resting state otherwise. otherHoverCount tracks how
+       many OTHER stages are currently hovered at once (handles overlap,
+       e.g. fast pointer movement crossing two hit-boxes), so stage 4 only
+       re-bumps once none of them are hovered anymore. */
+    const stage4 = pairs.find(p => p.n === 4);
+    let otherHoverCount = 0;
+    function setStage4Bumped(on){
+      if(!stage4) return;
+      if(stage4.hiker) stage4.hiker.classList.toggle('is-hovered', on);
+      if(stage4.detail) stage4.detail.classList.toggle('is-hovered', on);
+    }
+
+    pairs.forEach(({ n, hiker, stop, detail }) => {
+      if(n === 4) return;
+      const setHovered = (on) => {
+        hiker.classList.toggle('is-hovered', on);
+        if(detail) detail.classList.toggle('is-hovered', on);
+        otherHoverCount += on ? 1 : -1;
+        setStage4Bumped(otherHoverCount <= 0);
+      };
+      stop.addEventListener('mouseenter', () => setHovered(true));
+      stop.addEventListener('mouseleave', () => setHovered(false));
+      stop.addEventListener('focus', () => setHovered(true));
+      stop.addEventListener('blur', () => setHovered(false));
+      if(detail){
+        detail.addEventListener('mouseenter', () => setHovered(true));
+        detail.addEventListener('mouseleave', () => setHovered(false));
+      }
+    });
+  })();
+
+  /* ---------- Education: Enter key triggers the next stage + nudges the rest ----------
+     Each stage normally reveals on its own fixed schedule (1s/3s/5s/7s/9s
+     transition-delay after #eduClimb gets .is-visible, set once when the
+     section first scrolls into view). Every time Enter is pressed while
+     the section is on screen: the ONE next stage in line gets triggered
+     immediately, in full (its remaining wait skipped entirely) - and every
+     stage still waiting AFTER that one (up through 5) gets a smaller 2s
+     nudge off its own remaining wait, without forcing it to start.
+
+     The flicker from an earlier version came from restarting a stage that
+     had ALREADY started interpolating (mid-flight or fully finished) -
+     resetting it back to invisible and replaying is a visible jump, not a
+     smooth speed-up. started{} tracks, per stage, whether its opacity
+     transition has actually begun (via the real transitionstart event,
+     so it's true whether that start was natural or Enter-forced) - both
+     the "trigger next" step and the "nudge" loop below skip any stage
+     that's already true here, so nothing already on screen ever gets
+     touched again. */
+  (function(){
+    const climbEl = document.getElementById('eduClimb');
+    if(!climbEl) return;
+    const remaining = { 2: 3, 3: 5, 4: 7, 5: 9 }; // seconds - stage 1 auto-starts, Enter never touches it
+    const started = {};
+    let nextStage = 2;
+
+    [2, 3, 4, 5].forEach((n) => {
+      const hiker = document.querySelector('.edu-hiker--' + n);
+      if(!hiker) return;
+      hiker.addEventListener('transitionstart', (e) => {
+        if(e.propertyName === 'opacity') started[n] = true;
+      });
+    });
+
+    function restart(el, startTransform, delaySeconds){
+      if(!el) return;
+      el.style.transition = 'none';
+      el.style.opacity = '0';
+      el.style.transform = startTransform;
+      void el.offsetHeight; // flush - must land before transition comes back
+      el.style.transition = '';
+      el.style.transitionDelay = delaySeconds + 's';
+      el.style.opacity = '';
+      el.style.transform = '';
+      // Drop the inline delay once this reveal actually finishes - an
+      // inline style beats every CSS rule regardless of specificity, so if
+      // it stayed forever it would permanently override the fast 0-delay
+      // transition .is-ready is supposed to give this element afterward.
+      // That would silently re-break its hover/bump-relay animation on any
+      // stage Enter ever touched - the same failure mode as the
+      // :not(.is-ready) CSS specificity bug fixed above, just via inline
+      // styles instead, which that fix can't reach.
+      el.addEventListener('transitionend', function clearDelay(e){
+        if(e.propertyName !== 'opacity') return;
+        el.style.transitionDelay = '';
+        el.removeEventListener('transitionend', clearDelay);
+      });
+    }
+
+    function applyDelay(n, delaySeconds){
+      const hiker = document.querySelector('.edu-hiker--' + n);
+      const detail = document.querySelector('.edu-stop-detail[data-hiker="' + n + '"]');
+      const hikerStart = (n === 4)
+        ? 'translate(-50%, -100%) translateY(28px) rotate(-10deg)'
+        : 'translate(-50%, -100%) translateY(28px)';
+      restart(hiker, hikerStart, delaySeconds);
+      // .edu-stop-detail already exposes its own pre-reveal transform as
+      // --detail-start (set per position-variant class) - reuse it rather
+      // than duplicating each stage's tuned offsets here.
+      restart(detail, 'var(--detail-start)', delaySeconds);
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if(e.key !== 'Enter') return;
+      // don't hijack Enter if it's being used somewhere else on the page
+      // (a form field, a focused button, etc.)
+      const active = document.activeElement;
+      if(active && /^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName)) return;
+      if(!climbEl.classList.contains('is-visible')) return;
+      if(nextStage > 5) return;
+
+      if(!started[nextStage]){
+        remaining[nextStage] = 0;
+        applyDelay(nextStage, 0);
+        started[nextStage] = true; // about to start immediately - don't double-restart on a fast repeat press
+      }
+
+      for(let n = nextStage + 1; n <= 5; n++){
+        if(started[n]) continue;
+        remaining[n] = Math.max(0, remaining[n] - 2);
+        applyDelay(n, remaining[n]);
+      }
+
+      nextStage++;
+    });
+  })();
+
+  /* ---------- Education: victory-lap zoom sequence ----------
+     Starts 0.5s BEFORE stage 5's own reveal actually finishes, not after -
+     listens for transitionstart (fires once stage 5's delay has elapsed
+     and it actually begins interpolating, whether that wait was natural
+     or Enter-fast-forwarded down to 0), then schedules the sequence for
+     (duration - 0.5s) later, landing it half a second ahead of stage 5's
+     own completion instead of waiting for it.
+
+     From there it's a relay through stages 1-4, 0.5s per handoff:
+       t=0.0s  stage 1 bumps
+       t=0.5s  stage 1 shrinks AND stage 2 bumps, simultaneously
+       t=1.0s  stage 2 shrinks AND stage 3 bumps, simultaneously
+       t=1.5s  stage 3 shrinks AND stage 4 bumps, simultaneously
+     Stage 4 is the last leg of the relay and is never shrunk afterward -
+     it just stays bumped permanently from there (matches its permanent-
+     zoom behavior elsewhere). Stage 5 is skipped entirely - it only
+     serves as the trigger.
+
+     Hover is globally locked (see .hover-locked in the CSS) until this
+     whole sequence is done - unlocked right here, right after the very
+     last scheduled step (stage 4's bump-in, plus its own 0.25s transition
+     so it's visually settled first). The two early-return guards below
+     also unlock immediately, so a missing element or reduced-motion never
+     leaves hover permanently stuck off. */
+  (function(){
+    const climbWrap = document.querySelector('.edu-climb-wrap');
+    const hiker5 = document.querySelector('.edu-hiker--5');
+    const detail5 = document.querySelector('.edu-stop-detail[data-hiker="5"]');
+    function unlockHover(){ if(climbWrap) climbWrap.classList.remove('hover-locked'); }
+    if(!hiker5){ unlockHover(); return; }
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){ unlockHover(); return; }
+
+    const REVEAL_DURATION_MS = 2500; // must match .edu-hiker's transition duration
+    const EARLY_MS = 500;
+    const HANDOFF_MS = 500;
+
+    const stages = [1, 2, 3, 4].map(n => ({
+      hiker: document.querySelector('.edu-hiker--' + n),
+      detail: document.querySelector('.edu-stop-detail[data-hiker="' + n + '"]')
+    }));
+
+    function setZoom(n, on){
+      const { hiker, detail } = stages[n - 1];
+      if(hiker) hiker.classList.toggle('is-hovered', on);
+      if(detail) detail.classList.toggle('is-hovered', on);
+    }
+
+    function markBumpDone(detail){
+      if(detail) detail.classList.add('is-bump-done');
+    }
+
+    function runSequence(){
+      const lastBumpAt = (stages.length - 1) * HANDOFF_MS;
+      const sequenceSpanMs = lastBumpAt + 250; // matches unlockHover's own timing - the full visible relay, start to settle
+
+      // Stage 5's TEXT dulls down UNIFORMLY (linear, constant rate) across
+      // that exact span - starting the instant stage 1 bumps, finishing
+      // right as stage 4 settles - instead of a late one-shot fade. Driven
+      // via a temporary inline transition (long + linear) rather than
+      // is-victory-dimmed's own 0.25s one, which is reserved for snappy
+      // hover recovery afterward. Once the span completes, is-victory-
+      // dimmed is added (same 90% target, so no visual jump) and the
+      // inline override is cleared, handing control back to that fast
+      // CSS transition for any later hover in/out.
+      if(detail5){
+        detail5.style.transition = 'opacity ' + (sequenceSpanMs / 1000) + 's linear';
+        detail5.style.opacity = '0.9';
+        window.setTimeout(() => {
+          detail5.classList.add('is-victory-dimmed');
+          detail5.style.transition = '';
+          detail5.style.opacity = '';
+        }, sequenceSpanMs);
+      }
+
+      stages.forEach((stage, i) => {
+        const n = i + 1;
+        const bumpAt = i * HANDOFF_MS;
+        window.setTimeout(() => setZoom(n, true), bumpAt);
+        if(i < stages.length - 1){
+          // shrink THIS one at the exact moment the NEXT one bumps - that's
+          // also "its turn is over", so its text eases to 90% right then.
+          const shrinkAt = bumpAt + HANDOFF_MS;
+          window.setTimeout(() => setZoom(n, false), shrinkAt);
+          window.setTimeout(() => markBumpDone(stage.detail), shrinkAt);
+        } else {
+          // the last stage in the relay (4) never shrinks - stays bumped,
+          // so its "turn is over" the moment its own bump-in has visually
+          // settled (250ms later) instead.
+          window.setTimeout(() => markBumpDone(stage.detail), bumpAt + 250);
+        }
+      });
+      window.setTimeout(unlockHover, lastBumpAt + 250);
+    }
+
+    let played = false;
+    hiker5.addEventListener('transitionstart', (e) => {
+      if(e.propertyName !== 'opacity' || played) return;
+      played = true;
+      window.setTimeout(runSequence, REVEAL_DURATION_MS - EARLY_MS);
+    });
+  })();
+
   /* ---------- Education: particle travel distance ----------
      flakeWave (see CSS) now sweeps particles via `transform:translate()`
      instead of animating `left` - transform is GPU-compositable, `left`
@@ -6619,20 +7130,22 @@
      every frame, which was the real source of the lag). transform's own
      percentage units are relative to the ELEMENT's own tiny size though,
      not its parent, so the sweep distance has to be an actual px value -
-     --travel is measured once here and set on the shared layer; every
+     --travel is measured once here and set on both shared layers; every
      .flake-group inherits it automatically via normal CSS custom-
      property inheritance.
-     Measured from the layer's OWN clientWidth (not the mountain box) -
+     Measured from each layer's OWN clientWidth (not the mountain box) -
      since .edu-wind-layer now extends 300px past the mountain's edges on
      each side (left:-300px/right:-300px in the CSS), its clientWidth
      already includes that extra 600px, so the sweep naturally covers the
      full widened area instead of stopping at the SVG's own bounds. */
   (function(){
-    const windLayer = document.getElementById('eduWind');
-    if(!windLayer) return;
+    const travelLayers = [document.getElementById('eduWind'), document.getElementById('eduWindFront')].filter(Boolean);
+    if(!travelLayers.length) return;
     function syncTravel(){
-      const px = windLayer.clientWidth || 2600;
-      windLayer.style.setProperty('--travel', px + 'px');
+      travelLayers.forEach(l => {
+        const px = l.clientWidth || 2600;
+        l.style.setProperty('--travel', px + 'px');
+      });
     }
     syncTravel();
     window.addEventListener('resize', syncTravel);
@@ -6645,12 +7158,15 @@
      on its own separate timer. */
   (function(){
     const windLayer = document.getElementById('eduWind');
-    if(!windLayer) return;
+    const windLayerFront = document.getElementById('eduWindFront');
+    if(!windLayer || !windLayerFront) return;
     if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const COUNT = 12;
+    const TOP_FRONT_BAND = 40; // particles spawning above this % go in front - the opaque summit snow hides the behind-everything layer up there
     const rand = (min, max) => min + Math.random() * (max - min);
     const frag = document.createDocumentFragment();
+    const fragFront = document.createDocumentFragment();
 
     for(let i = 0; i < COUNT; i++){
       const group = document.createElement('div');
@@ -6676,9 +7192,10 @@
       flake.style.setProperty('--spin-deg', spinDeg.toFixed(0) + 'deg');
       group.appendChild(flake);
 
-      frag.appendChild(group);
+      (top < TOP_FRONT_BAND ? fragFront : frag).appendChild(group);
     }
     windLayer.appendChild(frag);
+    windLayerFront.appendChild(fragFront);
   })();
 
   /* ---------- Education: rare flake+wind particles ----------
@@ -6689,13 +7206,16 @@
      they still show up rarely rather than as a constant stream. */
   (function(){
     const windLayer = document.getElementById('eduWind');
-    if(!windLayer) return;
+    const windLayerFront = document.getElementById('eduWindFront');
+    if(!windLayer || !windLayerFront) return;
     if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const COUNT = 3 + Math.round(Math.random()); // 3 or 4
     const SWEEP_FRACTION = 0.15; // must match the 85%->100% window in flakeWaveRare
+    const TOP_FRONT_BAND = 40; // particles spawning above this % go in front - the opaque summit snow hides the behind-everything layer up there
     const rand = (min, max) => min + Math.random() * (max - min);
     const frag = document.createDocumentFragment();
+    const fragFront = document.createDocumentFragment();
 
     for(let i = 0; i < COUNT; i++){
       const group = document.createElement('div');
@@ -6721,9 +7241,10 @@
       group.appendChild(wind);
       group.appendChild(flake);
 
-      frag.appendChild(group);
+      (top < TOP_FRONT_BAND ? fragFront : frag).appendChild(group);
     }
     windLayer.appendChild(frag);
+    windLayerFront.appendChild(fragFront);
   })();
 
   /* ---------- Achievement toasts ---------- */

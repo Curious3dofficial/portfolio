@@ -1421,18 +1421,18 @@
   .edu-climb-wrap{
     /* full-bleed out of .content-section-inner's 1080px cap - at 3x size
        the graphic is wider than that (and than most viewports). User-
-       driven horizontal scrolling is disabled (overflow-x:hidden) - the
-       mountain's on-screen position is still whatever the JS centering
-       logic (see "Education: horizontal scroll centering" below) sets via
-       scrollLeft, that's untouched; visitors just can't drag/wheel/touch
-       -scroll it around anymore. */
+       driven horizontal scrolling is enabled (overflow-x:auto) - the
+       mountain's initial on-screen position is still whatever the JS
+       centering logic (see "Education: horizontal scroll centering" below)
+       sets via scrollLeft, that's untouched; visitors can now also drag/
+       wheel/touch-scroll it around themselves. */
     width:100vw;
     position:relative;
     left:50%;
     right:50%;
     margin-left:-50vw;
     margin-right:-50vw;
-    overflow-x:hidden;
+    overflow-x:auto;
     overflow-y:visible;
     /* generous top padding - the summit character (stage 5) stands well
        above the mountain's own bounding box (arms-out pose, positioned
@@ -1934,12 +1934,47 @@
   .edu-stop-detail.is-hovered .edu-stop-desc{
     color:#FFFFFF;
   }
-  /* Light theme: flip the white text to the same dark ink used elsewhere
-     on the page in light mode, instead of white-on-light being unreadable. */
-  body.light-theme .edu-stop-title,
-  body.light-theme .edu-stop-desc{
+  /* Light theme: flip the white text to dark ink, instead of white-on-light
+     being unreadable. The year title (.edu-stop-title, e.g. "2012") stays
+     PURE BLACK unconditionally in light theme - !important so no hover/
+     bump-done/victory-dimmed state combination can ever tint or dim it,
+     unlike the description line below which DOES shift with those states. */
+  body.light-theme .edu-stop-title{
+    color:#000000 !important;
+    text-shadow:none;
+  }
+  /* Scoped through .edu-stop-detail (not just body.light-theme + the text
+     class) so this has 3 classes + a type selector - needed to beat
+     .edu-stop-detail.is-hovered .edu-stop-desc{color:#FFFFFF} below, which
+     is also 3 classes. Without that extra scoping this was losing to the
+     hover rule at equal specificity, so any permanently-bumped stage
+     (stage 4 stays in its "hovered" zoom state by design) kept showing
+     white desc text even in light theme. */
+  body.light-theme .edu-stop-detail .edu-stop-desc{
     color:#15131F;
     text-shadow:none;
+  }
+  /* Resting (post-bump-sequence, 90% opacity) state in light theme reads as
+     "dimmed" via an actual dark-gray color instead of just the opacity -
+     on a light background, opacity alone doesn't read as clearly as it
+     does against the dark mountain art. Needs 4 classes + the body type
+     selector to beat the dark-ink rule just above (3 classes + type); the
+     is-hovered variant below needs one more class again to win back over
+     this and restore full dark ink while actively zoomed/hovered. */
+  body.light-theme .edu-stop-detail.is-bump-done .edu-stop-desc{
+    color:#50545F;
+  }
+  body.light-theme .edu-stop-detail.is-bump-done.is-hovered .edu-stop-desc{
+    color:#15131F;
+  }
+  /* Same treatment for stage 5's own dim state (is-victory-dimmed, also
+     90% opacity) - kept as a separate rule from is-bump-done above since
+     the two classes are never on the same element together. */
+  body.light-theme .edu-stop-detail.is-victory-dimmed .edu-stop-desc{
+    color:#50545F;
+  }
+  body.light-theme .edu-stop-detail.is-victory-dimmed.is-hovered .edu-stop-desc{
+    color:#15131F;
   }
 
   /* .edu-climb-wrap now scrolls horizontally at every screen size (see
@@ -2736,16 +2771,20 @@
   }
   /* a soft ground-contact shadow, separate from the shape-hugging drop-shadow
      above, so the basket reads as resting on the grass rather than floating.
-     top:100% now resolves correctly because the parent has an explicit
-     aspect-ratio (a genuinely definite height for percentages to resolve
-     against) - margin-top/height are plain px on top of that so there's no
-     percentage math left in the vertical offset at all. This only affects
-     the shadow's own position, not the basket's left/bottom. */
+     top:62%, not 100% - backbasket.svg has a huge chunk of empty
+     transparent padding under the actual drawn basket (checked the real
+     pixel bounding box: the art only fills the canvas down to 62% of its
+     own height), so top:100% was measuring off the SQUARE BOX's bottom
+     edge, deep in that empty padding, rather than the basket's real visual
+     base - that's what was dragging the shadow so far down. margin-top/
+     height stay as plain px on top of that for the same small artistic
+     overlap as before. This only affects the shadow's own position, not
+     the basket's left/bottom. */
   .basket-scene-back::after{
     content:'';
     position:absolute;
     left:50%;
-    top:100%;
+    top:62%;
     margin-top:-6px;
     width:78%;
     height:14px;
@@ -3803,13 +3842,11 @@
     white-space:nowrap;
     transition:background 0.25s ease, color 0.25s ease, transform 0.25s ease;
   }
-  .mono-cta-btn .cta-arrow{ width:24px; height:24px; transition:transform 0.25s ease; }
   .mono-cta-btn:hover{
     background:#F5F5F5;
     color:#080808;
     transform:translateY(-2px);
   }
-  .mono-cta-btn:hover .cta-arrow{ transform:translateX(3px); }
 
   .cta-text-swap{
     position:relative;
@@ -4966,7 +5003,6 @@
           <span class="cta-text-swap">
             <span class="cta-text-label">LET'S CONNECT</span>
           </span>
-          <svg class="cta-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           <span class="cta-text-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
           </span>
@@ -5465,6 +5501,26 @@
     }
 
     themeToggle.addEventListener('click', () => {
+      const nextIsLight = !document.body.classList.contains('light-theme');
+      runThemeSwitchAnimation(nextIsLight);
+      localStorage.setItem('theme', nextIsLight ? 'light' : 'dark');
+    });
+
+    /* Press "x" to toggle light/dark mode anywhere on the page, throttled to 1/sec */
+    const THEME_KEY_THROTTLE_MS = 1000;
+    let lastThemeKeyToggle = 0;
+    window.addEventListener('keydown', (e) => {
+      if(e.key !== 'x' && e.key !== 'X') return;
+      if(e.metaKey || e.ctrlKey || e.altKey) return;
+      const target = e.target;
+      const tag = target && target.tagName;
+      const isEditable = target && (target.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT');
+      if(isEditable) return;
+
+      const now = Date.now();
+      if(now - lastThemeKeyToggle < THEME_KEY_THROTTLE_MS) return;
+      lastThemeKeyToggle = now;
+
       const nextIsLight = !document.body.classList.contains('light-theme');
       runThemeSwitchAnimation(nextIsLight);
       localStorage.setItem('theme', nextIsLight ? 'light' : 'dark');
@@ -7422,6 +7478,7 @@
     let musicHintShownOnce = false; // the 2s delay above only applies before this is true
     let musicHintSettleCleanup = null; // cancels the "wait for widget's own slide-in" wait below
     let musicHintRaf = null;
+    let musicHintDismissedForever = false; // set once the user touches the mute button or volume bar - hint never shows again this page load
 
     function positionMusicHint(){
       if(!musicHintEl || !musicIndicator || !musicWidget) return;
@@ -7498,7 +7555,17 @@
       runMusicHintTransition(false);
     }
 
+    // user touched the mute button or volume bar - hide it now and make sure
+    // it can never come back for the rest of this page load (only a refresh
+    // resets musicHintDismissedForever)
+    function dismissMusicHintForever(){
+      musicHintDismissedForever = true;
+      hideMusicHint();
+      if(musicHintObserver) musicHintObserver.disconnect();
+    }
+
     function showMusicHintNow(){
+      if(musicHintDismissedForever) return;
       if(musicHintVisible || !musicHintEl || !musicWidget) return;
       if(scoreMuted === false) return;
       /* the widget may have scrolled back out of view again during the wait
@@ -7508,7 +7575,7 @@
       musicHintShownOnce = true;
       positionMusicHint();
       runMusicHintTransition(true);
-      musicHintAutoHideTimer = window.setTimeout(hideMusicHint, 20000);
+      musicHintAutoHideTimer = window.setTimeout(dismissMusicHintForever, 20000);
     }
 
     /* the widget itself slides/fades in over 0.5s (see .music-widget.nav-slot-
@@ -7552,8 +7619,13 @@
        fades in only applies the very first time; every reappearance after
        that shows it as soon as the widget's own slide-in settles, instead of
        waiting another 2s. */
+    let musicHintObserver = null;
     if(musicWidget){
       const syncMusicHintWithWidget = () => {
+        if(musicHintDismissedForever){
+          if(musicHintObserver) musicHintObserver.disconnect();
+          return;
+        }
         if(musicWidget.classList.contains('nav-slot-visible')){
           if(musicHintVisible || musicHintShowTimer || musicHintSettleCleanup) return;
           if(musicHintShownOnce){
@@ -7569,7 +7641,7 @@
         }
       };
       syncMusicHintWithWidget();
-      const musicHintObserver = new MutationObserver(syncMusicHintWithWidget);
+      musicHintObserver = new MutationObserver(syncMusicHintWithWidget);
       musicHintObserver.observe(musicWidget, { attributes:true, attributeFilter:['class'] });
     }
     window.addEventListener('resize', () => {
@@ -7585,7 +7657,7 @@
            anything longer only makes the button feel unresponsive */
         if(clickNow - lastMusicIndicatorClick < 250) return;
         lastMusicIndicatorClick = clickNow;
-        hideMusicHint();
+        dismissMusicHintForever();
         if(!epilogueAudio) return;
         // same button doubles as "replay" once the track has ended - restart
         // from the top instead of the usual mute/unmute toggle
@@ -7629,6 +7701,7 @@
     if(musicVolume){
       musicVolume.addEventListener('pointerdown', (e) => {
         e.preventDefault();
+        dismissMusicHintForever();
         // dragging should always be instant/1:1 with the cursor - drop the
         // mute/unmute fade animation the instant a manual drag starts
         if(musicVolumeFill) musicVolumeFill.classList.remove('is-fading');
@@ -7647,10 +7720,11 @@
         let delta = 0;
         if(e.key === 'ArrowRight' || e.key === 'ArrowUp') delta = step;
         else if(e.key === 'ArrowLeft' || e.key === 'ArrowDown') delta = -step;
-        else if(e.key === 'Home') { e.preventDefault(); if(musicVolumeFill) musicVolumeFill.classList.remove('is-fading'); setUserVolume(0); return; }
-        else if(e.key === 'End') { e.preventDefault(); if(musicVolumeFill) musicVolumeFill.classList.remove('is-fading'); setUserVolume(1); return; }
+        else if(e.key === 'Home') { e.preventDefault(); dismissMusicHintForever(); if(musicVolumeFill) musicVolumeFill.classList.remove('is-fading'); setUserVolume(0); return; }
+        else if(e.key === 'End') { e.preventDefault(); dismissMusicHintForever(); if(musicVolumeFill) musicVolumeFill.classList.remove('is-fading'); setUserVolume(1); return; }
         if(!delta) return;
         e.preventDefault();
+        dismissMusicHintForever();
         // same as pointerdown: keyboard nudges are instant, not eased
         if(musicVolumeFill) musicVolumeFill.classList.remove('is-fading');
         setUserVolume(userVolume + delta);

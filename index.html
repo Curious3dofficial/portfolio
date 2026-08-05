@@ -2515,13 +2515,16 @@
      the slider itself stays instant, this is just so the bar visibly eases
      down/up in sync with the mute/unmute audio fade instead of snapping */
   .music-volume-fill.is-fading{
-    /* kept in step with the JS-side fade duration (setVolume's opts.duration,
-       used for mute/unmute clicks and the replay ramp-up) - was 0.4s, halved
-       to 0.2s alongside it so the visual bar doesn't lag behind the actual
-       audio fade */
-    transition:width 0.2s cubic-bezier(.4,0,.2,1);
+    transition:width 0.4s cubic-bezier(.4,0,.2,1);
   }
   body.light-theme .music-volume-track{ background:rgba(90,90,105,0.25); }
+  /* while the skip-ahead sequence is mid-flight, the mute button and volume
+     slider stop accepting clicks/drags entirely - CSS-level backstop for
+     the JS musicInteractionLocked checks in each handler */
+  .music-indicator.is-skip-locked,
+  .music-volume.is-skip-locked{
+    pointer-events:none;
+  }
   .epilogue-letter [data-reveal]{
     opacity:0;
     transform:translateY(12px);
@@ -7446,6 +7449,16 @@
      the letter does" illusion with a simple function call. */
   let triggerSkipAheadMusicEnding = null;
 
+  /* same indirection as triggerSkipAheadMusicEnding above, set by the
+     music-widget block to a function that makes the mute button and volume
+     slider stop responding to clicks/drags/keyboard for a given duration -
+     called the instant Skip is pressed so nothing about the music can be
+     touched while the compressed reveal is mid-flight (would otherwise
+     race against the auto-fade/auto-end illusion above), released again
+     once the whole skip sequence (quick-locate hop + compressed reveal
+     scroll) has actually finished. */
+  let lockMusicWidgetForSkip = null;
+
   /* ---------- Epilogue: skip-ahead button ----------
      Shows up once the "For Mom and Dad..." line has actually finished
      fading in (not just when the epilogue enters view) - listens for that
@@ -7618,6 +7631,12 @@
       // tuned - QUICK_LOCATE_MS controls its speed directly.
       const QUICK_LOCATE_MS = 950; // was 650 - a little slower
 
+      // a beat of held stillness right before the compressed reveal actually
+      // kicks off (after the quick-locate hop, if there was one) - was
+      // instant, felt too abrupt going straight from "arrived" into the
+      // fast stagger
+      const SKIP_REVEAL_START_DELAY_MS = 1500; // was 1000 - half a second more
+
       /* stretches the compressed reveal's own scroll a bit further than the
          text itself takes to finish, so the camera glides at a calmer pace
          throughout rather than racing to keep up with the (faster) text
@@ -7633,6 +7652,17 @@
       const currentLine = revealedLines[revealedLines.length - 1];
       const willQuickLocate = !reduceMotion && currentLine;
 
+      /* the mute button/volume slider go unresponsive the instant Skip is
+         pressed - not just once the long scroll actually starts, so there's
+         no gap where a click could sneak in and race the auto-fade/auto-
+         end illusion started later in beginCompressedReveal - and stay that
+         way until the button itself actually flips to the replay icon (see
+         unlockMusicWidgetForSkip, called right alongside skipEndedOverride
+         going true). Deliberately NOT a timer sized to match that moment -
+         a duplicated duration guess here would silently drift out of sync
+         with the real one the instant either timing path changes later. */
+      if(lockMusicWidgetForSkip) lockMusicWidgetForSkip();
+
       /* everything that was previously here (the compressed reveal + the
          long synced scroll to the end) now runs AFTER a quick preliminary
          hop to wherever the reveal currently sits - the last line that's
@@ -7645,14 +7675,6 @@
          for the long scroll to the end where staying in sync with the
          reveal actually matters. */
       const beginCompressedReveal = () => {
-        pending.forEach(el => el.classList.remove('is-visible'));
-        void document.body.offsetWidth;
-        pending.forEach((el, i) => {
-          el.style.transitionDelay = reduceMotion ? '0s' : `${i * SKIP_STAGGER}s`;
-        });
-        void document.body.offsetWidth;
-        pending.forEach(el => el.classList.add('is-visible'));
-
         const lastPendingLine = pending[pending.length - 1];
         const lastRect = lastPendingLine.getBoundingClientRect();
         const targetY = lastRect.top + window.scrollY - (window.innerHeight / 2) + (lastRect.height / 2);
@@ -7663,23 +7685,39 @@
            quick-locate hop earlier) - a "current state" keyframe for both
            the volume bar and the progress bar, animating to their "track
            over" state over exactly the time this scroll itself takes
-           (revealDurationMs), so both land right as the letter finishes. */
+           (revealDurationMs), so both land right as the letter finishes.
+           Runs immediately, same as the scroll below - only the lines'
+           own withering/reveal stagger (below) is held back a beat. */
         if(triggerSkipAheadMusicEnding) triggerSkipAheadMusicEnding(revealDurationMs);
 
         smoothScrollTo(targetY, revealDurationMs);
 
-        /* once each line's compressed-delay transition has actually finished
-           playing, put its transitionDelay back the way it really was -
-           otherwise the leftover compressed value sits in the inline style
-           forever, and a later replayEpilogue() would mistake it for the
-           line's true original pacing (that's the "blank lines after
-           replay" bug). Restored from epilogueOriginalDelays, the one
-           immutable record captured before skip ever touched anything. */
+        /* just the withering/reveal itself held back a beat before it
+           starts - was instant, felt too abrupt going straight from
+           "arrived" into the fast stagger. Scroll and the music illusion
+           above are untouched by this, they still start right away. */
         window.setTimeout(() => {
-          pending.forEach(el => {
-            el.style.transitionDelay = epilogueOriginalDelays.get(el) || '';
+          pending.forEach(el => el.classList.remove('is-visible'));
+          void document.body.offsetWidth;
+          pending.forEach((el, i) => {
+            el.style.transitionDelay = reduceMotion ? '0s' : `${i * SKIP_STAGGER}s`;
           });
-        }, textRevealDurationMs);
+          void document.body.offsetWidth;
+          pending.forEach(el => el.classList.add('is-visible'));
+
+          /* once each line's compressed-delay transition has actually finished
+             playing, put its transitionDelay back the way it really was -
+             otherwise the leftover compressed value sits in the inline style
+             forever, and a later replayEpilogue() would mistake it for the
+             line's true original pacing (that's the "blank lines after
+             replay" bug). Restored from epilogueOriginalDelays, the one
+             immutable record captured before skip ever touched anything. */
+          window.setTimeout(() => {
+            pending.forEach(el => {
+              el.style.transitionDelay = epilogueOriginalDelays.get(el) || '';
+            });
+          }, textRevealDurationMs);
+        }, SKIP_REVEAL_START_DELAY_MS);
       };
 
       if(!willQuickLocate){
@@ -7761,6 +7799,14 @@
        the real currentTime/duration-driven timeupdate updates don't fight
        the forced CSS transition to 100% mid-flight. */
     let skipProgressOverrideActive = false;
+    /* true for the whole duration of the skip sequence (quick-locate hop +
+       compressed reveal scroll) - every interactive handler below (mute
+       click, volume drag, volume keyboard nudge, the global "m" shortcut)
+       bails out immediately while this is set, so nothing can touch the
+       music mid-skip. Mirrored by the .is-skip-locked class (pointer-
+       events:none) as a second, CSS-level line of defense for plain mouse
+       clicks/drags. */
+    let musicInteractionLocked = false;
     const musicIndicator = document.getElementById('musicIndicator');
     const musicVolume = document.getElementById('musicVolume');
     const musicVolumeTrack = musicVolume ? musicVolume.querySelector('.music-volume-track') : null;
@@ -7863,6 +7909,13 @@
         musicProgressFill.style.transitionDuration = '';
         musicProgressFill.style.width = '0%';
       }
+      /* same again for the volume bar - the skip-ahead fade-out (below)
+         sets an inline transitionDuration sized to the whole skip sequence
+         (often several seconds) and never had anywhere to clear it back to
+         the CSS default afterward, so it was silently sticking around and
+         making every fade AFTER a skip - including this replay ramp-up -
+         inherit that multi-second duration instead of the real 0.4s. */
+      if(musicVolumeFill) musicVolumeFill.style.transitionDuration = '';
       epilogueAudio.currentTime = 0;
       updateMusicState();
 
@@ -7870,7 +7923,7 @@
         epilogueAudio.currentTime = 0;
         displayedVolume = 0;
         epilogueAudio.volume = 0;
-        setVolume(lastVolume || 1, { animate:true, duration:200 });
+        setVolume(lastVolume || 1, { animate:true, duration:400 });
         const p = epilogueAudio.play();
         if(p && typeof p.catch === 'function') p.catch(() => {});
         replayInProgress = false;
@@ -8166,6 +8219,7 @@
            displayedVolume state machine handles rapid re-toggles safely, so
            anything longer only makes the button feel unresponsive */
         if(clickNow - lastMusicIndicatorClick < 250) return;
+        if(musicInteractionLocked) return; // skip-ahead sequence is mid-flight - ignore
         lastMusicIndicatorClick = clickNow;
         dismissMusicHintForever();
         if(!epilogueAudio) return;
@@ -8184,10 +8238,10 @@
            actually showing. */
         if(!scoreMuted){
           /* mute: slash draws across, slider drops to 0, fade out then hard-mute */
-          setVolume(0, { animate:true, duration:200 });
+          setVolume(0, { animate:true, duration:400 });
         } else {
           /* unmute: slash retracts, restore the last held level, fade in */
-          setVolume(lastVolume || 1, { animate:true, duration:200 });
+          setVolume(lastVolume || 1, { animate:true, duration:400 });
         }
       });
     }
@@ -8203,6 +8257,7 @@
       if(!musicIndicator || !musicWidget) return;
       if(!musicWidget.classList.contains('nav-slot-visible')) return;
       if(musicIndicator.classList.contains('is-ended')) return;
+      if(musicInteractionLocked) return; // skip-ahead sequence is mid-flight - ignore
       const activeTag = document.activeElement ? document.activeElement.tagName : '';
       if(activeTag === 'INPUT' || activeTag === 'TEXTAREA') return;
       e.preventDefault();
@@ -8211,6 +8266,7 @@
 
     if(musicVolume){
       musicVolume.addEventListener('pointerdown', (e) => {
+        if(musicInteractionLocked) return; // skip-ahead sequence is mid-flight - ignore
         e.preventDefault();
         dismissMusicHintForever();
         // dragging should always be instant/1:1 with the cursor - drop the
@@ -8220,6 +8276,7 @@
         applyPointerVolume(e);
       });
       musicVolume.addEventListener('pointermove', (e) => {
+        if(musicInteractionLocked) return; // skip-ahead sequence is mid-flight - ignore
         if(e.buttons) applyPointerVolume(e);
       });
       /* keyboard support for the role="slider": arrows nudge the volume in
@@ -8227,6 +8284,7 @@
          stepping up from silence also unmutes, and stepping down to 0 counts
          as muted, same as a drag would */
       musicVolume.addEventListener('keydown', (e) => {
+        if(musicInteractionLocked) return; // skip-ahead sequence is mid-flight - ignore
         const step = (e.shiftKey ? 0.10 : 0.05);
         let delta = 0;
         if(e.key === 'ArrowRight' || e.key === 'ArrowUp') delta = step;
@@ -8399,13 +8457,36 @@
         epilogueAudio.muted = true;
         renderVolume();
         skipEndedOverride = true;
+        // drop the inline duration override on both bars now that the
+        // skip's own fade has finished - anything that fades them next
+        // (a stray mute click, or a later replay) should use the normal
+        // CSS-defined 0.4s again, not this fade's stretched-out duration
+        if(musicVolumeFill) musicVolumeFill.style.transitionDuration = '';
         if(musicProgressFill) musicProgressFill.style.transitionDuration = '';
         updateMusicState();
+        // this IS the moment the mute button actually flips to the replay
+        // icon (updateMusicState above just applied is-ended) - releasing
+        // the click-lock right here instead of on a separately-computed
+        // timer means it can never drift out of sync with the button's own
+        // state, no matter how the timing above changes later
+        unlockMusicWidgetForSkip();
       }, ms);
     }
     // hands the function above to the outer (top-level) hook variable the
     // skip button actually calls - see its declaration for why the indirection
     triggerSkipAheadMusicEnding = runSkipAheadMusicEnding;
+
+    function runLockMusicWidgetForSkip(){
+      musicInteractionLocked = true;
+      if(musicIndicator) musicIndicator.classList.add('is-skip-locked');
+      if(musicVolume) musicVolume.classList.add('is-skip-locked');
+    }
+    function unlockMusicWidgetForSkip(){
+      musicInteractionLocked = false;
+      if(musicIndicator) musicIndicator.classList.remove('is-skip-locked');
+      if(musicVolume) musicVolume.classList.remove('is-skip-locked');
+    }
+    lockMusicWidgetForSkip = runLockMusicWidgetForSkip;
 
     const epilogueObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {

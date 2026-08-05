@@ -2515,7 +2515,11 @@
      the slider itself stays instant, this is just so the bar visibly eases
      down/up in sync with the mute/unmute audio fade instead of snapping */
   .music-volume-fill.is-fading{
-    transition:width 0.4s cubic-bezier(.4,0,.2,1);
+    /* kept in step with the JS-side fade duration (setVolume's opts.duration,
+       used for mute/unmute clicks and the replay ramp-up) - was 0.4s, halved
+       to 0.2s alongside it so the visual bar doesn't lag behind the actual
+       audio fade */
+    transition:width 0.2s cubic-bezier(.4,0,.2,1);
   }
   body.light-theme .music-volume-track{ background:rgba(90,90,105,0.25); }
   .epilogue-letter [data-reveal]{
@@ -2529,6 +2533,114 @@
   }
   @media (prefers-reduced-motion: reduce){
     .epilogue-letter [data-reveal]{ transition:none; filter:none; }
+  }
+
+  /* ---------- Epilogue: skip-ahead button ----------
+     Appears once the "For Mom and Dad..." line has finished revealing (JS
+     listens for that specific line's transitionend), lets someone jump the
+     rest of the letter into a fast compressed reveal instead of the normal
+     reading-paced one - the song itself is untouched, it keeps playing
+     exactly where it already was. Same opacity/translateY/blur language as
+     the letter's own [data-reveal] lines so it feels like part of the same
+     piece of writing rather than a bolted-on UI control, and "withers" back
+     out the same way those lines do once it's been used. */
+  /* Plain position:fixed by default (normal viewport-tracking behavior).
+     JS below switches this to position:absolute with an explicit inline
+     top, computed in plain arithmetic (not relying on CSS sticky's
+     containing-block/clamping behavior), the instant the footer gets
+     close - see the IntersectionObserver near revealSkipBtn(). */
+  .epilogue-skip-btn{
+    position:fixed;
+    right:24px;
+    bottom:24px;
+    z-index:600;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:11px 22px;
+    width:max-content;
+    white-space:nowrap;
+    border-radius:999px;
+    border:1px solid rgba(245,246,248,0.16);
+    background:rgba(18,16,26,0.6);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    color:#F5F6F8;
+    font:600 13px/1 'Inter', sans-serif;
+    letter-spacing:0.02em;
+    cursor:pointer;
+    opacity:0;
+    transform:translateY(12px);
+    filter:blur(8px);
+    transition:opacity 1s ease-out, transform 1s ease-out, filter 1s ease-out, background 0.2s ease, border-color 0.2s ease;
+    pointer-events:none;
+  }
+  .epilogue-skip-btn svg{ flex-shrink:0; }
+  .epilogue-skip-btn.is-visible{
+    opacity:1;
+    transform:translateY(0);
+    filter:blur(0px);
+    pointer-events:auto;
+  }
+  /* switched from position:fixed to position:absolute with an explicit
+     inline top (set in JS) once the footer gets close - stops tracking
+     the viewport and scrolls away with the rest of the page from here on. */
+  .epilogue-skip-btn.is-parked{
+    position:absolute;
+    bottom:auto;
+  }
+  /* the disappearing wither now goes UPWARD (negative translateY) instead
+     of reusing the same downward rest position the appear animation comes
+     FROM - appearing still rises up from below (base rule, unchanged), but
+     .is-leaving is added (in JS, syncSkipBtnVisibility) at the exact
+     moment .is-visible is removed, giving it its own distinct exit target
+     rather than just falling back to the entrance's starting point. */
+  .epilogue-skip-btn.is-leaving{
+    transform:translateY(-12px);
+  }
+  .epilogue-skip-btn:hover{
+    background:rgba(18,16,26,0.8);
+    border-color:rgba(245,246,248,0.32);
+  }
+  /* zoom-in on hover / press-down on click - both need a much snappier
+     transition than the 1s appear/wither fade, but only ever kick in once
+     the button is already fully visible (translateY settled at 0), so
+     overriding "transform" here doesn't fight the slower entrance/exit
+     motion - it's a different moment entirely. */
+  .epilogue-skip-btn.is-visible:hover{
+    transform:translateY(0) scale(1.07);
+    transition:transform 0.22s cubic-bezier(.34,1.56,.64,1), background 0.2s ease, border-color 0.2s ease;
+  }
+  .epilogue-skip-btn.is-visible:active{
+    transform:translateY(0) scale(0.93);
+    transition:transform 0.12s ease;
+  }
+  /* the actual "click" effect - a genuine shrink-then-spring-back bounce
+     on the click itself (added as a class in JS), not just :active's
+     press-and-hold shrink above. A CSS animation on the same element/
+     property takes priority over a running transition, so this correctly
+     plays out in full even though the button gets disabled (and starts
+     withering) immediately after the click. */
+  @keyframes skipBtnClickPulse{
+    0%{ transform:translateY(0) scale(1); }
+    40%{ transform:translateY(0) scale(0.88); }
+    100%{ transform:translateY(0) scale(1); }
+  }
+  .epilogue-skip-btn.is-clicked{
+    animation:skipBtnClickPulse 0.38s cubic-bezier(.34,1.56,.64,1);
+  }
+  body.light-theme .epilogue-skip-btn{
+    background:rgba(255,255,255,0.6);
+    border-color:rgba(23,18,31,0.14);
+    color:#17121F;
+  }
+  body.light-theme .epilogue-skip-btn:hover{ background:rgba(255,255,255,0.85); }
+  @media (prefers-reduced-motion: reduce){
+    .epilogue-skip-btn{ transition:opacity 0.25s ease; filter:none !important; }
+    .epilogue-skip-btn.is-clicked{ animation:none !important; }
+  }
+  @media (max-width:640px){
+    .epilogue-skip-btn{ right:16px; bottom:16px; padding:10px 16px; font-size:12px; }
   }
   .epilogue-lead{
     font-family:'Caveat', cursive;
@@ -3853,6 +3965,17 @@
     display:inline-flex;
     align-items:center;
   }
+  /* sits to the right of the text at rest, no hover-nudge transform like it
+     used to have - but it still needs to get out of the way once the email
+     icon swaps in on hover, same fade-out timing as the text label uses. */
+  .mono-cta-btn .cta-arrow{
+    width:24px; height:24px; flex-shrink:0;
+    transition:opacity 0.35s cubic-bezier(.4,0,.2,1);
+  }
+  .mono-cta-btn:hover .cta-arrow{ opacity:0; }
+  @media (prefers-reduced-motion: reduce){
+    .mono-cta-btn .cta-arrow{ transition:opacity 0.15s ease; }
+  }
   .cta-text-label{
     display:inline-block;
     transition:opacity 0.35s cubic-bezier(.4,0,.2,1), transform 0.35s cubic-bezier(.4,0,.2,1), filter 0.35s ease;
@@ -4977,6 +5100,10 @@
           </audio>
         </div>
       </div>
+      <button type="button" class="epilogue-skip-btn" id="epilogueSkipBtn" aria-label="Skip ahead to the end of the letter">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M5 4l9 8-9 8V4z"/><path d="M17 4v16"/></svg>
+        <span>Skip ahead</span>
+      </button>
     </div>
   </div>
 </section>
@@ -5003,6 +5130,7 @@
           <span class="cta-text-swap">
             <span class="cta-text-label">LET'S CONNECT</span>
           </span>
+          <svg class="cta-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           <span class="cta-text-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
           </span>
@@ -6293,6 +6421,23 @@
       if(onDone) onDone();
       return;
     }
+    /* same fix scrollInstant applies for its one-shot jump, needed here too -
+       without forcing scroll-behavior to plain "auto" for the duration of
+       this animation, every one of the ~60 window.scrollTo() calls below
+       (each landing on a slightly different target than the last) also
+       kicks off ITS OWN native smooth-scroll animation on top of this one's
+       manual easing. The two fight each other, which is what caused the
+       "fast jump, then the real scroll catches up" glitch - native smooth
+       scroll overshooting toward whatever the target happened to be a
+       frame ago. Restored to '' (the stylesheet's own scroll-behavior:smooth
+       rule) once finished, rather than snapshotting/restoring a "previous"
+       inline value - if a second call interrupts this one mid-flight (the
+       cancelAnimationFrame above exists specifically because that happens),
+       the interrupted call's "previous" value would itself already just be
+       "auto" from this same fix, permanently pinning it instead of ever
+       falling back to the real default. */
+    document.documentElement.style.scrollBehavior = 'auto';
+    document.body.style.scrollBehavior = 'auto';
     const start = performance.now();
     const ease = t => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3) / 2; // easeInOutCubic
     function step(now){
@@ -6302,6 +6447,8 @@
         scrollAnimRaf = requestAnimationFrame(step);
       } else {
         scrollAnimRaf = null;
+        document.documentElement.style.scrollBehavior = '';
+        document.body.style.scrollBehavior = '';
         if(onDone) onDone();
       }
     }
@@ -7051,7 +7198,7 @@
     if(!windLayer || !windLayerFront) return;
     if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    const COUNT = 12;
+    const COUNT = 26; // was 12 - more small rotating flakes drifting through the scene
     const TOP_FRONT_BAND = 40; // particles spawning above this % go in front - the opaque summit snow hides the behind-everything layer up there
     const rand = (min, max) => min + Math.random() * (max - min);
     const frag = document.createDocumentFragment();
@@ -7177,6 +7324,22 @@
     }, ACHIEVEMENT_VISIBLE_MS);
   }
 
+  /* the epilogue's own "The Perfect Portfolio" toast is triggered from a
+     completion-detection listener further down (near the epilogue letter's
+     own reveal logic) instead of the generic scroll-into-view observer
+     below, since it needs to fire once the LETTER is actually finished,
+     not just once the section is scrolled into view. This flag guarantees
+     it can only ever spawn once per page load, no matter how many
+     different paths call fireEpilogueAchievement() (normal read, the skip
+     button, or a replay re-triggering the same completion condition). */
+  let epilogueAchievementFired = false;
+  function fireEpilogueAchievement(){
+    if(epilogueAchievementFired) return;
+    epilogueAchievementFired = true;
+    const epilogueAch = ACHIEVEMENTS.find(a => a.selector === '#epilogue');
+    if(epilogueAch) spawnAchievementToast(epilogueAch.icon, epilogueAch.title, epilogueAch.rgb);
+  }
+
   const achievementObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if(entry.isIntersecting){
@@ -7266,6 +7429,301 @@
     prevAppliedDelay = appliedDelay;
   });
 
+  /* the ONE true record of each line's real reading-paced delay, captured
+     right after the loop above computes them and before anything (skip-
+     ahead, replay) ever gets a chance to overwrite el.style.transitionDelay
+     with something temporary. Anything that needs to restore a line's
+     "real" pacing later (skip-ahead's cleanup below) reads from this Map
+     instead of trusting whatever's currently sitting in the inline style. */
+  const epilogueOriginalDelays = new Map(epilogueLines.map(el => [el, el.style.transitionDelay]));
+
+  /* set by the music-widget block further down (only if the epilogue's
+     audio widget actually exists on the page) to a function that fades the
+     volume bar to 0 and the progress bar to 100% over a given duration,
+     then treats the song as ended - lets the skip button below (defined
+     earlier in the file, so it can't reach into that block's private
+     state directly) trigger the "song fades out and finishes exactly when
+     the letter does" illusion with a simple function call. */
+  let triggerSkipAheadMusicEnding = null;
+
+  /* ---------- Epilogue: skip-ahead button ----------
+     Shows up once the "For Mom and Dad..." line has actually finished
+     fading in (not just when the epilogue enters view) - listens for that
+     one line's own transitionend rather than a fixed timer, so it stays
+     correct even if the reveal pacing above ever changes. Clicking it
+     fast-forwards every line that hasn't revealed yet through a short,
+     compressed stagger instead of their normal reading-paced delays. The
+     song itself keeps playing from wherever it already was, but is faded
+     out and treated as "ended" in sync with the compressed reveal (see
+     triggerSkipAheadMusicEnding above) - the illusion that the song ends
+     exactly when the letter does. The listener is left attached (not
+     removed after firing once) so this also re-arms correctly if the
+     letter gets withered and replayed later. */
+  (function(){
+    const skipBtn = document.getElementById('epilogueSkipBtn');
+    const momDadLine = epilogueLines.find(el => el.textContent.trim() === 'For Mom and Dad...');
+    if(!skipBtn || !momDadLine) return;
+
+    /* armed = the mom/dad line has revealed and it hasn't been clicked yet.
+       Gates the .is-visible fade the same way it always did. is-leaving
+       gets added right at the moment it's going from shown to hidden (not
+       on the very first call, when it was never visible to begin with) so
+       the CSS wither can target its own upward exit rather than just the
+       entrance's starting position. */
+    let skipBtnArmed = false;
+    function syncSkipBtnVisibility(){
+      const wasVisible = skipBtn.classList.contains('is-visible');
+      if(!skipBtnArmed && wasVisible) skipBtn.classList.add('is-leaving');
+      if(skipBtnArmed) skipBtn.classList.remove('is-leaving');
+      skipBtn.classList.toggle('is-visible', skipBtnArmed);
+    }
+
+    /* Deterministic JS instead of CSS position:sticky - plain arithmetic
+       I can actually verify by reading the code, rather than trusting a
+       browser layout algorithm I have no way to render and check here.
+       While unparked, the button is plain position:fixed (tracks the
+       viewport normally, exactly like it always did). The instant the
+       footer comes within FOOTER_TRIGGER_MARGIN of the viewport, it
+       freezes: read where it's CURRENTLY sitting on screen (which, since
+       it's still fixed at bottom:24px, is just window.innerHeight - 24 -
+       its own height), convert that to a document coordinate by adding the
+       current scrollY, and switch to position:absolute with that as an
+       explicit inline top. From that point it's ordinary in-flow content
+       and scrolls away with the page like anything else. Scrolling back up
+       past the trigger point switches it back to position:fixed, which
+       makes it resume tracking the viewport immediately since fixed
+       positioning is always relative to the current viewport, not
+       wherever it happened to be. */
+    const footerSection = document.getElementById('closing');
+    const SKIP_BTN_REST_GAP = 12; // was 10, then 24 originally - nudged 2px higher
+    const FOOTER_TRIGGER_MARGIN = 8; // was 28 - parks even later, right at the footer's edge
+    let skipBtnParked = false;
+
+    function parkSkipBtn(){
+      if(skipBtnParked) return;
+      /* .is-parked makes this position:absolute, whose containing block is
+         .content-section-inner (position:relative, AND max-width:1080px
+         centered via margin:0 auto - not full viewport width). So both
+         "top" AND "right" need to be measured as offsets from THAT
+         ancestor's own edges, not from the page root / viewport - using
+         right:24px unmodified was measuring 24px from the centered 1080px
+         column's edge, not the real screen edge, which is why it landed
+         well short of "very right". Switching to an explicit "left"
+         (computed from the real viewport width) sidesteps that entirely.
+         Both rects are read here, back-to-back, while the button is still
+         position:fixed, so the deltas are accurate for however this page
+         happens to be structured. */
+      const containingBlock = skipBtn.closest('.content-section-inner') || skipBtn.offsetParent || document.body;
+      const btnRect = skipBtn.getBoundingClientRect();
+      const containerRect = containingBlock.getBoundingClientRect();
+      let desiredScreenTop = window.innerHeight - SKIP_BTN_REST_GAP - btnRect.height;
+      /* safety clamp for fast scrolling: IntersectionObserver callbacks
+         aren't guaranteed to fire on every single frame, so a fast flick
+         can cross the FOOTER_TRIGGER_MARGIN zone and only get noticed
+         several frames later - by which point the footer may have already
+         scrolled further up than expected, and "current viewport bottom"
+         would land the button ON TOP OF the footer's own (very dark)
+         background instead of the gap just above it, reading as if it
+         had vanished. Re-checking the footer's actual live position here
+         and clamping against it means the button can never render lower
+         than just above the footer's real edge, no matter how late this
+         callback ends up firing. */
+      if(footerSection){
+        const footerTopNow = footerSection.getBoundingClientRect().top;
+        const maxScreenTop = footerTopNow - SKIP_BTN_REST_GAP - btnRect.height;
+        desiredScreenTop = Math.min(desiredScreenTop, maxScreenTop);
+      }
+      /* horizontal uses the button's OWN current on-screen left edge
+         (btnRect.left), not a separately recomputed gap - it was
+         previously using SKIP_BTN_REST_GAP here too, which is a DIFFERENT
+         number than the floating button's actual CSS right:24px (or 16px
+         on the mobile breakpoint), so the docked version landed a bit
+         further right than the floating one. Reading its real current
+         position instead guarantees an exact match, on any screen size,
+         with zero risk of the two numbers drifting apart again. */
+      const desiredScreenLeft = btnRect.left;
+      skipBtn.style.top = (desiredScreenTop - containerRect.top) + 'px';
+      skipBtn.style.left = (desiredScreenLeft - containerRect.left) + 'px';
+      skipBtn.style.right = 'auto';
+      skipBtn.classList.add('is-parked');
+      skipBtnParked = true;
+    }
+    function unparkSkipBtn(){
+      if(!skipBtnParked) return;
+      skipBtn.classList.remove('is-parked');
+      skipBtn.style.top = '';
+      skipBtn.style.left = '';
+      skipBtn.style.right = '';
+      skipBtnParked = false;
+    }
+    if(footerSection){
+      const footerNearObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if(entry.isIntersecting) parkSkipBtn();
+          else unparkSkipBtn();
+        });
+      }, { threshold:0, rootMargin:`0px 0px ${FOOTER_TRIGGER_MARGIN}px 0px` });
+      footerNearObserver.observe(footerSection);
+    }
+
+    function revealSkipBtn(){
+      skipBtn.disabled = false;
+      skipBtnArmed = true;
+      syncSkipBtnVisibility();
+    }
+
+    if(reduceMotion){
+      // no transition to key off of - just watch the line's own class
+      const momDadClassObserver = new MutationObserver(() => {
+        if(momDadLine.classList.contains('is-visible')) revealSkipBtn();
+      });
+      momDadClassObserver.observe(momDadLine, { attributes:true, attributeFilter:['class'] });
+      if(momDadLine.classList.contains('is-visible')) revealSkipBtn();
+    } else {
+      momDadLine.addEventListener('transitionend', (e) => {
+        if(e.target !== momDadLine || e.propertyName !== 'opacity') return;
+        // only the fade-IN direction should arm the button, not the wither-
+        // out one (is-visible is removed before the wither transition
+        // starts, so this check tells the two apart)
+        if(momDadLine.classList.contains('is-visible')) revealSkipBtn();
+      });
+    }
+
+    skipBtn.addEventListener('click', () => {
+      if(skipBtn.disabled) return;
+      skipBtn.classList.add('is-clicked');
+      skipBtn.addEventListener('animationend', () => skipBtn.classList.remove('is-clicked'), { once:true });
+      skipBtn.disabled = true;
+      skipBtnArmed = false;
+      syncSkipBtnVisibility(); // withers away the same way the letter's own lines do
+
+      /* is-visible gets added to EVERY line the moment the epilogue first
+         scrolls into view - the reading-paced feel comes entirely from each
+         line's own transition-delay, not from the class being added one at
+         a time. So classList.contains('is-visible') can't tell us which
+         lines have actually finished appearing on screen yet; their live
+         computed opacity can. Same stagger mechanism the wither/replay
+         sequence above uses (remove -> reflow -> new delay -> reflow ->
+         re-add, so the transition is genuinely re-triggered instead of
+         silently ignored because the class never left), just a touch slower
+         than that effect's own 0.035s-per-line pace. */
+      const SKIP_STAGGER = 0.07;
+      const pending = epilogueLines.filter(el => parseFloat(getComputedStyle(el).opacity) < 0.98);
+      if(!pending.length) return;
+
+      // was native window.scrollTo({behavior:'smooth'}) - its duration is
+      // entirely up to the browser (usually a quick ~300ms) with no way to
+      // slow it down directly. Switched to the site's own hand-timed
+      // smoothScrollTo instead, purely so this quick "locate" hop can be
+      // tuned - QUICK_LOCATE_MS controls its speed directly.
+      const QUICK_LOCATE_MS = 950; // was 650 - a little slower
+
+      /* stretches the compressed reveal's own scroll a bit further than the
+         text itself takes to finish, so the camera glides at a calmer pace
+         throughout rather than racing to keep up with the (faster) text
+         reveal. Reveal pacing itself (SKIP_STAGGER) is untouched. Computed
+         upfront (not inside beginCompressedReveal) because the "song fades
+         out and finishes with the letter" illusion below needs the total
+         click-to-finish runtime BEFORE any of the scrolling actually starts. */
+      const SCROLL_DURATION_MULTIPLIER = 1.6;
+      const textRevealDurationMs = reduceMotion ? 0 : ((pending.length - 1) * SKIP_STAGGER + 1.4) * 1000;
+      const revealDurationMs = textRevealDurationMs * SCROLL_DURATION_MULTIPLIER;
+
+      const revealedLines = epilogueLines.filter(el => !pending.includes(el));
+      const currentLine = revealedLines[revealedLines.length - 1];
+      const willQuickLocate = !reduceMotion && currentLine;
+
+      /* everything that was previously here (the compressed reveal + the
+         long synced scroll to the end) now runs AFTER a quick preliminary
+         hop to wherever the reveal currently sits - the last line that's
+         already fully visible, i.e. "where the reader actually is" right
+         now. That first hop uses the browser's own native smooth-scroll
+         (same thing a plain <a href="#section"> jump triggers) rather than
+         the hand-rolled one below - it's a short, small nudge where letting
+         the browser pick its own quick timing reads better than forcing an
+         exact duration on it, and reserves the precisely-timed custom easing
+         for the long scroll to the end where staying in sync with the
+         reveal actually matters. */
+      const beginCompressedReveal = () => {
+        pending.forEach(el => el.classList.remove('is-visible'));
+        void document.body.offsetWidth;
+        pending.forEach((el, i) => {
+          el.style.transitionDelay = reduceMotion ? '0s' : `${i * SKIP_STAGGER}s`;
+        });
+        void document.body.offsetWidth;
+        pending.forEach(el => el.classList.add('is-visible'));
+
+        const lastPendingLine = pending[pending.length - 1];
+        const lastRect = lastPendingLine.getBoundingClientRect();
+        const targetY = lastRect.top + window.scrollY - (window.innerHeight / 2) + (lastRect.height / 2);
+
+        /* Auto-fade + auto-finish illusion: kicked off right here, at the
+           exact moment the downward scroll to the end actually begins (not
+           back when Skip was first clicked, which could've been a whole
+           quick-locate hop earlier) - a "current state" keyframe for both
+           the volume bar and the progress bar, animating to their "track
+           over" state over exactly the time this scroll itself takes
+           (revealDurationMs), so both land right as the letter finishes. */
+        if(triggerSkipAheadMusicEnding) triggerSkipAheadMusicEnding(revealDurationMs);
+
+        smoothScrollTo(targetY, revealDurationMs);
+
+        /* once each line's compressed-delay transition has actually finished
+           playing, put its transitionDelay back the way it really was -
+           otherwise the leftover compressed value sits in the inline style
+           forever, and a later replayEpilogue() would mistake it for the
+           line's true original pacing (that's the "blank lines after
+           replay" bug). Restored from epilogueOriginalDelays, the one
+           immutable record captured before skip ever touched anything. */
+        window.setTimeout(() => {
+          pending.forEach(el => {
+            el.style.transitionDelay = epilogueOriginalDelays.get(el) || '';
+          });
+        }, textRevealDurationMs);
+      };
+
+      if(!willQuickLocate){
+        beginCompressedReveal();
+        return;
+      }
+
+      const curRect = currentLine.getBoundingClientRect();
+      const curTargetY = curRect.top + window.scrollY - (window.innerHeight / 2) + (curRect.height / 2);
+      smoothScrollTo(curTargetY, QUICK_LOCATE_MS, beginCompressedReveal);
+    });
+  })();
+
+  /* ---------- Epilogue: "The Perfect Portfolio" achievement ----------
+     Fires off the LAST line's own transitionend (same pattern as the skip
+     button's mom-dad-line arming above) instead of a fixed timer guessed
+     from the normal reading pace - a fixed timer would fire at the wrong
+     moment (or not fire correctly at all) whenever the skip button
+     compresses the reveal instead of letting it run at its scheduled pace.
+     This listener is never removed, so it also fires again every time a
+     replay re-reveals the last line - but fireEpilogueAchievement() itself
+     guards on epilogueAchievementFired, so no matter how many times this
+     underlying condition re-triggers, the toast can only ever actually
+     spawn once for the whole page load. */
+  (function(){
+    const lastLine = epilogueLines[epilogueLines.length - 1];
+    if(!lastLine) return;
+    function onLastLineRevealed(){
+      window.setTimeout(fireEpilogueAchievement, 2000); // was 1000 - triggers 1s later
+    }
+    if(reduceMotion){
+      const lastLineObserver = new MutationObserver(() => {
+        if(lastLine.classList.contains('is-visible')) onLastLineRevealed();
+      });
+      lastLineObserver.observe(lastLine, { attributes:true, attributeFilter:['class'] });
+      if(lastLine.classList.contains('is-visible')) onLastLineRevealed();
+    } else {
+      lastLine.addEventListener('transitionend', (e) => {
+        if(e.target !== lastLine || e.propertyName !== 'opacity') return;
+        if(lastLine.classList.contains('is-visible')) onLastLineRevealed();
+      });
+    }
+  })();
+
   let musicWidgetUnlocked = false;
 
   const epilogueLetterEl = document.querySelector('.epilogue-letter');
@@ -7290,6 +7748,19 @@
     let userVolume = 1;
     let lastVolume = 1;
     let displayedVolume = 0;
+    /* forced true by the skip-ahead "song fades out and ends with the
+       letter" illusion (see triggerSkipAheadMusicEnding below) - the real
+       epilogueAudio element never actually reaches its own end when the
+       reader skips ahead (it just keeps quietly playing in the
+       background), so updateMusicState() needs a second way to know the
+       song should be TREATED as ended - button flips to the replay icon,
+       "Ended" status text, etc. Cleared the moment a replay actually starts. */
+    let skipEndedOverride = false;
+    /* while true, renderMusicProgress (below) leaves the progress bar alone -
+       set for the duration of the skip-ahead "fill up to 100%" illusion so
+       the real currentTime/duration-driven timeupdate updates don't fight
+       the forced CSS transition to 100% mid-flight. */
+    let skipProgressOverrideActive = false;
     const musicIndicator = document.getElementById('musicIndicator');
     const musicVolume = document.getElementById('musicVolume');
     const musicVolumeTrack = musicVolume ? musicVolume.querySelector('.music-volume-track') : null;
@@ -7376,7 +7847,22 @@
          away from the end immediately (playback stays paused; nothing
          audible changes) clears `ended` right away and updates the button
          back to its normal mute/unmute look before the animation even starts,
-         so clicks during the wither correctly go through the mute toggle. */
+         so clicks during the wither correctly go through the mute toggle.
+         Also clears skipEndedOverride, for the same reason - if the last
+         "ended" state was faked by the skip button rather than the audio
+         genuinely finishing, that fake flag needs to drop too or the
+         button would stay stuck on the replay icon through the whole
+         wither/replay sequence. */
+      skipEndedOverride = false;
+      /* same idea for the fake "filled to 100%" progress bar from a skipped
+         ending - drop the override and snap the bar back down immediately
+         (currentTime is being reset to 0 on the next line anyway) instead
+         of leaving it visually stuck at 100% through the whole wither. */
+      skipProgressOverrideActive = false;
+      if(musicProgressFill){
+        musicProgressFill.style.transitionDuration = '';
+        musicProgressFill.style.width = '0%';
+      }
       epilogueAudio.currentTime = 0;
       updateMusicState();
 
@@ -7384,7 +7870,7 @@
         epilogueAudio.currentTime = 0;
         displayedVolume = 0;
         epilogueAudio.volume = 0;
-        setVolume(lastVolume || 1, { animate:true, duration:400 });
+        setVolume(lastVolume || 1, { animate:true, duration:200 });
         const p = epilogueAudio.play();
         if(p && typeof p.catch === 'function') p.catch(() => {});
         replayInProgress = false;
@@ -7409,18 +7895,26 @@
         }
 
         const n = epilogueLines.length;
-        const WITHER_STAGGER = 0.035;
+        // was 0.035 - slowed to match the calmer pace the skip button's own
+        // scroll now runs at, so both "batch" effects on this page read as
+        // the same deliberate speed instead of the wither feeling rushed
+        // next to it
+        const WITHER_STAGGER = 0.07;
         const originalDelays = epilogueLines.map(el => el.style.transitionDelay);
         const WITHER_START_DELAY_MS = 1300; // was 500 - delayed an extra 0.8s
         const SCROLL_START_DELAY_MS = 1000;
         const witherTotalMs = (n * WITHER_STAGGER + 1.4) * 1000;
 
-        /* scroll now waits a second before it starts; the wither still waits
-           its own separate half a second before the lines start fading.
-           Scroll duration still matches witherTotalMs (how long the wither
-           takes once it gets going), so the wither finishes ~500ms after the
-           scroll does rather than the two landing together - that's the
-           intended effect here, not a bug. */
+        /* scroll duration is directly derived from witherTotalMs, so slowing
+           WITHER_STAGGER above automatically stretches this scroll to match
+           - the two were always tied together, they just both needed to be
+           slower together, which is exactly what changing WITHER_STAGGER
+           alone now achieves. Scroll still waits a second before it starts;
+           the wither still waits its own separate 1.3s before the lines
+           start fading. Scroll duration still matches witherTotalMs (how
+           long the wither takes once it gets going), so the wither finishes
+           ~500ms after the scroll does rather than the two landing together
+           - that's the intended effect here, not a bug. */
         const epilogueSection = document.getElementById('epilogue');
         window.setTimeout(() => {
           if(epilogueSection){
@@ -7479,6 +7973,7 @@
     let musicHintSettleCleanup = null; // cancels the "wait for widget's own slide-in" wait below
     let musicHintRaf = null;
     let musicHintDismissedForever = false; // set once the user touches the mute button or volume bar - hint never shows again this page load
+    let musicHintFirstShownAt = null; // timestamp of the very first time it appeared - the 20s budget is measured from here, not from each individual reappearance
 
     function positionMusicHint(){
       if(!musicHintEl || !musicIndicator || !musicWidget) return;
@@ -7571,11 +8066,26 @@
       /* the widget may have scrolled back out of view again during the wait
          below - don't pop the hint in over an already-hidden widget */
       if(!musicWidget.classList.contains('nav-slot-visible')) return;
+
+      /* the 20s budget is measured from the very first time the hint ever
+         appeared, not restarted on every reappearance - previously each
+         scroll-away (which hides it) + scroll-back (which re-shows it) got
+         its own fresh 20000ms timer, so repeatedly scrolling up and back
+         down to the epilogue could keep the hint alive indefinitely even
+         though its total on-screen budget had long since run out. */
+      const now = Date.now();
+      if(musicHintFirstShownAt === null) musicHintFirstShownAt = now;
+      const remaining = 20000 - (now - musicHintFirstShownAt);
+      if(remaining <= 0){
+        dismissMusicHintForever();
+        return;
+      }
+
       musicHintVisible = true;
       musicHintShownOnce = true;
       positionMusicHint();
       runMusicHintTransition(true);
-      musicHintAutoHideTimer = window.setTimeout(dismissMusicHintForever, 20000);
+      musicHintAutoHideTimer = window.setTimeout(dismissMusicHintForever, remaining);
     }
 
     /* the widget itself slides/fades in over 0.5s (see .music-widget.nav-slot-
@@ -7659,9 +8169,10 @@
         lastMusicIndicatorClick = clickNow;
         dismissMusicHintForever();
         if(!epilogueAudio) return;
-        // same button doubles as "replay" once the track has ended - restart
-        // from the top instead of the usual mute/unmute toggle
-        if(epilogueAudio.ended){
+        // same button doubles as "replay" once the track has ended (for
+        // real, or faked by the skip-ahead "ends with the letter" illusion)
+        // - restart from the top instead of the usual mute/unmute toggle
+        if(epilogueAudio.ended || skipEndedOverride){
           replayEpilogue();
           return;
         }
@@ -7673,10 +8184,10 @@
            actually showing. */
         if(!scoreMuted){
           /* mute: slash draws across, slider drops to 0, fade out then hard-mute */
-          setVolume(0, { animate:true, duration:400 });
+          setVolume(0, { animate:true, duration:200 });
         } else {
           /* unmute: slash retracts, restore the last held level, fade in */
-          setVolume(lastVolume || 1, { animate:true, duration:400 });
+          setVolume(lastVolume || 1, { animate:true, duration:200 });
         }
       });
     }
@@ -7787,7 +8298,7 @@
     }
 
     function updateMusicState(){
-      const ended = Boolean(epilogueAudio && epilogueAudio.ended);
+      const ended = skipEndedOverride || Boolean(epilogueAudio && epilogueAudio.ended);
       const playing = Boolean(epilogueAudio && !epilogueAudio.paused);
       const audible = playing && !scoreMuted && userVolume > 0.001;
       const indMuted = scoreMuted || userVolume <= 0.001;
@@ -7826,6 +8337,7 @@
     const musicProgressFill = document.getElementById('musicProgressFill');
     if(musicProgressFill && epilogueAudio){
       const renderMusicProgress = () => {
+        if(skipProgressOverrideActive) return;
         if(epilogueAudio.duration){
           musicProgressFill.style.width = ((epilogueAudio.currentTime / epilogueAudio.duration) * 100) + '%';
         }
@@ -7834,6 +8346,66 @@
       epilogueAudio.addEventListener('seeked', renderMusicProgress);
       renderMusicProgress();
     }
+
+    /* ---------- Skip-ahead: "the song fades out and ends with the letter" ----------
+       Called by the skip button (defined earlier in the file, via the
+       triggerSkipAheadMusicEnding hook it can't otherwise reach into this
+       block to call directly) the instant Skip is pressed. Two keyframes,
+       both starting from wherever things actually currently sit and
+       animating to their "track over" state over the same durationMs the
+       compressed reveal itself takes to finish:
+         - volume bar: current level -> 0 (and the audio itself fades out
+           alongside it, exactly like the mute button's own fade)
+         - progress bar: current position -> 100% (so it visually finishes
+           reading its own runtime right as the letter finishes)
+       Once durationMs elapses, the song is treated as ended - same button
+       morph, same status text, as if it had played out and stopped on its
+       own; skipEndedOverride is what tells updateMusicState() to treat it
+       that way even though the real <audio> element is just quietly
+       sitting there mid-track, still audible-volume-zero, underneath. */
+    function runSkipAheadMusicEnding(durationMs){
+      if(!epilogueAudio) return;
+      const ms = Math.max(0, durationMs || 0);
+
+      /* volume bar + actual audio volume: current level -> 0. Deliberately
+         does NOT touch userVolume/scoreMuted (the values updateMusicState
+         reads to decide "is this muted") while the fade is still running -
+         doing that immediately used to flip the icon to its muted-slash
+         look and the status text to "Muted" the instant Skip was pressed,
+         well before the song had actually finished. lastVolume is left
+         alone too, so it still holds the level to restore to. Only the
+         raw visuals (bar width, actual audio.volume) move during the fade;
+         the "this is over now" state flip happens once, at the very end. */
+      if(musicVolumeFill){
+        musicVolumeFill.classList.add('is-fading');
+        musicVolumeFill.style.transitionDuration = ms + 'ms';
+        void musicVolumeFill.offsetWidth; // commit the current width before animating, same reflow trick as the progress bar below
+        musicVolumeFill.style.width = '0%';
+      }
+      fadeVolume(displayedVolume, 0, ms, () => {});
+
+      // progress bar: current position -> 100%, independent of real currentTime/duration
+      skipProgressOverrideActive = true;
+      if(musicProgressFill){
+        musicProgressFill.style.transitionDuration = ms + 'ms';
+        void musicProgressFill.offsetWidth; // force the current width to commit before animating, same reflow trick used elsewhere
+        musicProgressFill.style.width = '100%';
+      }
+
+      window.setTimeout(() => {
+        // NOW - and only now - is the track actually treated as over
+        userVolume = 0;
+        scoreMuted = true;
+        epilogueAudio.muted = true;
+        renderVolume();
+        skipEndedOverride = true;
+        if(musicProgressFill) musicProgressFill.style.transitionDuration = '';
+        updateMusicState();
+      }, ms);
+    }
+    // hands the function above to the outer (top-level) hook variable the
+    // skip button actually calls - see its declaration for why the indirection
+    triggerSkipAheadMusicEnding = runSkipAheadMusicEnding;
 
     const epilogueObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -7846,13 +8418,6 @@
             updateNavVisibility();
             startEpilogueScore();
           }, 2400);
-          /* epilogue achievement: 1s after the last line has fully revealed */
-          const epilogueAch = ACHIEVEMENTS.find(a => a.selector === '#epilogue');
-          if(epilogueAch){
-            window.setTimeout(() => {
-              spawnAchievementToast(epilogueAch.icon, epilogueAch.title, epilogueAch.rgb);
-            }, (cumulativeDelay + 1.4 + 1) * 1000);
-          }
           epilogueObserver.unobserve(entry.target);
         }
       });

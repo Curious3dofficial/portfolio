@@ -1,0 +1,4387 @@
+  /* Dancing Script hosted locally (assets/DancingScript-700.ttf) instead of
+     the Google Fonts CDN - every use of it on the page (.quote-sign,
+     .epilogue-addressee, .epilogue-signature) is weight 700 only, so this
+     is the one weight actually needed. */
+  @font-face{
+    font-family:'Dancing Script';
+    font-style:normal;
+    font-weight:700;
+    font-display:swap;
+    src:url('assets/DancingScript-700.ttf') format('truetype');
+  }
+  :root{
+    --void:#0B0D12;
+    --mist:#14171F;
+    --violet-light:#B79CFB;
+    --violet:#8B5CF6;
+    --violet-deep:#5B21B6;
+    --fog:#9AA1AE;
+    --paper:#F5F6F8;
+  }
+  body.light-theme{
+    --void:#F3F1FA;
+    --mist:#FFFFFF;
+    --fog:#6B6F7D;
+    --paper:#15131F;
+    --violet-light:#5B21B6;
+  }
+  body.light-theme .nav-pill{
+    background:linear-gradient(135deg, rgba(120,120,135,0.22), rgba(120,120,135,0.08));
+    backdrop-filter:blur(18px) saturate(140%);
+    -webkit-backdrop-filter:blur(18px) saturate(140%);
+    border-color:rgba(90,90,105,0.25);
+  }
+  body.light-theme .fact-card,
+  body.light-theme .stats-footer{
+    border-color:rgba(0,0,0,0.08);
+  }
+  body.light-theme .fact-card{
+    box-shadow:0 10px 24px -14px rgba(0,0,0,0.35);
+  }
+  body.light-theme .fact-card:hover{
+    box-shadow:0 16px 32px -12px rgba(0,0,0,0.45);
+  }
+  body.light-theme .quote-card{
+    border-color:rgba(139,92,246,0.2);
+  }
+  body.light-theme .timeline-track{
+    background-image:repeating-linear-gradient(90deg, rgba(0,0,0,0.15) 0 8px, transparent 8px 16px);
+  }
+  body.light-theme .social-icon{
+    border-color:rgba(0,0,0,0.15);
+  }
+  body.light-theme .resume-btn{
+    color:#15131F;
+    background:linear-gradient(135deg, rgba(139,92,246,0.12), rgba(255,255,255,0.5));
+    border-color:rgba(139,92,246,0.35);
+    box-shadow:inset 0 1px 1px rgba(255,255,255,0.5), inset 0 -1px 6px rgba(0,0,0,0.08), 0 10px 24px -12px rgba(0,0,0,0.3);
+  }
+  body.light-theme .resume-btn:hover{
+    box-shadow:0 16px 32px -12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  body.light-theme .project-card{
+    background:linear-gradient(160deg, rgba(139,92,246,0.10), rgba(255,255,255,0.85) 55%);
+    border-color:rgba(139,92,246,0.25);
+    box-shadow:0 10px 30px -18px rgba(91,33,182,0.25);
+  }
+  body.light-theme .project-card::before{
+    opacity:0.3;
+  }
+  body.light-theme .project-card:hover{
+    border-color:rgba(139,92,246,0.5);
+    box-shadow:0 20px 40px -18px rgba(91,33,182,0.3);
+  }
+  body.light-theme .epilogue-lead,
+  body.light-theme .epilogue-line,
+  body.light-theme .epilogue-para,
+  body.light-theme .epilogue-emphasis{
+    color:#15131F;
+  }
+  body.light-theme .epilogue-addressee,
+  body.light-theme .epilogue-signature{
+    color:var(--violet-deep);
+  }
+  body.light-theme .epilogue-divider{
+    background:rgba(91,33,182,0.4);
+  }
+
+  /* ---------- Reverse-return pre-paint guard (avoids flash before chevrons take over) ---------- */
+  html.pre-return::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    background:var(--void);
+    z-index:49000;
+    pointer-events:none;
+  }
+  html.pre-return .chevron-transition{
+    opacity:1;
+    visibility:visible;
+  }
+
+  /* ---------- Chevron page-transition (ported) ---------- */
+  .chevron-transition{
+    position:fixed;
+    inset:0;
+    width:100vw;
+    height:100vh;
+    height:100dvh; /* track the real visible viewport on mobile (URL bar) */
+    overflow:hidden;
+    pointer-events:none;
+    z-index:50000;
+    opacity:0;
+    visibility:hidden;
+    background:transparent;
+  }
+  .chevron-transition.active{
+    opacity:1;
+    visibility:visible;
+  }
+  .chevron-transition .chevron{
+    position:absolute;
+    top:0;
+    height:100%;
+    width:110vw;
+    clip-path:polygon(0 0, 72% 0, 100% 50%, 72% 100%, 0 100%, 26% 50%);
+    transform:translateX(calc(var(--cluster-shift, 58%) + var(--phase1-start, -140%)));
+    will-change:transform;
+    z-index:1;
+  }
+  .chevron-transition .chevron:nth-child(1){
+    left:-140vw;
+    background:#7FB80E;
+    --phase1-start:-231%;
+    --phase1-duration:0.64s;
+    --phase3-shift:107%;
+    --phase3-duration:1.10s;
+  }
+  .chevron-transition .chevron:nth-child(2){
+    left:-116vw;
+    background:#4D7A0A;
+    --phase1-start:-223%;
+    --phase1-duration:0.69s;
+    --phase3-shift:120%;
+    --phase3-duration:1.04s;
+  }
+  .chevron-transition .chevron:nth-child(3){
+    left:-92vw;
+    background:#7FB80E;
+    --phase1-start:-215%;
+    --phase1-duration:0.74s;
+    --phase3-shift:133%;
+    --phase3-duration:0.98s;
+  }
+  .chevron-transition .chevron:nth-child(4){
+    left:-68vw;
+    background:#4D7A0A;
+    --phase1-start:-207%;
+    --phase1-duration:0.79s;
+    --phase3-shift:146%;
+    --phase3-duration:0.92s;
+  }
+  .chevron-transition .chevron:nth-child(5){
+    left:-44vw;
+    background:#7FB80E;
+    --phase1-start:-199%;
+    --phase1-duration:0.84s;
+    --phase3-shift:159%;
+    --phase3-duration:0.86s;
+  }
+  .chevron-transition .chevron:nth-child(6){
+    left:-20vw;
+    background:#4D7A0A;
+    --phase1-start:-191%;
+    --phase1-duration:0.89s;
+    --phase3-shift:172%;
+    --phase3-duration:0.80s;
+  }
+  .chevron-transition .chevron:nth-child(7){
+    left:4vw;
+    background:#7FB80E;
+    --phase1-start:-183%;
+    --phase1-duration:0.94s;
+    --phase3-shift:185%;
+    --phase3-duration:0.74s;
+  }
+  .chevron-transition.active .chevron{
+    animation:chevron-cover-in var(--phase1-duration, 1.2s) cubic-bezier(.4,0,.2,1) forwards;
+  }
+  .chevron-transition.return-intro .chevron{
+    clip-path:polygon(100% 0, 28% 0, 0 50%, 28% 100%, 100% 100%, 74% 50%);
+    animation:none !important;
+    transform:translateX(var(--cluster-shift, 58%));
+    transition:none;
+  }
+  .chevron-transition.return-intro.return-phase3 .chevron{
+    transform:translateX(calc(var(--cluster-shift, 58%) - var(--phase3-shift, 120%)));
+    transition:transform var(--phase3-duration, 1s) cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes chevron-cover-in{
+    from{ transform:translateX(calc(var(--cluster-shift, 58%) + var(--phase1-start, -20%))); }
+    to{ transform:translateX(var(--cluster-shift, 58%)); }
+  }
+
+  /* ---------- Theme toggle ripple (ported) ---------- */
+  .theme-icon{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:15px; height:15px;
+  }
+  .theme-toggle.switching .theme-icon{
+    animation:theme-icon-spin 900ms cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes theme-icon-spin{
+    0%{ transform:rotate(0deg) scale(1); }
+    50%{ transform:rotate(185deg) scale(1.14); }
+    100%{ transform:rotate(360deg) scale(1); }
+  }
+  @keyframes theme-reveal{
+    from{ clip-path:circle(0% at var(--reveal-x, 100%) var(--reveal-y, 0%)); }
+    to{ clip-path:circle(150% at var(--reveal-x, 100%) var(--reveal-y, 0%)); }
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root){
+    animation:none;
+    mix-blend-mode:normal;
+  }
+  ::view-transition-old(root){ z-index:1; }
+  ::view-transition-new(root){
+    z-index:2;
+    animation:theme-reveal 950ms cubic-bezier(.4,0,.2,1) both;
+  }
+  #theme-transition-layer{
+    position:fixed;
+    top:0; left:0;
+    width:100vw; height:100vh;
+    height:100dvh; /* mobile: cover the viewport even as the URL bar collapses */
+    z-index:25000;
+    pointer-events:none;
+    opacity:0;
+    visibility:hidden;
+    background:var(--void);
+    clip-path:circle(0% at var(--reveal-x, 100%) var(--reveal-y, 0%));
+    transition:clip-path 950ms cubic-bezier(.4,0,.2,1), opacity 180ms linear;
+    will-change:clip-path, opacity;
+  }
+  #theme-transition-layer.active{
+    visibility:visible;
+    opacity:1;
+    clip-path:circle(150% at var(--reveal-x, 100%) var(--reveal-y, 0%));
+  }
+  #theme-transition-layer.reset{
+    transition:none;
+    clip-path:circle(0% at var(--reveal-x, 100%) var(--reveal-y, 0%));
+  }
+  /* Chevron page-transitions and the theme-toggle reveal are both driven
+     entirely by fixed JS setTimeout delays, not animation/transition
+     events - so disabling the visual motion here doesn't break their
+     timing. The chevron entry snaps straight to its "covering" end state
+     (animation:none + the "to" keyframe's transform) instead of skipping
+     motion AND leaving a gap where the chevrons never actually cover the
+     screen; the exit (return-phase3) and theme clip-path/icon-spin/native
+     view-transition animations are simply switched off, since JS still
+     flips their classes on the same timers regardless. */
+  @media (prefers-reduced-motion: reduce){
+    .chevron-transition.active .chevron{
+      animation:none;
+      transform:translateX(var(--cluster-shift, 58%));
+    }
+    .chevron-transition.return-intro.return-phase3 .chevron{
+      transition:none;
+    }
+    ::view-transition-old(root),
+    ::view-transition-new(root){
+      animation:none !important;
+    }
+    #theme-transition-layer{
+      transition:none;
+    }
+    .theme-toggle.switching .theme-icon{
+      animation:none;
+    }
+  }
+  *{ box-sizing:border-box; }
+  html,body{
+    margin:0; padding:0; min-height:100%;
+    background:var(--void);
+    color:var(--paper);
+    font-family:'Quicksand',sans-serif;
+    overflow-x:hidden;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+    scroll-behavior:smooth;
+  }
+  html::-webkit-scrollbar, body::-webkit-scrollbar{
+    width:0;
+    display:none;
+  }
+
+  /* locks the background from scrolling while a project apple is zoomed in.
+     Uses the position:fixed-body trick (not just overflow:hidden) so it also
+     holds firm against iOS Safari's rubber-band scroll, which can otherwise
+     scroll the page behind a fixed-position modal. The scroll y-offset is
+     preserved via top:<negative offset> and restored on close. */
+  body.modal-scroll-lock{
+    position:fixed;
+    left:0;
+    right:0;
+    overflow:hidden;
+    width:100%;
+  }
+
+  .scroll-progress{
+    position:fixed;
+    top:0; left:0;
+    height:4px;
+    width:0%;
+    background:linear-gradient(90deg, var(--violet-light), var(--violet-deep));
+    border-radius:0 4px 4px 0;
+    z-index:10000;
+    pointer-events:none;
+    transition:height 0.15s ease;
+  }
+  /* invisible scrubber overlaid on the progress bar - taller hit-area than the
+     visible 4px line so it's actually easy to grab, click, or drag to jump to
+     any point in the page. Stays fully transparent by design (no visible
+     thumb/handle); a very slight bar-height bump on hover/drag is the only
+     feedback that it's interactive. */
+  .scroll-progress-track{
+    position:fixed;
+    top:0; left:0;
+    width:100%;
+    height:16px;
+    z-index:10001;
+    background:transparent;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    touch-action:none;
+  }
+  .scroll-progress-track:hover ~ .scroll-progress,
+  .scroll-progress-track.is-dragging ~ .scroll-progress{
+    height:7px;
+  }
+  .scroll-progress-track:focus-visible{
+    outline:none;
+  }
+  .scroll-progress-track:focus-visible ~ .scroll-progress{
+    height:7px;
+    box-shadow:0 0 0 1px rgba(16,204,26,0.6);
+  }
+
+  #canvas-wrap{
+    position:fixed; inset:0; z-index:1;
+    pointer-events:none;
+    touch-action:pan-y;
+    transition:opacity 0.4s ease;
+  }
+  #canvas-wrap canvas{ display:block; pointer-events:none; touch-action:pan-y; }
+
+  .navbar{
+    position:fixed;
+    top:24px; left:50%; transform:translateX(-50%);
+    transition:transform 0.6s cubic-bezier(.34,1.45,.45,1); /* pop-down */
+    z-index:10;
+  }
+  .navbar.nav-hidden{
+    transform:translateX(-50%) translateY(-140%);
+  }
+  .nav-pill{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:24px;
+    padding:11px 18px;
+    border-radius:999px;
+    border:1px solid rgba(183,156,251,0.25);
+    background:rgba(20,23,31,0.7);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    /* lets the light/dark theme swap blend instead of snapping instantly */
+    transition:background 0.5s ease, border-color 0.5s ease, backdrop-filter 0.5s ease, -webkit-backdrop-filter 0.5s ease;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .nav-pill{ transition:none; }
+  }
+  /* html.reduce-fx is set in the very first inline <script> (before first
+     paint, so there's no flash of the expensive version first) on devices
+     that look weak (coarse pointer + few CPU cores/little RAM, or
+     prefers-reduced-motion). backdrop-filter is one of the single most
+     GPU-expensive properties a browser can composite, and this pill sits
+     fixed on screen compositing over scrolling content the ENTIRE time
+     it's visible - dropped here (and on the other two always-on glass
+     elements, .music-trigger and .epilogue-skip-btn, near their own
+     rules) in favour of a flat, slightly more opaque background that
+     doesn't need a blur pass at all. */
+  html.reduce-fx .nav-pill{
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+    background:rgba(20,23,31,0.92);
+  }
+  html.reduce-fx body.light-theme .nav-pill{
+    background:rgba(235,235,240,0.92);
+  }
+  .nav-link{
+    font-family:'Quicksand', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    color:var(--paper);
+    text-decoration:none;
+    /* transparent glow as the start state so the hover glow fades in smoothly */
+    text-shadow:0 0 8px rgba(255,255,255,0), 0 0 22px rgba(255,255,255,0);
+    transition:color 0.3s ease, text-shadow 0.5s ease;
+  }
+  .nav-link:hover{
+    color:var(--violet-light);
+  }
+  /* section-coded nav hover colours */
+  .nav-link[href="#about"]:hover{ color:#A78BFA; }
+  .nav-link[href="#stats"]:hover{ color:#FB4B70; }
+  .nav-link[href="#education"]:hover{ color:#22D3EE; }
+  .nav-link[href="#projects"]:hover{ color:#10CC1A; }
+  .nav-link[href="#achievements"]:hover{ color:#FFD100; }
+  .nav-link[href="#epilogue"]:hover{
+    color:#FFFFFF;
+    text-shadow:0 0 8px rgba(255,255,255,0.85), 0 0 22px rgba(255,255,255,0.45);
+  }
+  body.light-theme .nav-link[href="#epilogue"]:hover{ color:#17121F; }
+  body.light-theme .nav-link[href="#achievements"]:hover{ color:#A98A00; }
+  .theme-toggle{
+    display:flex; align-items:center; justify-content:center;
+    width:32px; height:32px;
+    border-radius:50%;
+    border:1px solid rgba(245,246,248,0.2);
+    background:transparent;
+    color:var(--paper);
+    cursor:pointer;
+    transition:color 0.25s ease, border-color 0.25s ease, transform 0.3s ease;
+  }
+  .theme-toggle:hover{
+    color:var(--violet-light);
+    border-color:rgba(183,156,251,0.5);
+    transform:rotate(20deg);
+  }
+
+  @media (max-width:900px){
+    /* left:50% + auto width caps a fixed element's shrink-to-fit width at
+       half the viewport, which forced the pill to wrap into 3-4 stacked
+       rows - span the bar edge-to-edge and centre the pill inside it
+       (the hide state's transform loses the translateX(-50%) accordingly) */
+    .navbar{ left:0; right:0; transform:none; display:flex; justify-content:center; }
+    .navbar.nav-hidden{ transform:translateY(-140%); }
+    .nav-pill{ gap:16px; padding:12px 16px; flex-wrap:wrap; justify-content:center; max-width:88vw; }
+    .nav-link{ font-size:12px; }
+  }
+  /* phones: tighten gaps/type further so all six links + the theme toggle
+     settle into two short rows */
+  @media (max-width:640px){
+    .navbar{ top:12px; }
+    .nav-pill{ gap:6px 14px; padding:8px 14px; border-radius:22px; max-width:94vw; }
+    .nav-link{ font-size:11px; }
+  }
+
+  .hero{
+    position:relative; z-index:2;
+    height:100vh; width:100%;
+    /* svh (smallest viewport) keeps the hero stable on mobile - dvh would
+       reflow the centred name every time the URL bar shows/hides */
+    height:100svh;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    text-align:center;
+    padding:0 24px;
+  }
+
+
+  .name{
+    /* Bebas Neue - tall, condensed, all-caps poster/action-movie-title
+       font, already loaded via the Google Fonts link above. Single weight
+       only (400), so no font-weight tuning needed - the condensed strokes
+       carry the "powerful" feel on their own. */
+    font-family:'Bebas Neue', sans-serif;
+    font-weight:400;
+    /* vh-based, uncapped - not vw, not clamp()'d - because the EvilEye
+       shader itself scales purely with viewport HEIGHT (see uResolution.y
+       normalization in initEvilEye() below), so this is the only unit that
+       keeps the name locked to the same size *relative to the eye* at any
+       screen size, the way it looks at 121px on a ~968px-tall viewport
+       (121/968 ~= 12.5vh), instead of the old clamp() which capped out and
+       let the eye keep growing past it on larger screens. */
+    font-size:12.5vh;
+    line-height:0.95;
+    letter-spacing:0.03em;
+    margin:0;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+    gap:0.02em;
+    /* .hero centers its children by default (align-items:center on the
+       column flex) - .name itself only ever shrink-wraps to its widest
+       word, so nudging it with a fixed-px transform doesn't scale across
+       screen sizes and was starting to overflow on smaller viewports.
+       align-self:flex-end instead hugs the real right edge of .hero
+       (inside its own 24px padding), which stays correct at any width. */
+    align-self:flex-end;
+  }
+  .name .word{
+    display:inline-block;
+    overflow:hidden;
+    flex:0 0 100%;
+    text-align:right;
+  }
+  .name .word.reveal-done{
+    overflow:visible;
+  }
+  .name .word:nth-child(2){
+    /* MALLICK sits inside the same full-width flex row as ANIRUDDHA (the
+       row is always as wide as the widest word) - centering it here
+       centers it relative to ANIRUDDHA specifically, overriding the
+       right-align every other word uses */
+    text-align:center;
+    font-size:0.44em;
+    letter-spacing:0.08em;
+    margin-top:0.02em;
+  }
+  .name .word:nth-child(2) span{
+    /* letter-spacing adds a trailing gap after the LAST letter too, which
+       is invisible but still counts toward the box that text-align:center
+       centers - so the glyphs themselves end up sitting visibly left of
+       true-center. Pulling the box back in by exactly that trailing gap
+       cancels it out, so what you actually see lines up with ANIRUDDHA. */
+    margin-right:-0.08em;
+  }
+  .name .word span{
+    position:relative;
+    display:inline-block;
+    transform:translateY(110%);
+    animation:wordUp 0.9s cubic-bezier(.16,1,.3,1) forwards;
+    /* solid white poster-title fill, a tight black drop shadow for depth,
+       and a faint orange rim (a thin coloured stroke) picking up light
+       from the eye - like the letters are backlit by it rather than
+       floating flat on top */
+    color:#fff;
+    -webkit-text-stroke:1px rgba(255,130,70,0.55);
+    paint-order:stroke fill;
+    text-shadow:0 3px 8px rgba(0,0,0,0.65), 0 1px 0 rgba(0,0,0,0.4);
+  }
+  /* glow duplicate layer removed - was a blurred attr(data-text) copy
+     behind each word causing the ghosted/blurred look */
+
+
+  .scroll-hint{
+    position:absolute;
+    bottom:40px; left:50%;
+    transform:translateX(-50%);
+    font-family:'Baloo 2', sans-serif;
+    font-weight:500;
+    font-size:12px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--fog);
+    opacity:0;
+    animation:fadeUpCentered 0.8s ease 1.3s forwards, breathe 2.6s ease-in-out 2.1s infinite;
+  }
+  @keyframes fadeUpCentered{
+    from{ opacity:0; transform:translate(-50%, 14px); }
+    to{ opacity:1; transform:translate(-50%, 0); }
+  }
+  @keyframes breathe{
+    0%, 100%{ opacity:0.35; }
+    50%{ opacity:0.9; }
+  }
+
+  @keyframes wordUp{ to{ transform:translateY(0); } }
+
+  @media (prefers-reduced-motion: reduce){
+    .name .word span{ animation:none; transform:translateY(0); }
+    .name .word{ overflow:visible; }
+    .scroll-hint{ animation:none; opacity:1; }
+  }
+
+  /* ---------- Act II: About Me ---------- */
+  .about{
+    position:relative;
+    z-index:2;
+    background:var(--mist);
+    padding:230px 24px 120px;
+    overflow:hidden;
+  }
+
+  .doodle-layer{
+    position:absolute;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+  }
+  .doodle{
+    position:absolute;
+    color:var(--fog);
+    opacity:0.07;
+  }
+  .doodle-tux{
+    aspect-ratio:413 / 484;
+    background-color:currentColor;
+    -webkit-mask:url('assets/linux.svg') no-repeat center / contain;
+    mask:url('assets/linux.svg') no-repeat center / contain;
+  }
+
+  .hind-text{
+    position:absolute;
+    top:20px; left:0; right:0;
+    text-align:center;
+    font-family:'Outfit', sans-serif;
+    font-weight:800;
+    font-size:clamp(70px, 14vw, 200px);
+    color:var(--paper);
+    opacity:0.05;
+    letter-spacing:0.02em;
+    white-space:nowrap;
+    pointer-events:none;
+    user-select:none;
+    z-index:0;
+  }
+
+  .about-inner{
+    position:relative;
+    z-index:1;
+    max-width:1180px;
+    margin:0 auto;
+  }
+
+  .section-head{
+    text-align:center;
+    margin-bottom:80px;
+    opacity:0;
+    transform:translateY(28px);
+    transition:opacity 0.8s cubic-bezier(.16,1,.3,1), transform 0.8s cubic-bezier(.16,1,.3,1);
+  }
+  .section-head h2{
+    font-family:'Outfit', sans-serif;
+    font-weight:800;
+    font-size:clamp(34px, 4.6vw, 52px);
+    margin:0 0 18px;
+  }
+  .divider{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    margin-bottom:14px;
+  }
+  .divider span{ width:28px; height:2px; background:var(--violet); border-radius:2px; }
+  .divider i{ width:6px; height:6px; border-radius:50%; background:var(--violet-light); display:inline-block; }
+  /* ---------- Section-coded divider colours ---------- */
+  #about .divider span{ background:#8B5CF6; }        #about .divider i{ background:#A78BFA; }
+  #stats .divider span{ background:#FB4B70; }        #stats .divider i{ background:#FD7A96; }
+  #education .divider span{ background:#22D3EE; }    #education .divider i{ background:#67E8F9; }
+  #projects .divider span{ background:#10CC1A; }     #projects .divider i{ background:#10CC1A; }
+  #achievements .divider span{ background:#FFD100; } #achievements .divider i{ background:#FFE066; }
+  #epilogue .divider span{ background:#F5F6F8; }     #epilogue .divider i{ background:#FFFFFF; }
+  .eyebrow-small{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:600;
+    font-size:12px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--fog);
+  }
+
+  .about-grid{
+    display:grid;
+    grid-template-columns:395px 1fr;
+    gap:60px;
+    align-items:start;
+    /* fit the columns to their content and centre the whole block */
+    max-width:1045px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  @media (max-width:900px){
+    .about-grid{ grid-template-columns:1fr; justify-items:center; text-align:center; gap:50px; }
+  }
+
+  .about-visual{
+    position:relative;
+    display:flex; flex-direction:column; align-items:center;
+    gap:26px;
+    opacity:0;
+    transform:translateY(28px);
+    transition:opacity 0.8s cubic-bezier(.16,1,.3,1), transform 0.8s cubic-bezier(.16,1,.3,1);
+  }
+  .ring-wrap{
+    position:relative;
+    width:230px; height:230px;
+    border-radius:50%;
+    padding:5px;
+    background:linear-gradient(140deg, var(--violet-light), var(--violet-deep));
+  }
+  .ring{
+    position:absolute; inset:5px;
+    border-radius:50%;
+    background:var(--mist);
+  }
+  .avatar-placeholder{
+    position:relative;
+    width:100%; height:100%;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--violet-light);
+    background:radial-gradient(circle at 35% 30%, rgba(139,92,246,0.18), transparent 65%);
+  }
+  .floating-badge{
+    position:absolute;
+    background:linear-gradient(120deg, var(--violet-light), var(--violet-deep));
+    color:var(--void);
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:12px;
+    padding:8px 16px;
+    border-radius:999px;
+    box-shadow:0 10px 24px -8px rgba(0,0,0,0.5);
+    white-space:nowrap;
+  }
+  .floating-badge.badge-top{ top:10px; right:-30px; }
+  .floating-badge.badge-bottom{ bottom:10px; left:-30px; background:linear-gradient(120deg, var(--violet-deep), var(--violet-light)); }
+  @media (max-width:520px){
+    .floating-badge.badge-top{ right:-10px; }
+    .floating-badge.badge-bottom{ left:-10px; }
+  }
+
+  .quote-card{
+    width:100%;
+    max-width:370px;
+    background:var(--void);
+    border:1px solid rgba(183,156,251,0.18);
+    border-radius:16px;
+    padding:26px 28px;
+    text-align:left;
+  }
+  .quote-mark{
+    font-family:'Outfit', sans-serif;
+    font-size:36px;
+    color:var(--violet);
+    line-height:0.5;
+    display:block;
+    margin-bottom:8px;
+  }
+  .quote-card p{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:600;
+    font-size:15px;
+    line-height:1.6;
+    color:var(--paper);
+    margin:0 0 12px;
+  }
+  .quote-sign{
+    font-family:'Dancing Script', cursive;
+    font-weight:700;
+    font-size:22px;
+    color:var(--violet-light);
+  }
+
+  .connect-block{
+    width:100%;
+    max-width:370px;
+    text-align:center;
+  }
+  .connect-label{
+    font-family:'Outfit', sans-serif;
+    font-weight:700;
+    font-size:21px;
+    display:block;
+    margin-bottom:20px;
+  }
+  .connect-row{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px;
+  }
+  .social-icons{ display:flex; gap:14px; }
+  .social-icon{
+    width:60px; height:60px;
+    border-radius:50%;
+    border:1px solid rgba(245,246,248,0.2);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--paper);
+    text-decoration:none;
+    background:transparent;
+    /* clips the hover gradient fill hard to the circle - a defensive
+       measure so the purple background can never render past the rounded
+       edge, whatever the cause (sub-pixel rounding, transform/scale on
+       hover, etc.) */
+    overflow:hidden;
+    box-shadow:0 0 0 0 rgba(139,92,246,0);
+    transition:color 0.3s ease, border-color 0.3s ease, transform 0.3s cubic-bezier(.34,1.56,.64,1), background 0.3s ease, box-shadow 0.3s ease;
+  }
+  .social-icon svg{ width:22px; height:22px; position:relative; z-index:1; }
+  .social-icon:hover{
+    color:#ffffff;
+    border-color:transparent;
+    transform:translateY(-3px) scale(1.14);
+    background:linear-gradient(135deg, var(--violet-light), var(--violet-deep));
+    /* `background` is a shorthand - setting it here resets background-size
+       back to its default ("auto", i.e. sized exactly to the box), which is
+       exactly what could leave a hairline gap at the rounded edges under
+       scale()/sub-pixel rounding, reading as a squared-off patch peeking
+       past the circle. Forcing the gradient to paint at 200% (twice the
+       box, centred) guarantees it always overshoots the circular edge with
+       margin to spare, so there's no seam left to show through, ever. */
+    background-size:200% 200%;
+    background-position:center;
+    /* symmetric glow ring only (no offset drop-shadow component) - a
+       directional 0 8px ... shadow is the part that visually broke the
+       circular silhouette. Bigger blur+spread than before so the purple
+       hover glow actually reads as a bigger highlight, not a thin ring. */
+    box-shadow:0 0 16px 5px rgba(139,92,246,0.28);
+  }
+  body.light-theme .social-icon:hover{
+    background:linear-gradient(135deg, #C9A9FA, #9B6EF3);
+    background-size:200% 200%;
+    background-position:center;
+    box-shadow:0 0 16px 5px rgba(139,92,246,0.22);
+  }
+  .resume-btn{
+    width:100%;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    font-family:'Quicksand', sans-serif;
+    font-weight:700;
+    font-size:16px;
+    color:#ffffff;
+    background:linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03));
+    backdrop-filter:blur(16px) saturate(180%);
+    -webkit-backdrop-filter:blur(16px) saturate(180%);
+    border:1px solid rgba(183,156,251,0.5);
+    box-shadow:inset 0 1px 1px rgba(255,255,255,0.35), inset 0 -1px 6px rgba(0,0,0,0.15), 0 10px 24px -12px rgba(91,33,182,0.7);
+    padding:19px 26px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:transform 0.4s cubic-bezier(.34,1.56,.64,1), box-shadow 0.4s ease, border-color 0.4s ease;
+  }
+  .resume-btn svg{ width:18px; height:18px; }
+  .resume-btn:hover{
+    transform:translateY(-3px) scale(1.04);
+    box-shadow:0 16px 32px -12px rgba(91,33,182,0.85), inset 0 1px 0 rgba(255,255,255,0.25);
+    border-color:rgba(183,156,251,0.75);
+  }
+
+  .about-copy{
+    width:100%;
+    padding-left:30px;
+    opacity:0;
+    transform:translateY(28px);
+    transition:opacity 0.8s cubic-bezier(.16,1,.3,1) 0.15s, transform 0.8s cubic-bezier(.16,1,.3,1) 0.15s;
+  }
+  .lede{
+    font-family:'Outfit', sans-serif;
+    font-weight:700;
+    font-size:clamp(22px, 2.6vw, 30px);
+    margin:0 0 14px;
+  }
+  .lede .accent{ color:var(--violet-light); }
+  .lede-bar{
+    width:160px; height:3px;
+    border-radius:3px;
+    background:linear-gradient(120deg, var(--violet-light), var(--violet-deep));
+    margin-bottom:22px;
+    -webkit-mask-image:linear-gradient(90deg, black 55%, transparent 100%);
+    mask-image:linear-gradient(90deg, black 55%, transparent 100%);
+  }
+  @media (max-width:900px){ .lede-bar{ margin-left:auto; margin-right:auto; } }
+  .body-text{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:600;
+    font-size:16px;
+    line-height:1.75;
+    color:var(--fog);
+    margin:0 0 34px;
+    max-width:560px;
+  }
+  @media (max-width:900px){ .body-text{ margin-left:auto; margin-right:auto; } }
+
+  .fact-grid{
+    display:grid;
+    /* collection1 uniformly resized (x0.72) to align with .body-text:
+       columns, rows, gap all scale together so card ratios are untouched */
+    max-width:560px;
+    grid-template-columns:repeat(4, 1fr);
+    grid-auto-rows:minmax(93px, auto);
+    gap:12px;
+  }
+  .fact-grid .fact-card{ padding:14px 13px; border-radius:13px; }
+  .fact-grid .fact-icon{ width:30px; height:30px; border-radius:9px; margin-bottom:10px; font-size:15px; }
+  .fact-grid .fact-card h4{ font-size:11.5px; margin:0 0 3px; }
+  .fact-grid .fact-card p{ font-size:10.5px; margin:0 0 6px; }
+  .fact-grid .fact-tag{ font-size:9.5px; }
+  /* Bento placement (desktop): DOM order is India, Student, Java, Linux,
+     Chess, Football, Builder, Currently-Learning, Folder cell.
+     Folder gets its own square cell in the middle of the grid. */
+  .fact-grid .fact-card:nth-child(1){ grid-column:1; grid-row:3; }              /* India */
+  .fact-grid .fact-card:nth-child(2){ grid-column:2; grid-row:3; }              /* Student */
+  .fact-grid .fact-card:nth-child(3){ grid-column:3; grid-row:1; }              /* Java */
+  .fact-grid .fact-card:nth-child(4){ grid-column:4; grid-row:1 / span 2; }     /* Linux — tall */
+  .fact-grid .fact-card:nth-child(5){ grid-column:3 / span 2; grid-row:3; }     /* Chess — wide */
+  .fact-grid .fact-card:nth-child(6){ grid-column:3; grid-row:2; }              /* Football */
+  .fact-grid .fact-card:nth-child(7){ grid-column:1 / span 2; grid-row:1; }     /* Builder — wide */
+  .fact-grid .fact-card:nth-child(8){ grid-column:1; grid-row:2; }              /* Currently Learning */
+  .fact-grid .fact-folder-cell{ grid-column:2; grid-row:2; }                    /* Folder — square middle cell */
+  @media (max-width:900px){
+    .fact-grid{ grid-template-columns:repeat(2, 1fr); grid-auto-rows:auto; }
+    .fact-grid .fact-card:nth-child(n){ grid-column:auto; grid-row:auto; }
+  }
+  @media (max-width:480px){ .fact-grid{ grid-template-columns:1fr; } }
+
+  .fact-card{
+    background:var(--void);
+    border:1px solid rgba(255,255,255,0.06);
+    border-radius:16px;
+    padding:20px 18px;
+    text-align:left;
+    box-shadow:0 10px 24px -14px rgba(91,33,182,0.5);
+    transition:transform 0.35s cubic-bezier(.34,1.56,.64,1), border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  @media (max-width:900px){ .fact-card{ text-align:center; } }
+  .fact-card:hover{
+    transform:translateY(-5px) scale(1.03);
+    border-color:rgba(183,156,251,0.35);
+    box-shadow:0 16px 32px -12px rgba(91,33,182,0.75);
+  }
+  .fact-icon{
+    width:42px; height:42px;
+    border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:14px;
+    font-size:20px;
+    line-height:1;
+  }
+  .tux-icon{
+    width:68%;
+    height:68%;
+    object-fit:contain;
+    display:block;
+  }
+  @media (max-width:900px){ .fact-icon{ margin-left:auto; margin-right:auto; } }
+  .fi-1{ background:rgba(183,156,251,0.15); color:#B79CFB; }
+  .fi-2{ background:rgba(139,92,246,0.15); }
+  .fi-3{ background:rgba(124,58,237,0.15); }
+  .fi-4{ background:rgba(107,33,168,0.2); color:#C4A6FB; }
+  .fi-5{ background:rgba(196,164,251,0.15); }
+  .fi-6{ background:rgba(91,33,182,0.2); }
+  .fi-7{ background:rgba(139,92,246,0.15); }
+  .fi-8{ background:rgba(124,58,237,0.18); }
+  .fact-card h4{
+    font-family:'Outfit', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    margin:0 0 4px;
+  }
+  .fact-card p{
+    font-family:'Quicksand', sans-serif;
+    font-weight:600;
+    font-size:13px;
+    color:var(--violet-light);
+    margin:0 0 8px;
+  }
+  .fact-tag{
+    display:block;
+    font-family:'Quicksand', sans-serif;
+    font-weight:500;
+    font-size:12px;
+    line-height:1.5;
+    color:var(--fog);
+  }
+  /* Placeholder state: card is "inside the folder", slot shows a ghost outline */
+  .fact-card.in-folder{
+    background:transparent;
+    border:1.5px dashed rgba(183,156,251,0.22);
+    box-shadow:none;
+    pointer-events:none;
+  }
+  .fact-card.in-folder > *{ opacity:0; }
+  .fact-card.in-folder:hover{ transform:none; }
+  .fact-card.deploying{
+    position:relative;
+    z-index:6;
+    pointer-events:none;
+  }
+  /* echo ring spawned when a card locks into its slot */
+  .fact-card{ position:relative; }
+  .snap-echo{
+    position:absolute;
+    inset:0;
+    border-radius:16px;
+    border:2px solid var(--violet-light);
+    pointer-events:none;
+    z-index:3;
+  }
+  /* ---------- Card background vector art: appears on hover, elements converge into place ---------- */
+  .card-doodle{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    border-radius:16px;
+    overflow:hidden;
+    pointer-events:none;
+    z-index:0;
+    opacity:0;
+    transition:opacity 0.45s ease;
+  }
+  .fact-card:hover .card-doodle{ opacity:1; }
+  /* minis and their flights never show the background art */
+  .mini-card .card-doodle{ display:none; }
+  /* pre-hover displacements — the hovered state (translate 0) is the final artwork */
+  .card-doodle .dz-tr{ transform:translate(16px,-16px); }
+  .card-doodle .dz-bl{ transform:translate(-16px,16px); }
+  .card-doodle .dz-ic{ transform:translate(12px,12px); } /* icon drifts up-LEFT into place (converges to centre) */
+  .card-doodle .dz-r{ transform:translate(16px,0); }
+  .card-doodle .dz-br{ transform:translate(14px,14px); }
+  .card-doodle .dz-tr, .card-doodle .dz-bl, .card-doodle .dz-ic,
+  .card-doodle .dz-r, .card-doodle .dz-br{
+    transition:transform 0.6s cubic-bezier(.22,1,.36,1);
+  }
+  .fact-card:hover .card-doodle .dz-tr,
+  .fact-card:hover .card-doodle .dz-bl,
+  .fact-card:hover .card-doodle .dz-ic,
+  .fact-card:hover .card-doodle .dz-r,
+  .fact-card:hover .card-doodle .dz-br{ transform:translate(0,0); }
+  /* hover art tinted by each card's accent colour */
+  .card-doodle{ color:var(--acc-deep, #7C3AED); }
+  body.light-theme .card-doodle{ color:var(--acc-lite, var(--violet-light)); }
+  .card-doodle .dz-blob{ fill:currentColor; opacity:0.15; }
+  .card-doodle .dz-icon{ fill:currentColor; opacity:0.24; }
+  .card-doodle .dz-dot{ fill:currentColor; opacity:0.3; }
+  .card-doodle .dz-cut{ fill:#F4F0FA; }
+  .card-doodle .stroke-icon{ stroke:currentColor; opacity:0.24; fill:none; stroke-width:6; stroke-linecap:round; stroke-linejoin:round; }
+  .card-doodle .stroke-cut{ stroke:#F4F0FA; fill:none; stroke-width:5; stroke-linecap:round; stroke-linejoin:round; }
+  body.light-theme .card-doodle .dz-cut{ fill:#171A23; }
+  body.light-theme .card-doodle .stroke-cut{ stroke:#171A23; }
+  /* keep text and icons above the doodle layer (echo ring keeps its own positioning) */
+  .fact-card > :not(.card-doodle):not(.snap-echo){ position:relative; z-index:1; }
+
+  /* ---------- Per-card accent colours ---------- */
+  .fc-builder{ --acc-deep:#6D28D9; --acc-lite:#A78BFA; }   /* purple #8B5CF6 family */
+  .fc-java{ --acc-deep:#A98A00; --acc-lite:#FFD100; }      /* yellow #FFD100 */
+  .fc-linux{ --acc-deep:#15803D; --acc-lite:#34D77A; }     /* green #22C55E family */
+  .fc-football{ --acc-deep:#BE2A70; --acc-lite:#F472B6; }  /* pink */
+  .fc-chess{ --acc-deep:#A98A00; --acc-lite:#FFD100; }     /* yellow #FFD100 */
+  .fc-student{ --acc-deep:#2B7BC4; --acc-lite:#5CACF2; }   /* cyan #5CACF2 */
+  .fc-india{ --acc-deep:#6B7280; --acc-lite:#E5E7EB; }     /* white, grey tinge */
+  .fc-learning{ --acc-deep:#C21E44; --acc-lite:#FB4B70; }  /* #FB4B70 */
+
+  .fact-grid .fact-card:not(.fact-folder-cell) p{ color:var(--acc-deep, #5B21B6); }
+  body.light-theme .fact-grid .fact-card:not(.fact-folder-cell) p{ color:var(--acc-lite, var(--violet-light)); }
+
+  /* ---------- Icon chips: accent-tinted, tilted, straighten + pop on hover ---------- */
+  .fact-grid .fact-card:not(.fact-folder-cell) .fact-icon{
+    background:color-mix(in srgb, var(--acc-deep, #7C3AED) 14%, transparent);
+    transition:transform 0.35s cubic-bezier(.34,1.56,.64,1);
+  }
+  body.light-theme .fact-grid .fact-card:not(.fact-folder-cell) .fact-icon{
+    background:color-mix(in srgb, var(--acc-lite, #B79CFB) 17%, transparent);
+  }
+  .fact-grid .fact-card:not(.fact-folder-cell):nth-child(odd) .fact-icon{ transform:rotate(-6deg); }
+  .fact-grid .fact-card:not(.fact-folder-cell):nth-child(even) .fact-icon{ transform:rotate(5deg); }
+  .fact-grid .fact-card:not(.fact-folder-cell):hover .fact-icon{ transform:rotate(0deg) scale(1.1); }
+
+  /* ---------- Hand-placed tilt: each card sits slightly rotated, straightens on hover ---------- */
+  .fact-grid > .fact-card:nth-child(1){ transform:rotate(0.5deg); }
+  .fact-grid > .fact-card:nth-child(2){ transform:rotate(-0.4deg); }
+  .fact-grid > .fact-card:nth-child(3){ transform:rotate(0.35deg); }
+  .fact-grid > .fact-card:nth-child(4){ transform:rotate(-0.3deg); }
+  .fact-grid > .fact-card:nth-child(5){ transform:rotate(0.45deg); }
+  .fact-grid > .fact-card:nth-child(6){ transform:rotate(-0.5deg); }
+  .fact-grid > .fact-card:nth-child(7){ transform:rotate(0.3deg); }
+  .fact-grid > .fact-card:nth-child(8){ transform:rotate(-0.35deg); }
+  .fact-grid > .fact-card:not(.fact-folder-cell):hover{
+    transform:translateY(-5px) scale(1.03) rotate(0deg);
+  }
+
+  /* ---------- Contrast pass: glow floor, softer ceiling, accent wash, mixed tones, glow edges ---------- */
+  .fact-grid{ position:relative; }
+  /* (e) cards emit light instead of cutting a hard edge */
+  .fact-grid .fact-card:not(.fact-folder-cell){
+    box-shadow:0 20px 50px -18px rgba(91,33,182,0.45), 0 0 34px -10px rgba(139,92,246,0.28);
+  }
+  /* (b)+(c)+(d) all tiles dark in dark mode, tinged with their own accent */
+  .fact-grid .fact-card:not(.fact-folder-cell){
+    background:color-mix(in srgb, var(--acc-lite, #B79CFB) 7%, #1A1725);
+    border-color:rgba(255,255,255,0.07);
+  }
+  .fact-grid .fact-card:not(.fact-folder-cell) h4{ color:#F3F1F8; }
+  .fact-grid .fact-card:not(.fact-folder-cell) .fact-tag{ color:#9AA1AE; }
+  .fact-grid .fact-card:not(.fact-folder-cell) p{ color:var(--acc-lite, var(--violet-light)); }
+  .fact-grid .fact-card:not(.fact-folder-cell) .fact-icon{
+    background:color-mix(in srgb, var(--acc-lite, #B79CFB) 16%, transparent);
+  }
+  .fact-grid .fact-card:not(.fact-folder-cell) .card-doodle{ color:var(--acc-lite, #B79CFB); }
+  .fact-grid .fact-card:not(.fact-folder-cell) .card-doodle .dz-cut{
+    fill:color-mix(in srgb, var(--acc-lite, #B79CFB) 7%, #1A1725);
+  }
+  .fact-grid .fact-card:not(.fact-folder-cell) .card-doodle .stroke-cut{
+    stroke:color-mix(in srgb, var(--acc-lite, #B79CFB) 7%, #1A1725);
+  }
+  /* light theme: all tiles light, tinged with their accent */
+  body.light-theme .fact-grid .fact-card:not(.fact-folder-cell){
+    background:color-mix(in srgb, var(--acc-deep, #7C3AED) 4%, #EAE4F2);
+    border-color:rgba(20,10,40,0.1);
+  }
+  body.light-theme .fact-grid .fact-card:not(.fact-folder-cell) h4{ color:#17121F; }
+  body.light-theme .fact-grid .fact-card:not(.fact-folder-cell) .fact-tag{ color:#50545F; }
+  body.light-theme .fact-grid .fact-card:not(.fact-folder-cell) p{ color:var(--acc-deep, #5B21B6); }
+  body.light-theme .fact-grid .fact-card:not(.fact-folder-cell) .fact-icon{
+    background:color-mix(in srgb, var(--acc-deep, #7C3AED) 14%, transparent);
+  }
+  body.light-theme .fact-grid .fact-card:not(.fact-folder-cell) .card-doodle{ color:var(--acc-deep, #7C3AED); }
+  body.light-theme .fact-grid .fact-card:not(.fact-folder-cell) .card-doodle .dz-cut{
+    fill:color-mix(in srgb, var(--acc-deep, #7C3AED) 4%, #EAE4F2);
+  }
+  body.light-theme .fact-grid .fact-card:not(.fact-folder-cell) .card-doodle .stroke-cut{
+    stroke:color-mix(in srgb, var(--acc-deep, #7C3AED) 4%, #EAE4F2);
+  }
+  /* yellow tinge turns muddy on dark plum — gold cards sit on clean neutral tiles */
+  .fact-grid .fact-card:is(.fc-java, .fc-chess){ background:#1C1826; }
+  .fact-grid .fact-card:is(.fc-java, .fc-chess) .card-doodle .dz-cut{ fill:#1C1826; }
+  .fact-grid .fact-card:is(.fc-java, .fc-chess) .card-doodle .stroke-cut{ stroke:#1C1826; }
+  body.light-theme .fact-grid .fact-card:is(.fc-java, .fc-chess){ background:#ECE7F3; }
+  body.light-theme .fact-grid .fact-card:is(.fc-java, .fc-chess) .card-doodle .dz-cut{ fill:#ECE7F3; }
+  body.light-theme .fact-grid .fact-card:is(.fc-java, .fc-chess) .card-doodle .stroke-cut{ stroke:#ECE7F3; }
+  /* ghost placeholders must survive all of the above */
+  .fact-grid .fact-card.in-folder:not(.fact-folder-cell),
+  body.light-theme .fact-grid .fact-card.in-folder:not(.fact-folder-cell){
+    background:transparent;
+    border:1.5px dashed rgba(183,156,251,0.25);
+    box-shadow:none;
+  }
+
+  /* NOTE: an older "Inverted tiles: white in dark mode, black in light
+     mode" block used to live here, styling .fact-card:not(.fact-folder-cell)
+     with the opposite color scheme from Contrast pass above. It was
+     permanently dead code - Contrast pass's selectors are one class more
+     specific (.fact-grid .fact-card:not(...) vs plain
+     .fact-card:not(...)), and every .fact-card lives inside .fact-grid, so
+     Contrast pass always won regardless of source order and this block
+     never actually rendered. Removed rather than fixed, since Contrast
+     pass is clearly the maintained system (per-accent doodles, fc-java/
+     fc-chess overrides, ghost-placeholder handling all key off it). */
+
+  /* ---------- Folder cell: square bento slot holding the folder reveal ---------- */
+  .fact-folder-cell{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    aspect-ratio:1 / 1;
+    min-height:0;
+  }
+  .fact-folder-cell .learning-folder{
+    flex:none;
+    margin-top:0;
+    min-height:0;
+  }
+  .learning-folder{
+    --folder-color: var(--violet);
+    --folder-back-color: var(--violet-deep);
+    --paper-1: #2A1E4D;
+    --paper-2: #352763;
+    --paper-3: #47328A;
+    position:relative;
+    flex:1;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    min-height:70px;
+    margin-top:10px;
+    cursor:pointer;
+    outline:none;
+    transition:transform 0.12s ease-out;
+  }
+  /* subtle press feedback - shrinks slightly on click/tap, springs back on release */
+  .learning-folder:active{
+    transform:scale(0.94);
+  }
+  @media (prefers-reduced-motion: reduce){
+    .learning-folder{ transition:none; }
+  }
+  .learning-folder__back{
+    position:relative;
+    width:74px; height:58px;
+    background:var(--folder-back-color);
+    border-radius:0 8px 8px 8px;
+    transition:transform 0.2s ease-in;
+  }
+  .learning-folder__back::after{
+    position:absolute;
+    z-index:0;
+    bottom:98%; left:0;
+    content:'';
+    width:22px; height:8px;
+    background:var(--folder-back-color);
+    border-radius:4px 4px 0 0;
+  }
+  .learning-folder:hover .learning-folder__back{ transform:translateY(-4px); }
+  .learning-folder.open .learning-folder__back{ transform:translateY(-4px); }
+  /* Freeze the back while cards are in flight — if it shifted mid-flight, the
+     minis' coordinate frame would move and they'd land off-centre */
+  .learning-folder.busy .learning-folder__back{ transform:translateY(-4px); transition:none; }
+  /* Actual mini cards stacked inside the folder */
+  .fact-grid .fact-folder-cell{ z-index:9; }
+  .mini-stack{
+    position:absolute;
+    inset:0;
+    z-index:2;
+    pointer-events:none;
+  }
+  /* Each mini is a true scaled-down clone of its big card */
+  .mini-card{
+    position:absolute;
+    left:50%; bottom:5px;
+    transform:translateX(-50%) translateY(var(--y, 0px)) rotate(var(--r, 0deg));
+    transition:transform 0.3s cubic-bezier(.34,1.1,.64,1);
+    filter:drop-shadow(0 5px 9px rgba(15,8,35,0.6));
+  }
+  .mini-inner{
+    transform-origin:top left;
+  }
+  .mini-card .mini-clone{
+    pointer-events:none;
+    margin:0;
+  }
+  /* Top three minis peek out of the folder on hover / open */
+  .learning-folder:hover:not(.busy):not(.deployed) .mini-card:nth-last-child(1),
+  .learning-folder.open:not(.busy) .mini-card:nth-last-child(1){ transform:translate(-50%, -48px) rotate(4deg); }
+  .learning-folder:hover:not(.busy):not(.deployed) .mini-card:nth-last-child(2),
+  .learning-folder.open:not(.busy) .mini-card:nth-last-child(2){ transform:translate(-98%, -38px) rotate(-13deg); }
+  .learning-folder:hover:not(.busy):not(.deployed) .mini-card:nth-last-child(3),
+  .learning-folder.open:not(.busy) .mini-card:nth-last-child(3){ transform:translate(-4%, -34px) rotate(12deg); }
+  .mini-card.flying{
+    z-index:60;
+    transition:none;
+  }
+  .mini-card.taken{ visibility:hidden; }
+  .learning-folder__front{
+    position:absolute;
+    z-index:3;
+    inset:0;
+    background:var(--folder-color);
+    border-radius:4px 8px 8px 8px;
+    transform-origin:bottom;
+    transition:transform 0.3s ease-in-out;
+  }
+  .learning-folder:hover .learning-folder__front,
+  .learning-folder.open .learning-folder__front{ transform:skew(15deg) scaleY(0.6); }
+  .learning-folder:hover .learning-folder__front.right,
+  .learning-folder.open .learning-folder__front.right{ transform:skew(-15deg) scaleY(0.6); }
+  /* Sits above BOTH .learning-folder__front layers (which paint at the same
+     z-index:3, so the second "right" one was completely covering anything
+     placed inside the first) and mirrors that first flap's own transform
+     exactly - same transform-origin, same transition, same hover skew/scale -
+     so it still reads as printed on that surface and tips/compresses right
+     along with it, just without being physically nested inside a layer that
+     gets painted over. */
+  .learning-folder-label{
+    position:absolute;
+    z-index:4;
+    inset:0;
+    overflow:hidden;
+    border-radius:4px 8px 8px 8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:20px;
+    line-height:0.9;
+    letter-spacing:0.02em;
+    color:#ffffff;
+    text-shadow:0 1px 2px rgba(0,0,0,0.45);
+    pointer-events:none;
+    user-select:none;
+    transform-origin:bottom;
+    transition:transform 0.3s ease-in-out;
+  }
+  /* reward-sunburst rays behind the "Click Me" text - a rotating conic-
+     gradient wedge ring (donut-masked: hollow centre, faded rim) that pops
+     in with a bouncy scale/opacity entrance once, then keeps spinning very
+     slowly. Split across two nested elements so the one-off burst-in scale
+     and the continuous rotation don't fight over the same `transform` -
+     the outer handles position + the burst-in scale/opacity, the inner
+     (full-size, un-positioned beyond that) just spins forever.
+
+     Lives INSIDE .learning-folder-label again (not a separate static
+     layer) so it shares that element's own skew/scaleY transform on
+     hover/open - the rays visibly bend along with the text and the front
+     flap they're both riding on, instead of sitting flat behind bent text.
+     overflow:hidden on the label (which moves/skews as one rigid unit with
+     its contents) keeps the rays cropped to that same bent shape at every
+     angle, rather than needing a separate clip that has to guess the shape. */
+  .learning-folder-label-rays{
+    position:absolute;
+    z-index:-1;
+    top:50%; left:50%;
+    width:130px; height:130px;
+    transform:translate(-50%,-50%) scale(0);
+    opacity:0;
+    animation:folderRaysBurst 1.4s cubic-bezier(.34,1.56,.64,1) 0.2s forwards;
+    pointer-events:none;
+  }
+  .learning-folder-label-rays-spin{
+    display:block;
+    width:100%; height:100%;
+    border-radius:50%;
+    background:repeating-conic-gradient(rgba(255,255,255,0.75) 0deg 24deg, transparent 24deg 60deg);
+    mask:radial-gradient(circle, transparent 18%, #000 28%, transparent 68%);
+    -webkit-mask:radial-gradient(circle, transparent 18%, #000 28%, transparent 68%);
+    filter:drop-shadow(0 0 4px rgba(0,0,0,0.35));
+    animation:folderRaysSpin 40s linear 1.6s infinite;
+  }
+  @keyframes folderRaysBurst{
+    0%{ transform:translate(-50%,-50%) scale(0); opacity:0; }
+    60%{ transform:translate(-50%,-50%) scale(1.1); opacity:1; }
+    100%{ transform:translate(-50%,-50%) scale(1); opacity:1; }
+  }
+  @keyframes folderRaysSpin{
+    from{ transform:rotate(0deg); }
+    to{ transform:rotate(360deg); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .learning-folder-label-rays{ animation:none; transform:translate(-50%,-50%) scale(1); opacity:1; }
+    .learning-folder-label-rays-spin{ animation:none; }
+  }
+  .learning-folder:hover .learning-folder-label,
+  .learning-folder.open .learning-folder-label{
+    transform:skew(15deg) scaleY(0.6);
+  }
+  /* no animation on the text itself (breathing/glow both removed) - kept as
+     a plain inline-block so it still won't fight the outer
+     .learning-folder-label's hover skew/scaleY. */
+  .learning-folder-label-text{
+    display:inline-block;
+  }
+  .learning-folder:focus-visible .learning-folder__back{
+    outline:2px solid var(--violet-light);
+    outline-offset:4px;
+    border-radius:8px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .learning-folder__back, .learning-folder__front{ transition:none; }
+    .learning-folder-label{ transition:none; }
+    .mini-card{ transition:none; }
+  }
+
+  [data-reveal].is-visible{
+    opacity:1 !important;
+    transform:translateY(0) !important;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .section-head, .about-visual, .about-copy{ transition:none; opacity:1; transform:none; }
+  }
+
+  .about, .stats, .content-section{
+    scroll-margin-top:110px;
+  }
+
+  /* ---------- Stats section ---------- */
+  .stats{
+    position:relative;
+    z-index:2;
+    background:var(--void);
+    padding:180px 24px 140px;
+    overflow:hidden;
+  }
+  .stats .hind-text{ top:20px; }
+  .stats .section-head{ margin-bottom:16px; }
+  .stats-sub{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:500;
+    font-size:16px;
+    color:var(--fog);
+    margin:0;
+  }
+
+  /* ---------- Education / Projects / Achievements / Epilogue sections ---------- */
+  .content-section{
+    position:relative;
+    z-index:2;
+    background:var(--void);
+    padding:180px 24px 140px;
+    overflow:hidden;
+  }
+  /* epilogue feeds directly into the mono-footer now, so it doesn't need the
+     same generous bottom breathing room every other section gets - that
+     padding was stacking with the footer's own top padding into a big dead
+     gap of empty black space */
+  #epilogue{ padding-bottom:20px; }
+  .content-section .hind-text{ top:20px; }
+  .content-section-inner{
+    position:relative;
+    z-index:1;
+    max-width:1080px;
+    margin:0 auto;
+  }
+  .content-section-sub{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:500;
+    font-size:16px;
+    color:var(--fog);
+    margin:0;
+  }
+  .content-section-body{
+    margin-top:60px;
+    min-height:120px;
+  }
+
+  /* ---------- Education: mountain climb ----------
+     A single horizontal illustration (assets/lightmountain.svg, a
+     tightly-cropped viewBox of the source art - trims the large empty
+     sky margin the original canvas had above/below the ridge) instead of
+     a tall scroll-driven column - the 5 stages sit as waypoints along the
+     mountain's own ridge line, base (earliest) to summit (most recent). No
+     scroll-linked animation: the whole scene fades/rises in once when it
+     enters view, then each waypoint reveals its full detail on hover/focus. */
+  .edu-climb-wrap{
+    /* full-bleed out of .content-section-inner's 1080px cap - at 3x size
+       the graphic is wider than that (and than most viewports). User-
+       driven horizontal scrolling is enabled (overflow-x:auto) - the
+       mountain's initial on-screen position is still whatever the JS
+       centering logic (see "Education: horizontal scroll centering" below)
+       sets via scrollLeft, that's untouched; visitors can now also drag/
+       wheel/touch-scroll it around themselves. */
+    width:100vw;
+    position:relative;
+    left:50%;
+    right:50%;
+    margin-left:-50vw;
+    margin-right:-50vw;
+    overflow-x:auto;
+    overflow-y:visible;
+    /* generous top padding - the summit character (stage 5) stands well
+       above the mountain's own bounding box (arms-out pose, positioned
+       near the very top of the ridge), so without headroom here he gets
+       cut off by whatever sits above this section in normal document flow */
+    padding:170px 0 28px;
+    -webkit-overflow-scrolling:touch;
+    /* hide the horizontal scrollbar track/thumb - that's the "line" along
+       the bottom edge, not anything in the mountain artwork itself (the
+       SVG's painted content ends with clean transparency, confirmed by
+       pixel-checking the rendered art). Still fully scrollable via touch/
+       trackpad/shift+wheel/drag, just without a visible bar. */
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+  }
+  .edu-climb-wrap::-webkit-scrollbar{ display:none; height:0; }
+  .edu-climb{
+    position:relative;
+    width:1995.4998px;
+    max-width:none;
+    margin:0 auto;
+    aspect-ratio:527.952/209.712;
+    opacity:0;
+    transform:translateY(24px);
+    transition:opacity 0.8s cubic-bezier(.16,1,.3,1), transform 0.8s cubic-bezier(.16,1,.3,1);
+  }
+  .edu-climb-shift{
+    /* Independent of the scroll-bias centering (which only has an effect
+       when the graphic actually overflows its wrap - on wide viewports
+       where it doesn't, that scroll-based nudge does nothing). This is a
+       plain pixel transform applied to an inner layer (not .edu-climb
+       itself, which carries [data-reveal] and gets its transform forced
+       via !important on reveal) - shifts the mountain art AND all the
+       waypoints together (they're both inside it, so their percentage-
+       based positions stay correctly aligned to the art) by a fixed
+       amount, unconditionally, regardless of overflow/zoom/screen width. */
+    position:absolute;
+    inset:0;
+    transform:translateX(125px);
+  }
+  .edu-hiker{
+    /* Feet-anchored, not centre-anchored like .edu-stop - left/top mark
+       where the character's feet touch the ridge, translate(-50%,-100%)
+       pulls the image up/left from that point rather than centring on it.
+       Each source SVG was cropped tight to its own content bbox (viewBox
+       trimmed to the character's silhouette + a few px pad), so the image's
+       own bottom edge IS the feet/shadow line - no per-pose margin to
+       account for. Sized as a % of .edu-climb-shift's own width (not a
+       fixed px value) so every character scales proportionally whenever
+       the mountain graphic itself is resized. height:auto preserves each
+       crop's own aspect ratio (poses differ - stage 5's arms-out summit
+       pose is much wider relative to its height than the others, so widths
+       are NOT uniform - each was back-calculated from a progressively
+       taller target height per stage, so the character visibly grows up
+       from toddler to adult across the climb, not just gains gear). */
+    position:absolute;
+    z-index:1;
+    height:auto;
+    pointer-events:none;
+    user-select:none;
+    /* pivot at the feet (bottom-centre of the image), not the default
+       centre - so any per-stage rotation swivels the character around
+       the point already anchored to the ridge, instead of swinging his
+       feet off of it. */
+    transform-origin:50% 100%;
+    /* Reveal state: hidden/lowered by default, fades up into its anchored
+       position once the whole scene (.edu-climb) gets .is-visible - each
+       stage has its own transition-delay below so they walk in one at a
+       time (1 through 5) rather than all popping in together. The extra
+       translateY(28px) rides ON TOP of the feet-anchor translate(-50%,-100%)
+       already in place, so the "settle down into position" motion is
+       relative to each character's own correct spot, not the page. */
+    opacity:0;
+    transform:translate(-50%, -100%) translateY(28px);
+    transition:opacity 2.5s cubic-bezier(.16,1,.3,1), transform 2.5s cubic-bezier(.16,1,.3,1);
+  }
+  .edu-climb.is-visible .edu-hiker{
+    opacity:1;
+    transform:translate(-50%, -100%);
+  }
+  .edu-hiker--1{ width:3.27%; left:8.4%; top:96.5%; transition-delay:1s; }
+  .edu-hiker--2{ width:4.4%; left:22.2%; top:80.4%; transition-delay:3s; }
+  .edu-hiker--3{ width:5.5%; left:38.0%; top:69.16%; transition-delay:5s; }
+  .edu-hiker--4{ width:6.125%; left:53.7%; top:43.33%; transition-delay:7s; transform:translate(-50%, -100%) translateY(28px) rotate(-10deg); filter:drop-shadow(0 0 10px rgba(34,211,238,0.22)); }
+  .edu-hiker--5{ width:8.0808%; left:67.4%; top:16.11%; transition-delay:9s; }
+  .edu-climb.is-visible .edu-hiker--4{
+    transform:translate(-50%, -100%) rotate(-10deg);
+  }
+  /* Stage 5 (summit) settles at 50% opacity once revealed, then gets a
+     very slow, subtle breathing loop on TOP of that (drifting between
+     0.3 and 0.5, not all the way down to fully dim) - gated on .is-ready
+     (added once its own reveal transition finishes) so the loop only
+     starts after it's actually settled into place, not during the reveal
+     itself. Text is untouched - this only targets the hiker image. */
+  .edu-climb.is-visible .edu-hiker--5{
+    opacity:0.5;
+  }
+  .edu-climb.is-visible .edu-hiker--5.is-ready{
+    animation:hiker5Breathe 4s ease-in-out infinite;
+  }
+  /* Victory-lap only: 1.5s after stage 4's bump fires in the relay, stage
+     5's TEXT (not the hiker) settles down to 20% opacity. Needs the extra
+     [data-hiker="5"].is-victory-dimmed specificity to beat the plain
+     "opacity:1" reveal rule above at equal-ish selector depth. */
+  .edu-climb.is-visible .edu-stop-detail[data-hiker="5"].is-victory-dimmed{
+    /* transition is a shorthand - listing only "opacity" here would wipe
+       out the inherited transform transition (same bug fixed earlier on
+       .is-bump-done), leaving the hover scale-up snapping instead of
+       animating. Keeping transform 0.25s ease here fixes that, and also
+       matches the requested 0.25s opacity timing on hover. */
+    opacity:0.9;
+    transition:opacity 0.25s ease, transform 0.25s ease;
+  }
+  /* Same recovery behavior as stages 1-4's .is-bump-done.is-hovered: once
+     dimmed, hovering stage 5's text/character brings it back to full
+     opacity, releasing drops it back to 20%. One extra class beyond the
+     rule above, so it always wins regardless of source order. */
+  .edu-climb.is-visible .edu-stop-detail[data-hiker="5"].is-victory-dimmed.is-hovered{
+    opacity:1;
+  }
+  @keyframes hiker5Breathe{
+    0%, 100%{ opacity:0.5; }
+    50%{ opacity:0.3; }
+  }
+  /* Grow the character on hover of its hit-box - .is-hovered is toggled
+     by JS (the hiker is a sibling of .edu-stop, not a descendant, so pure
+     CSS :hover can't reach it directly). Once fully revealed the hiker
+     also gets a fast transform transition so the scale pops immediately
+     instead of inheriting the slow 2.5s reveal easing. !important beats
+     the .is-visible base-transform rules above at equal specificity order. */
+  .edu-hiker.is-ready{ transition:opacity 0.25s ease, transform 0.25s ease; }
+  .edu-hiker.is-hovered{ transform:translate(-50%, -100%) scale(1.12) !important; }
+  .edu-hiker--4.is-hovered{ transform:translate(-50%, -100%) rotate(-10deg) scale(1.12) !important; }
+  @media (prefers-reduced-motion: reduce){
+    .edu-hiker{ transition:opacity 0.2s ease; transform:translate(-50%, -100%) !important; }
+    .edu-hiker--5{ opacity:0.5; animation:none !important; }
+    .edu-hiker--4{ transform:translate(-50%, -100%) rotate(-10deg) !important; }
+  }
+
+  /* ---------- Flake (uneven white blob) ----------
+     Scoped to .edu-climb-shift (the mountain box itself), not the whole
+     viewport - sizes in % of that box, same pattern as the hikers, so it
+     stays confined to the education graphic.
+     .flake-group is the thing that actually moves (transform-driven sweep
+     + wavy translateY, via JS-set custom properties so many instances can
+     share one keyframe rule but travel different amounts); .flake is
+     painted inside it. */
+  .edu-wind-layer{
+    /* wider than the mountain's own box (not inset:0 anymore) - bleeds
+       300px into the empty space on either side, so the blizzard drifts
+       through the surrounding dark background too, not just over the
+       SVG itself. Vertical extent unchanged. */
+    position:absolute;
+    top:0;
+    bottom:0;
+    left:-300px;
+    right:-300px;
+    overflow:hidden;
+    pointer-events:none;
+    z-index:-1;
+  }
+  /* Same particles, a second layer stacked ABOVE the mountain/hikers -
+     the opaque snow near the summit sits in front of the (behind-
+     everything) back layer, so particles spawned up there would be
+     invisible; the JS routes only the particles that land in that upper
+     band into this front layer instead, everything else stays behind. */
+  .edu-wind-layer--front{
+    z-index:6;
+  }
+  .flake-group{
+    position:absolute;
+    left:0;
+    width:0.6%;
+    aspect-ratio:5/3;
+    pointer-events:none;
+    /* the sweep used to animate `left` (a layout-triggering property) on
+       every one of these elements every frame - with ~20 particles all
+       animating in lockstep, that's what was actually causing the lag
+       ("blizzard" felt slow), not just the canvas trail. Now the whole
+       sweep is done via `transform` (see flakeWave below), which the
+       browser can composite on the GPU without any layout/paint per
+       frame. --travel (the container's width in px) is set once via JS
+       on the shared parent and inherited down.
+       No will-change here (deliberately) - with ~26 of these all
+       animating, forcing every one onto its own permanently-promoted
+       GPU layer creates more memory/layer-management overhead than it
+       saves; the browser already auto-promotes actively-transform-
+       animating elements on its own while they're actually running. */
+    animation-name:flakeWave;
+    /* linear, not ease-in-out - ease-in-out decelerates to near-zero
+       velocity at EVERY keyframe stop (8 of them), which reads as a
+       stutter/pulse rather than a wave. linear interpolation between the
+       alternating +wave-amp/0/-wave-amp stops instead connects them at a
+       constant speed, i.e. an actual continuous up/down wave with no
+       pauses. */
+    animation-timing-function:linear;
+    animation-iteration-count:infinite;
+    /* paused by default - only runs while .edu-climb-wrap has
+       .is-in-view (set by an IntersectionObserver in JS), same idea as
+       the hero background skipping its render work once it's scrolled
+       out of view. */
+    animation-play-state:paused;
+  }
+  .edu-climb-wrap.is-in-view .flake-group{
+    animation-play-state:running;
+  }
+  .flake{
+    position:absolute;
+    inset:0;
+    background:#fff;
+    /* uneven/blobby, not a clean oval - four different corner radii */
+    border-radius:62% 38% 55% 45% / 48% 60% 40% 52%;
+  }
+  /* elongated streak running through the flake and tapering to a wispy
+     point on BOTH sides, centered on the flake - only used by the rare
+     flake+wind particles now. */
+  .wind{
+    position:absolute;
+    top:50%;
+    left:50%;
+    width:520%;
+    height:60%;
+    transform:translate(-50%, -50%);
+    background:linear-gradient(to right,
+      transparent 0%,
+      rgba(255,255,255,0.18) 12%,
+      rgba(255,255,255,0.55) 33%,
+      rgba(255,255,255,0.85) 50%,
+      rgba(255,255,255,0.55) 67%,
+      rgba(255,255,255,0.18) 88%,
+      transparent 100%);
+    border-radius:50%;
+    /* no filter:blur here (deliberately) - blur is more expensive to
+       composite than a plain transform, especially on an element that's
+       also opacity-fading in flakeWaveRare. the gradient itself already
+       fades to transparent on both ends, so it reads as soft without it. */
+  }
+  @keyframes flakeWave{
+    0%   { transform:translate(calc(var(--travel, 2000px) * -0.06),   0); }
+    12.5%{ transform:translate(calc(var(--travel, 2000px) * 0.0675),  var(--wave-amp, -24px)); }
+    25%  { transform:translate(calc(var(--travel, 2000px) * 0.195),   0); }
+    37.5%{ transform:translate(calc(var(--travel, 2000px) * 0.3225),  calc(var(--wave-amp, -24px) * -1)); }
+    50%  { transform:translate(calc(var(--travel, 2000px) * 0.45),    0); }
+    62.5%{ transform:translate(calc(var(--travel, 2000px) * 0.5775),  var(--wave-amp, -24px)); }
+    75%  { transform:translate(calc(var(--travel, 2000px) * 0.705),   0); }
+    87.5%{ transform:translate(calc(var(--travel, 2000px) * 0.8325),  calc(var(--wave-amp, -24px) * -1)); }
+    100% { transform:translate(calc(var(--travel, 2000px) * 0.96),    0); }
+  }
+
+  /* Rare flake+wind variant: the exact same 9-point sweep/wave path as
+     flakeWave above, just squeezed into the LAST 15% of a much longer
+     cycle (idle + invisible for the first 84%) instead of spanning the
+     whole cycle. That decouples "how fast it physically moves" from "how
+     often it shows up" - the JS picks animation-duration so that 15% of
+     it equals the same sweep time used for the mini flakes, so the
+     motion speed matches even though the full loop (and therefore how
+     rarely it recurs) is much longer. */
+  .flake-group--rare{
+    animation-name:flakeWaveRare;
+  }
+  @keyframes flakeWaveRare{
+    0%,84%  { transform:translate(calc(var(--travel, 2000px) * -0.06),   0); opacity:0; }
+    85%     { transform:translate(calc(var(--travel, 2000px) * -0.06),   0); opacity:1; }
+    86.875% { transform:translate(calc(var(--travel, 2000px) * 0.0675),  var(--wave-amp, -24px)); }
+    88.75%  { transform:translate(calc(var(--travel, 2000px) * 0.195),   0); }
+    90.625% { transform:translate(calc(var(--travel, 2000px) * 0.3225),  calc(var(--wave-amp, -24px) * -1)); }
+    92.5%   { transform:translate(calc(var(--travel, 2000px) * 0.45),    0); }
+    94.375% { transform:translate(calc(var(--travel, 2000px) * 0.5775),  var(--wave-amp, -24px)); }
+    96.25%  { transform:translate(calc(var(--travel, 2000px) * 0.705),   0); opacity:1; }
+    98.125% { transform:translate(calc(var(--travel, 2000px) * 0.8325),  calc(var(--wave-amp, -24px) * -1)); opacity:0.4; }
+    100%    { transform:translate(calc(var(--travel, 2000px) * 0.96),    0); opacity:0; }
+  }
+
+  /* Mini flakes: the .flake itself spins continuously (separate animation
+     on the child, so the rotation is independent of the group's own
+     transform-driven sweep/wave-drift movement). */
+  .flake--mini{
+    animation-name:flakeSpin;
+    animation-timing-function:linear;
+    animation-iteration-count:infinite;
+    animation-play-state:paused;
+  }
+  .edu-climb-wrap.is-in-view .flake--mini{
+    animation-play-state:running;
+  }
+  @keyframes flakeSpin{
+    from{ transform:rotate(0deg); }
+    to{ transform:rotate(var(--spin-deg, 360deg)); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .edu-wind-layer{ display:none; }
+  }
+
+  .edu-climb-mountain{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    user-select:none;
+    /* this crop's base tapers with natural antialiasing (pixel-checked -
+       no uniform pale rim-light band like the earlier crop had), so no
+       mask-image fade is needed here. */
+  }
+  .edu-stop{
+    /* purely an invisible hover/tap target now - the text used to live
+       inside it, but that made the text's position depend on this box,
+       which the JS below resizes to precisely match each hiker's real
+       rendered bbox (see "hover hit-boxes" JS). Sized generously to start
+       (bigger than any single hiker pose) so the hover zone is forgiving
+       before that JS measurement kicks in. */
+    position:absolute;
+    left:var(--sx);
+    top:var(--sy);
+    width:7%;
+    height:11%;
+    transform:translate(-50%, -50%);
+    z-index:2;
+    background:none;
+    border:none;
+    padding:0;
+    font:inherit;
+    color:inherit;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    /* no hover/tap until the character has fully faded in - see the
+       "hover hit-boxes" JS below, which adds .is-ready once each hiker's
+       own opacity transition finishes. */
+    pointer-events:none;
+  }
+  .edu-stop.is-ready{ pointer-events:auto; }
+  /* Global hover lock - hover/tap is disabled on EVERY character and its
+     text, no matter how "ready" any individual one is, until the
+     victory-lap bump sequence finishes and JS removes this class (see
+     that IIFE below). The extra .edu-climb-wrap ancestor class gives this
+     3-class selector higher specificity than the 2-class .is-ready rules
+     above, so it wins regardless of source order. */
+  .edu-climb-wrap.hover-locked .edu-stop,
+  .edu-climb-wrap.hover-locked .edu-stop-detail{
+    pointer-events:none;
+  }
+  .edu-stop-detail{
+    /* A free-standing sibling now, not nested inside .edu-stop - anchored
+       via its own --sx/--sy (the SAME fixed point as the button, set once
+       in the HTML), so resizing the button's hitbox for hover-precision
+       never moves the text. Position is independent; only the reveal
+       TIMING is kept in sync with the character, via a transition-delay
+       below that matches the corresponding .edu-hiker--N exactly.
+       --detail-rest/--detail-start (set per position-variant class) hold
+       the actual transform - swapping only the Y-offset between the two
+       is what produces the settle-down-into-place motion. */
+    position:absolute;
+    left:var(--sx);
+    top:var(--sy);
+    width:200px;
+    opacity:0;
+    transform:var(--detail-start);
+    pointer-events:none;
+    transition:opacity 2.5s cubic-bezier(.16,1,.3,1), transform 2.5s cubic-bezier(.16,1,.3,1);
+    z-index:4;
+    text-align:center;
+  }
+  /* Text gets its own hoverable hit-box too, once it's actually finished
+     appearing - hovering the text itself now triggers the same grow
+     effect as hovering the character (see JS below). */
+  .edu-stop-detail.is-ready{
+    pointer-events:auto;
+    cursor:pointer;
+    /* fast, undelayed transition once fully revealed - so the hover-grow
+       effect below feels snappy instead of inheriting the slow 2.5s
+       reveal timing/delay. (Used to live on the now-removed .is-settled
+       "dim to 70% after 3s" rule - kept here on its own since that visual
+       effect was removed but the fast-transition behavior still matters.) */
+    transition:opacity 0.25s ease, transform 0.25s ease;
+  }
+  .edu-stop-detail--above{
+    --detail-rest:translate(calc(-50% - 20px), calc(-100% - 105px));
+    --detail-start:translate(calc(-50% - 20px), calc(-100% - 99px));
+  }
+  .edu-stop-detail--above-left{
+    --detail-rest:translate(calc(-100% + 20px), calc(-100% - 75px));
+    --detail-start:translate(calc(-100% + 20px), calc(-100% - 69px));
+  }
+  .edu-stop-detail--above-right{
+    --detail-rest:translate(14px, calc(-100% - 14px));
+    --detail-start:translate(14px, calc(-100% - 8px));
+  }
+  /* Stage 3 tuned individually - moved to above-and-left, overriding the
+     shared --above-right class it still carries in the HTML (stages 4 and
+     5 below get their own dedicated overrides too - each is scoped to its
+     own data-hiker="N" only, so tuning one never touches the others). */
+  .edu-stop-detail[data-hiker="3"]{
+    --detail-rest:translate(calc(-100% + 110px), calc(-100% - 160px));
+    --detail-start:translate(calc(-100% + 110px), calc(-100% - 154px));
+  }
+  /* Stage 4 tuned individually - moved to above-and-left, overriding the
+     shared --above-right class it still carries in the HTML (scoped to
+     data-hiker="4" only - stage 5 gets its own separate override below). */
+  .edu-stop-detail[data-hiker="4"]{
+    --detail-rest:translate(calc(-100% + 30px), calc(-100% - 155px));
+    --detail-start:translate(calc(-100% + 30px), calc(-100% - 149px));
+  }
+  /* Stage 5 tuned individually - own dedicated above-and-right offset
+     instead of the subtle 14px shared default. */
+  .edu-stop-detail[data-hiker="5"]{
+    --detail-rest:translate(62px, calc(-100% - 205px));
+    --detail-start:translate(62px, calc(-100% - 199px));
+  }
+  /* :not(.is-ready) matters here: this selector and .edu-stop-detail.is-ready
+     are BOTH 2-selector specificity, and this rule comes later in the file,
+     so without the :not() guard it would keep winning forever - even after
+     is-ready resets the transition to a fast 0-delay one - leaving the
+     original multi-second reveal delay permanently stuck on the element.
+     That's exactly why the victory-lap bump (is-hovered, held only 500ms)
+     never visibly played: the transform transition was still waiting out
+     its old 1s/3s/5s/7s/9s delay and got reversed before it ever started. */
+  .edu-stop-detail[data-hiker="1"]:not(.is-ready){ transition-delay:1s; }
+  .edu-stop-detail[data-hiker="2"]:not(.is-ready){ transition-delay:3s; }
+  .edu-stop-detail[data-hiker="3"]:not(.is-ready){ transition-delay:5s; }
+  .edu-stop-detail[data-hiker="4"]:not(.is-ready){ transition-delay:7s; }
+  .edu-stop-detail[data-hiker="5"]:not(.is-ready){ transition-delay:9s; }
+  .edu-climb.is-visible .edu-stop-detail{
+    opacity:1;
+    transform:var(--detail-rest);
+  }
+  /* Once a stage's turn in the victory-lap bump sequence is over (added
+     by JS below, right as it shrinks back down - or for stage 4, which
+     never shrinks, right after its own bump-in settles), its text eases
+     down to 90% opacity over 0.25s. Declared after .is-ready so it wins at
+     equal specificity once both classes are present together. */
+  /* Scoped under .edu-climb.is-visible too, not just .edu-stop-detail -
+     without that prefix this was only a 2-class selector, LOWER
+     specificity than the "opacity:1" reveal rule above (a 3-class
+     selector: .edu-climb.is-visible .edu-stop-detail), so the dim to 20%
+     was silently losing the cascade and never actually applying, even
+     though the transition itself was correctly set up. */
+  .edu-climb.is-visible .edu-stop-detail.is-bump-done{
+    /* transition is a shorthand - writing only "opacity ..." here would
+       silently wipe out the transform transition too (the cascade picks
+       ONE winning transition declaration for the whole element, it
+       doesn't merge property-lists across rules), which is exactly why
+       the shrink's scale-down wasn't animating: this class gets added in
+       the very same instant .is-hovered is removed, so the transform
+       change had no transition left to animate through and just snapped.
+       Keeping transform 0.25s ease here too fixes that.
+       Opacity duration is 0.25s to match transform - both are literally
+       "the bump" timing, so the post-sequence hover fade (below) moves in
+       lockstep with the zoom instead of lagging behind it. */
+    transition:opacity 0.25s ease, transform 0.25s ease;
+    opacity:0.9;
+  }
+  /* Grow the text in place on hover/focus - .is-hovered is toggled by JS
+     (mirroring the same toggle on the hiker) since the button and the
+     text are siblings now, not parent/child, so plain CSS :hover on the
+     button can't reach it. Needs the extra .is-visible-scoped specificity
+     to beat the "rest position" rule above at equal selector depth. */
+  .edu-climb.is-visible .edu-stop-detail.is-hovered{
+    transform:var(--detail-rest) scale(1.15);
+  }
+  /* After the bump sequence (.is-bump-done, resting at 90% above), hovering
+     that stage's text/character again brings it back to full opacity;
+     losing hover drops it back to 90% - both via the 0.25s bump-matched
+     transition set on .is-bump-done itself. This selector only needs to
+     out-specify the 90% rule for opacity (5 classes vs its 4), so it wins
+     regardless of source order. */
+  .edu-climb.is-visible .edu-stop-detail.is-bump-done.is-hovered{
+    opacity:1;
+  }
+  .edu-stop-title{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:21px;
+    line-height:1.2;
+    color:#FFFFFF;
+    text-shadow:0 2px 10px rgba(0,0,0,0.85), 0 1px 3px rgba(0,0,0,0.9);
+    margin:0 0 2px;
+  }
+  .edu-stop-emoji{
+    display:inline-block;
+    margin-right:6px;
+    font-size:0.85em;
+    text-shadow:none;
+  }
+  .edu-stop-desc{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:600;
+    font-size:16px;
+    line-height:1.4;
+    /* just barely off pure white - a hair of grey to sit visually a step
+       below the title, still relying on the text-shadow below (not a
+       dimmer tone) for contrast against the mountain art. */
+    color:#D3D3DA;
+    text-shadow:0 2px 8px rgba(0,0,0,0.85), 0 1px 3px rgba(0,0,0,0.9);
+    margin:0;
+    transition:color 0.25s ease;
+  }
+  /* Zoomed/hovered state goes back to full white instead of staying
+     grayish - the dimmer tone is only meant to read as "at rest". */
+  .edu-stop-detail.is-hovered .edu-stop-desc{
+    color:#FFFFFF;
+  }
+  /* Light theme: flip the white text to dark ink, instead of white-on-light
+     being unreadable. The year title (.edu-stop-title, e.g. "2012") stays
+     PURE BLACK unconditionally in light theme - !important so no hover/
+     bump-done/victory-dimmed state combination can ever tint or dim it,
+     unlike the description line below which DOES shift with those states. */
+  body.light-theme .edu-stop-title{
+    color:#000000 !important;
+    text-shadow:none;
+  }
+  /* Scoped through .edu-stop-detail (not just body.light-theme + the text
+     class) so this has 3 classes + a type selector - needed to beat
+     .edu-stop-detail.is-hovered .edu-stop-desc{color:#FFFFFF} below, which
+     is also 3 classes. Without that extra scoping this was losing to the
+     hover rule at equal specificity, so any permanently-bumped stage
+     (stage 4 stays in its "hovered" zoom state by design) kept showing
+     white desc text even in light theme. */
+  body.light-theme .edu-stop-detail .edu-stop-desc{
+    color:#15131F;
+    text-shadow:none;
+  }
+  /* Resting (post-bump-sequence, 90% opacity) state in light theme reads as
+     "dimmed" via an actual dark-gray color instead of just the opacity -
+     on a light background, opacity alone doesn't read as clearly as it
+     does against the dark mountain art. Needs 4 classes + the body type
+     selector to beat the dark-ink rule just above (3 classes + type); the
+     is-hovered variant below needs one more class again to win back over
+     this and restore full dark ink while actively zoomed/hovered. */
+  body.light-theme .edu-stop-detail.is-bump-done .edu-stop-desc{
+    color:#50545F;
+  }
+  body.light-theme .edu-stop-detail.is-bump-done.is-hovered .edu-stop-desc{
+    color:#15131F;
+  }
+  /* Same treatment for stage 5's own dim state (is-victory-dimmed, also
+     90% opacity) - kept as a separate rule from is-bump-done above since
+     the two classes are never on the same element together. */
+  body.light-theme .edu-stop-detail.is-victory-dimmed .edu-stop-desc{
+    color:#50545F;
+  }
+  body.light-theme .edu-stop-detail.is-victory-dimmed.is-hovered .edu-stop-desc{
+    color:#15131F;
+  }
+
+  /* .edu-climb-wrap now scrolls horizontally at every screen size (see
+     base rule above) since the graphic is wider than any viewport at its
+     current 3x size - no separate mobile-only override needed anymore. */
+  @media (prefers-reduced-motion: reduce){
+    .edu-climb{ transition:none; }
+  }
+  /* ---------- Achievements: trophy grid ---------- */
+  .trophy-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:20px;
+    max-width:900px;
+    margin:0 auto;
+    opacity:0;
+    transform:translateY(24px);
+    transition:opacity 0.8s cubic-bezier(.16,1,.3,1), transform 0.8s cubic-bezier(.16,1,.3,1);
+  }
+  .trophy-card{
+    position:relative;
+    padding:30px 22px;
+    border-radius:20px;
+    text-align:center;
+    background:linear-gradient(160deg, rgba(var(--tr),0.14), rgba(20,23,31,0.5) 60%);
+    border:1px solid rgba(var(--tr),0.28);
+    transition:transform 0.4s cubic-bezier(.16,1,.3,1), border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .trophy-card:hover{
+    transform:translateY(-6px);
+    border-color:rgba(var(--tr),0.6);
+    box-shadow:0 20px 40px -18px rgba(var(--tr),0.45);
+  }
+  .trophy-icon{
+    width:56px; height:56px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:26px;
+    line-height:1;
+    margin:0 auto 16px;
+    background:rgba(var(--tr),0.16);
+    box-shadow:0 0 0 1px rgba(var(--tr),0.35) inset;
+  }
+  .trophy-title{
+    font-family:'Outfit', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    margin:0 0 5px;
+    color:var(--paper);
+  }
+  .trophy-sub{
+    font-family:'JetBrains Mono', ui-monospace, monospace;
+    font-size:11px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--fog);
+    margin:0;
+  }
+  body.light-theme .trophy-card{
+    background:linear-gradient(160deg, rgba(var(--tr),0.16), rgba(255,255,255,0.85) 60%);
+  }
+  @media (max-width:720px){
+    .trophy-grid{ grid-template-columns:repeat(2, 1fr); }
+  }
+  @media (max-width:460px){
+    .trophy-grid{ grid-template-columns:1fr; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .trophy-grid{ transition:none; }
+  }
+
+  /* ---------- Achievement toasts ---------- */
+  .achievement-toasts{
+    position:fixed;
+    top:20px; right:24px;
+    z-index:50;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    pointer-events:none;
+  }
+  .achievement-toast{
+    --toast-rgb: 139,92,246;
+    position:relative;
+    max-width:320px;
+    transform:translateX(120%);
+    opacity:0;
+    transition:transform 0.5s cubic-bezier(.16,1,.3,1), opacity 0.4s ease;
+  }
+  .achievement-toast.is-shown{
+    transform:translateX(0);
+    opacity:1;
+  }
+  .achievement-toast.is-leaving{
+    transform:translateX(120%);
+    opacity:0;
+  }
+  .achievement-toast-inner{
+    position:relative;
+    z-index:1;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:14px 20px 14px 16px;
+    border-radius:16px;
+    border:1px solid rgba(var(--toast-rgb), 0.35);
+    background:linear-gradient(160deg, rgba(var(--toast-rgb), 0.14), rgba(20,23,31,0.92) 55%);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    box-shadow:0 10px 22px -18px rgba(var(--toast-rgb), 0.3);
+  }
+  .achievement-toast-icon{
+    flex-shrink:0;
+    width:38px; height:38px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+    background:linear-gradient(160deg, rgba(var(--toast-rgb), 0.45), rgba(var(--toast-rgb), 0.6));
+    border:1px solid rgba(var(--toast-rgb), 0.55);
+    box-shadow:0 0 8px rgba(var(--toast-rgb), 0.3);
+  }
+  .achievement-toast-copy{ min-width:0; }
+  .achievement-toast-eyebrow{
+    font-family:'Quicksand', sans-serif;
+    font-weight:700;
+    font-size:10.5px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:rgb(var(--toast-rgb));
+    margin:0 0 2px;
+  }
+  .achievement-toast-title{
+    font-family:'Outfit', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    color:var(--paper);
+    margin:0;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  body.light-theme .achievement-toast-inner{
+    background:linear-gradient(160deg, rgba(var(--toast-rgb), 0.12), rgba(255,255,255,0.92) 55%);
+    border-color:rgba(var(--toast-rgb), 0.3);
+    box-shadow:0 10px 22px -18px rgba(var(--toast-rgb), 0.2);
+  }
+  @media (max-width:640px){
+    .achievement-toasts{ left:16px; right:16px; top:84px; }
+    .achievement-toast{ max-width:none; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .achievement-toast{ transition:opacity 0.3s ease; transform:none !important; }
+  }
+
+  /* ---------- Epilogue letter ---------- */
+  .epilogue-letter{
+    max-width:660px;
+    margin:0 auto;
+    text-align:left;
+  }
+  /* ---------- Glassmorphic music player (takes over the nav bar's slot) ---------- */
+  .music-widget{
+    position:fixed;
+    top:24px; left:50%;
+    transform:translateX(-50%) translateY(-140%);
+    opacity:0;
+    z-index:15;
+    pointer-events:none;
+    /* visibility keeps the widget's focusable controls (mute button, volume
+       slider) out of the tab order while it's hidden; the 0.4s delay on the
+       way out lets the fade finish before it goes untabbable */
+    visibility:hidden;
+    transition:transform 0.5s cubic-bezier(.4,0,.2,1), opacity 0.4s ease, visibility 0s linear 0.4s;
+  }
+  .music-widget.nav-slot-visible{
+    transform:translateX(-50%) translateY(0);
+    opacity:1;
+    pointer-events:auto;
+    visibility:visible;
+    transition:transform 0.5s cubic-bezier(.4,0,.2,1), opacity 0.4s ease;
+  }
+  .music-trigger{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:11px;
+    width:464px;
+    max-width:calc(100vw - 32px);
+    padding:9px 8px 9px 8px;
+    border-radius:999px;
+    overflow:hidden;
+    border:1px solid rgba(183,156,251,0.25);
+    background:rgba(20,23,31,0.7);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    color:var(--paper);
+    font-family:'Quicksand', sans-serif;
+    font-weight:600;
+    font-size:13.5px;
+  }
+  body.light-theme .music-trigger{
+    background:linear-gradient(135deg, rgba(120,120,135,0.22), rgba(120,120,135,0.08));
+    backdrop-filter:blur(18px) saturate(140%);
+    -webkit-backdrop-filter:blur(18px) saturate(140%);
+    border-color:rgba(90,90,105,0.25);
+  }
+  /* see html.reduce-fx .nav-pill above for why - same always-visible glass
+     pill, same fix */
+  html.reduce-fx .music-trigger{
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+    background:rgba(20,23,31,0.92);
+  }
+  html.reduce-fx body.light-theme .music-trigger{
+    background:rgba(235,235,240,0.92);
+  }
+  .music-art{
+    position:relative;
+    flex-shrink:0;
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    background:linear-gradient(135deg, var(--violet-light), var(--violet-deep));
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#ffffff;
+    box-shadow:0 4px 12px -4px rgba(91,33,182,0.6);
+    overflow:hidden;
+  }
+  /* soft violet halo breathing around the art while audio is actually
+     playing - same 0.9s rhythm the old EQ bars used to run at (since
+     removed - the mute/volume UI replaced them) so it still reads as a
+     "now playing" pulse. Driven entirely by JS now (see
+     runArtPulse) instead of a fixed-amplitude @keyframes animation, so the
+     glow's peak size/brightness can scale live with the volume slider -
+     the values baked in here previously (11px blur, 4px spread, 0.6 alpha)
+     are now the volume-100% ceiling that JS scales down from. Base
+     drop-shadow stays constant; only the added glow ring pulses. */
+  .music-art svg{
+    width:15px; height:15px;
+  }
+  /* EQ bars + horizontal volume slider, stacked left of the mute button */
+  .music-side{
+    flex-shrink:0;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    width:auto;
+    padding-right:4px;
+  }
+  /* mute/unmute indicator (replaces the EQ dots) */
+  .music-indicator{
+    position:relative;
+    width:30px; height:30px;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(183,156,251,0.1);
+    border:1px solid rgba(183,156,251,0.16);
+    border-radius:50%;
+    padding:0;
+    color:var(--paper);
+    cursor:pointer;
+    transition:color 0.25s ease, transform 0.2s ease, background 0.25s ease, border-color 0.25s ease;
+  }
+  .music-indicator:hover{
+    transform:scale(1.1);
+    background:rgba(183,156,251,0.2);
+    border-color:rgba(183,156,251,0.4);
+  }
+  .music-indicator svg{ width:18px; height:18px; }
+  .music-indicator .mi-speaker{ transition:opacity 0.25s ease; }
+  body.light-theme .music-indicator{
+    background:rgba(90,60,180,0.06);
+    border-color:rgba(90,60,180,0.14);
+  }
+  body.light-theme .music-indicator:hover{
+    background:rgba(90,60,180,0.14);
+    border-color:rgba(90,60,180,0.3);
+  }
+  /* the X mark and the wave arcs occupy the same "sound" zone of the icon by
+     design, so toggling both on the same class change used to cross-fade
+     them simultaneously - barely noticeable with 1-2 small waves, but at
+     100% volume all 3 (including the widest, outermost arc) briefly overlap
+     the still-retracting X, reading as a glitchy jumble right at full
+     volume specifically. Staggering them (X resolves quickly and first, the
+     waves start a beat later) keeps the two from ever being heavily visible
+     at the same time, regardless of how many wave arcs are involved. */
+  .mi-wave{
+    opacity:0;
+    transform:translateX(-3px) scale(0.7);
+    transform-origin:11px 12px;
+    transition:opacity 0.3s ease 0.1s, transform 0.38s cubic-bezier(.34,1.4,.5,1) 0.1s;
+  }
+  .mi-wave.on{ opacity:1; transform:none; }
+  .music-indicator .mi-slash{
+    position:absolute;
+    left:50%; top:50%;
+    width:18px; height:18px;
+    transform:translate(-50%,-50%);
+    pointer-events:none;
+  }
+  .music-indicator .mi-slash line{
+    stroke-dasharray:10;
+    stroke-dashoffset:10;
+    transition:stroke-dashoffset 0.2s ease;
+  }
+  .music-indicator.muted{ color:var(--fog); }
+  .music-indicator.muted .mi-slash line{ stroke-dashoffset:0; }
+  /* when the track ends, the mute button doubles as a replay button - the
+     speaker/mute icons fade out and this counter-clockwise arrow fades in
+     in their place, same button, same click handler, just a different role */
+  .music-indicator .mi-retry{
+    position:absolute;
+    left:50%; top:50%;
+    width:17px; height:17px;
+    transform:translate(-50%,-50%) scale(0.6);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.25s ease, transform 0.3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .music-indicator.is-ended .mi-speaker,
+  .music-indicator.is-ended .mi-slash{
+    opacity:0;
+  }
+  .music-indicator.is-ended .mi-retry{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1);
+  }
+  /* one-time poetic nudge pointing at the mute button, shown once the music
+     widget first appears (still muted) and dismissed the moment it's clicked */
+  /* purely a positioning anchor now - visibility/motion is entirely handled
+     by the arrow-wrap and text pieces inside, so they can be perfectly
+     synced with each other instead of the whole group fading as one block
+     on a separate, unrelated transition. */
+  /* deliberately a much higher z-index than the widget it points at (15) -
+     this is its own top-most overlay layer, not just "slightly above" one
+     specific piece of UI, so it can never end up rendering underneath
+     something else on the page (nav pill, scroll bar, cards, etc). Only the
+     true full-page system overlays (theme-transition-layer, chevron page
+     transitions) sit above it, which is correct since those cover the
+     entire screen anyway. */
+  .music-hint{
+    position:fixed;
+    z-index:20000;
+    pointer-events:none;
+    transform:translateX(-50%);
+  }
+  /* single shared layer for the arrow + text card - appear/disappear
+     (opacity/blur/translateY) is driven by JS on THIS one element only, so
+     the two pieces move as one rigid unit and can never visually desync.
+     Absolutely positioned at the hint's own origin (0,0) so its children's
+     own absolute top/left values (unchanged below) land exactly where they
+     used to when they were positioned directly against .music-hint. */
+  .music-hint-layer{
+    position:absolute;
+    top:0; left:0;
+    opacity:0;
+    filter:blur(10px);
+    transform:translateY(14px);
+  }
+  /* arrow bobs continuously once visible (its own always-on animation) -
+     kept on the SVG itself, separate from the shared layer above, so the
+     bob's transform and the shared appear/disappear transform don't fight
+     over the same property on the same element. */
+  .music-hint-arrow{
+    display:block;
+    width:214px; height:92px;
+    color:var(--violet-light);
+    animation:musicHintBob 1.6s ease-in-out infinite;
+  }
+  @keyframes musicHintBob{
+    0%, 100%{ transform:translateY(0); }
+    50%{ transform:translateY(-4px); }
+  }
+  /* Absolutely positioned (not in normal flow) so the SVG can be wide enough
+     to sweep in from the text's position while still tip-anchoring on the
+     button: its own tail (bottom-right of the path) lands near the text
+     card, its tip (top-left, the arrowhead) lands back at the anchor point
+     directly under the button - "left:-15px" shifts the viewBox so that tip
+     coordinate lines up with local x:0. Widened to match the text card
+     having moved further right. */
+  .music-hint-arrow-wrap{
+    position:absolute;
+    top:0;
+    left:-15px;
+    width:214px; height:92px;
+  }
+  /* text card sits down and to the right of the arrow (not stacked directly
+     under it), tilted like a sticky note. Wraps into 2-3 short lines
+     instead of one long nowrap line stretching across the whole pill. */
+  .music-hint-text{
+    position:absolute;
+    top:16px; left:180px;
+    width:120px;
+    font-family:'Caveat', cursive;
+    font-weight:600;
+    font-size:19px;
+    line-height:1.3;
+    color:#ffffff;
+    text-align:center;
+    padding:16px 10px;
+    transform:rotate(-5deg);
+  }
+  .music-hint-highlight{
+    color:var(--violet-light);
+  }
+  /* real element now (was a ::before) so JS can animate it directly - a
+     pseudo-element can't be targeted with el.style.* from script. Reward-
+     sunburst effect (rotating conic-gradient ray wedges, masked to fade at
+     rim and centre, plus a separate pulsing radial glow underneath) scaled
+     down and tinted violet to sit behind the hint text. The rays/pulse spin
+     and pulse continuously on their own CSS animations, same as the arrow's
+     always-on bob - only this wrapper's opacity is JS-driven, in sync with
+     the text and arrow. */
+  .music-hint-glow{
+    position:absolute;
+    z-index:-1;
+    top:50%; left:50%;
+    width:110px; height:110px;
+    transform:translate(-50%,-50%);
+    /* opacity now inherited from the shared .music-hint-layer fade above -
+       only its own zoom (scale) is still JS-driven, independently of that */
+    pointer-events:none;
+  }
+  .music-hint-rays{
+    position:absolute;
+    inset:-15%;
+    border-radius:50%;
+    background:repeating-conic-gradient(rgba(183,156,251,0.18) 0deg 24deg, transparent 24deg 60deg);
+    mask-image:radial-gradient(circle, #000 12%, transparent 68%);
+    -webkit-mask-image:radial-gradient(circle, #000 12%, transparent 68%);
+    animation:musicHintRaySpin 12s linear infinite;
+  }
+  @keyframes musicHintRaySpin{ to{ transform:rotate(360deg); } }
+  .music-hint-pulse{
+    position:absolute;
+    top:15%; left:15%;
+    width:70%; height:70%;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(255,255,255,0.35) 0%, rgba(183,156,251,0.2) 30%, rgba(183,156,251,0.1) 50%, rgba(183,156,251,0.03) 65%, transparent 78%);
+    filter:blur(9px);
+    animation:musicHintPulse 2.6s ease-in-out infinite;
+  }
+  @keyframes musicHintPulse{
+    0%, 100%{ transform:scale(1); opacity:0.5; }
+    50%{ transform:scale(1.12); opacity:0.7; }
+  }
+  body.light-theme .music-hint-text{
+    color:#15131F;
+  }
+  body.light-theme .music-hint-rays{
+    background:repeating-conic-gradient(rgba(90,60,180,0.14) 0deg 24deg, transparent 24deg 60deg);
+  }
+  body.light-theme .music-hint-pulse{
+    background:radial-gradient(circle, rgba(255,255,255,0.4) 0%, rgba(90,60,180,0.18) 30%, rgba(90,60,180,0.08) 50%, rgba(90,60,180,0.02) 65%, transparent 78%);
+  }
+  @media (prefers-reduced-motion: reduce){
+    .music-hint-arrow{ animation:none; }
+    .music-hint-rays, .music-hint-pulse{ animation:none !important; }
+  }
+  .music-info{
+    display:flex;
+    flex-direction:column;
+    gap:1px;
+    min-width:0;
+    flex:1;
+  }
+  .music-progress{
+    position:absolute;
+    left:0; right:0; bottom:0;
+    height:2px;
+    background:rgba(183,156,251,0.18);
+  }
+  .music-progress-fill{
+    height:100%;
+    width:0%;
+    border-radius:0 999px 999px 0;
+    background:linear-gradient(90deg, var(--violet-light), var(--violet-deep));
+    /* always renders at full colour/brightness — playback progress is independent of mute state */
+    box-shadow:0 0 8px rgba(167,139,250,0.55);
+    /* smooths the ~4Hz timeupdate-driven width steps into continuous motion */
+    transition:width 0.3s linear;
+  }
+  body.light-theme .music-progress{ background:rgba(90,90,105,0.2); }
+  .music-track-name{
+    font-family:'Quicksand', sans-serif;
+    font-weight:700;
+    font-size:13px;
+    color:var(--paper);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .music-status{
+    font-family:'Quicksand', sans-serif;
+    font-weight:500;
+    font-size:11px;
+    color:var(--fog);
+    white-space:nowrap;
+  }
+  /* Horizontal volume slider */
+  .music-volume{
+    position:relative;
+    width:78px;
+    height:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    touch-action:none;
+    border-radius:999px;
+    outline:none;
+  }
+  .music-volume:focus-visible{
+    box-shadow:0 0 0 2px var(--violet-light);
+  }
+  /* the widget's one-row layout min-contents at ~343px - fine at 375px,
+     but it would spill on 320px-class phones without a slimmer slider */
+  @media (max-width:370px){
+    .music-volume{ width:54px; }
+  }
+  .music-volume-track{
+    position:relative;
+    width:100%;
+    height:5px;
+    border-radius:999px;
+    background:rgba(183,156,251,0.18);
+    overflow:hidden;
+    transition:background 0.25s ease;
+  }
+  .music-volume:hover .music-volume-track{
+    background:rgba(183,156,251,0.3);
+  }
+  .music-volume-fill{
+    position:absolute;
+    left:0; top:0; bottom:0;
+    /* starts empty to match the player's initial muted state - JS sets it to
+       the real userVolume the moment it's unmuted or dragged */
+    width:0%;
+    border-radius:999px;
+    background:linear-gradient(90deg, var(--violet-light), var(--violet-deep));
+  }
+  /* only applied for the mute/unmute toggle (added/removed in JS) - dragging
+     the slider itself stays instant, this is just so the bar visibly eases
+     down/up in sync with the mute/unmute audio fade instead of snapping */
+  .music-volume-fill.is-fading{
+    transition:width 0.4s cubic-bezier(.4,0,.2,1);
+  }
+  body.light-theme .music-volume-track{ background:rgba(90,90,105,0.25); }
+  /* while the skip-ahead sequence is mid-flight, the mute button and volume
+     slider stop accepting clicks/drags entirely - CSS-level backstop for
+     the JS musicInteractionLocked checks in each handler */
+  .music-indicator.is-skip-locked,
+  .music-volume.is-skip-locked{
+    pointer-events:none;
+  }
+  .epilogue-letter [data-reveal]{
+    opacity:0;
+    transform:translateY(12px);
+    filter:blur(8px);
+    transition:opacity 1.4s ease-out, transform 1.4s ease-out, filter 1.4s ease-out;
+  }
+  .epilogue-letter [data-reveal].is-visible{
+    filter:blur(0px);
+  }
+  @media (prefers-reduced-motion: reduce){
+    .epilogue-letter [data-reveal]{ transition:none; filter:none; }
+  }
+
+  /* ---------- Epilogue: skip-ahead button ----------
+     Appears once the "For Mom and Dad..." line has finished revealing (JS
+     listens for that specific line's transitionend), lets someone jump the
+     rest of the letter into a fast compressed reveal instead of the normal
+     reading-paced one - the song itself is untouched, it keeps playing
+     exactly where it already was. Same opacity/translateY/blur language as
+     the letter's own [data-reveal] lines so it feels like part of the same
+     piece of writing rather than a bolted-on UI control, and "withers" back
+     out the same way those lines do once it's been used. */
+  /* Plain position:fixed by default (normal viewport-tracking behavior).
+     JS below switches this to position:absolute with an explicit inline
+     top, computed in plain arithmetic (not relying on CSS sticky's
+     containing-block/clamping behavior), the instant the footer gets
+     close - see the IntersectionObserver near revealSkipBtn(). */
+  .epilogue-skip-btn{
+    position:fixed;
+    right:24px;
+    bottom:24px;
+    z-index:600;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:11px 22px;
+    width:max-content;
+    white-space:nowrap;
+    border-radius:999px;
+    border:1px solid rgba(245,246,248,0.16);
+    background:rgba(18,16,26,0.6);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    color:#F5F6F8;
+    font:600 13px/1 'Inter', sans-serif;
+    letter-spacing:0.02em;
+    cursor:pointer;
+    opacity:0;
+    /* starts ABOVE its resting spot and drops DOWN into place - appearing
+       and disappearing (.is-leaving below) now both read as the same
+       downward motion, rather than rising up to appear and continuing
+       further up to leave */
+    transform:translateY(-12px);
+    filter:blur(8px);
+    transition:opacity 1s ease-out, transform 1s ease-out, filter 1s ease-out, background 0.2s ease, border-color 0.2s ease;
+    pointer-events:none;
+  }
+  .epilogue-skip-btn svg{ flex-shrink:0; }
+  .epilogue-skip-btn.is-visible{
+    opacity:1;
+    transform:translateY(0);
+    filter:blur(0px);
+    pointer-events:auto;
+  }
+  /* switched from position:fixed to position:absolute with an explicit
+     inline top (set in JS) once the footer gets close - stops tracking
+     the viewport and scrolls away with the rest of the page from here on. */
+  .epilogue-skip-btn.is-parked{
+    position:absolute;
+    bottom:auto;
+  }
+  /* the disappearing wither goes DOWNWARD, same direction the button
+     appeared from - .is-leaving is added (in JS, syncSkipBtnVisibility) at
+     the exact moment .is-visible is removed, giving it its own distinct
+     exit target rather than just falling back to the entrance's starting
+     point (which, now that both directions match, happens to be the same
+     value - kept as its own rule anyway since they're conceptually
+     different moments). */
+  .epilogue-skip-btn.is-leaving{
+    transform:translateY(12px);
+  }
+  .epilogue-skip-btn:hover{
+    background:rgba(18,16,26,0.8);
+    border-color:rgba(245,246,248,0.32);
+  }
+  /* zoom-in on hover / press-down on click - both need a much snappier
+     transition than the 1s appear/wither fade, but only ever kick in once
+     the button is already fully visible (translateY settled at 0), so
+     overriding "transform" here doesn't fight the slower entrance/exit
+     motion - it's a different moment entirely. */
+  .epilogue-skip-btn.is-visible:hover{
+    transform:translateY(0) scale(1.07);
+    transition:transform 0.22s cubic-bezier(.34,1.56,.64,1), background 0.2s ease, border-color 0.2s ease;
+  }
+  .epilogue-skip-btn.is-visible:active{
+    transform:translateY(0) scale(0.93);
+    transition:transform 0.12s ease;
+  }
+  /* the actual "click" effect - a genuine shrink-then-spring-back bounce
+     on the click itself (added as a class in JS), not just :active's
+     press-and-hold shrink above. A CSS animation on the same element/
+     property takes priority over a running transition, so this correctly
+     plays out in full even though the button gets disabled (and starts
+     withering) immediately after the click. */
+  @keyframes skipBtnClickPulse{
+    0%{ transform:translateY(0) scale(1); }
+    40%{ transform:translateY(0) scale(0.88); }
+    100%{ transform:translateY(0) scale(1); }
+  }
+  .epilogue-skip-btn.is-clicked{
+    animation:skipBtnClickPulse 0.38s cubic-bezier(.34,1.56,.64,1);
+  }
+  body.light-theme .epilogue-skip-btn{
+    background:rgba(255,255,255,0.6);
+    border-color:rgba(23,18,31,0.14);
+    color:#17121F;
+  }
+  body.light-theme .epilogue-skip-btn:hover{ background:rgba(255,255,255,0.85); }
+  @media (prefers-reduced-motion: reduce){
+    .epilogue-skip-btn{ transition:opacity 0.25s ease; filter:none !important; }
+    .epilogue-skip-btn.is-clicked{ animation:none !important; }
+  }
+  @media (max-width:640px){
+    .epilogue-skip-btn{ right:16px; bottom:16px; padding:10px 16px; font-size:12px; }
+  }
+  /* see html.reduce-fx .nav-pill far above for why - same always-visible
+     glass pill (it sits on screen, compositing over the letter scrolling
+     behind it, for as long as it's armed) */
+  html.reduce-fx .epilogue-skip-btn{
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+    background:rgba(18,16,26,0.92);
+  }
+  /* body.light-theme .epilogue-skip-btn (above) only touches background/
+     border/color, not backdrop-filter - so without a light-theme-specific
+     override here too, the dark background 2 rules up would win the tie
+     (equal specificity, later in the file) and show a dark pill in light
+     mode. Same fix as html.reduce-fx body.light-theme .nav-pill earlier. */
+  html.reduce-fx body.light-theme .epilogue-skip-btn{
+    background:rgba(255,255,255,0.92);
+  }
+  /* left-side twin of the skip button - same pill treatment, mirrored to
+     the opposite corner. Visibility is driven entirely by JS (toggles
+     .is-visible to be the exact inverse of the top music bar's own
+     nav-slot-visible state - see updateNavVisibility), not by anything
+     epilogue-scroll-related, so there's no .is-leaving/.is-parked pair
+     here the way the skip button has - just a plain visible/hidden swap. */
+  .epilogue-music-left{
+    position:fixed;
+    left:24px;
+    bottom:24px;
+    z-index:600;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:9px 14px;
+    border-radius:999px;
+    border:1px solid rgba(245,246,248,0.16);
+    background:rgba(18,16,26,0.6);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    color:#F5F6F8;
+    opacity:0;
+    /* same direction the skip button uses - drops down into place, withers
+       further down on the way out */
+    transform:translateY(-12px);
+    filter:blur(8px);
+    transition:opacity 1s ease-out, transform 1s ease-out, filter 1s ease-out, background 0.2s ease, border-color 0.2s ease;
+    pointer-events:none;
+  }
+  .epilogue-music-left.is-visible{
+    opacity:1;
+    transform:translateY(0);
+    filter:blur(0px);
+    pointer-events:auto;
+  }
+  .epilogue-music-left:hover{
+    background:rgba(18,16,26,0.8);
+    border-color:rgba(245,246,248,0.32);
+  }
+  body.light-theme .epilogue-music-left{
+    background:rgba(255,255,255,0.6);
+    border-color:rgba(23,18,31,0.14);
+    color:#17121F;
+  }
+  body.light-theme .epilogue-music-left:hover{ background:rgba(255,255,255,0.85); }
+  @media (prefers-reduced-motion: reduce){
+    .epilogue-music-left{ transition:opacity 0.25s ease; filter:none !important; }
+  }
+  @media (max-width:640px){
+    .epilogue-music-left{ left:16px; bottom:16px; padding:8px 12px; }
+  }
+  /* see html.reduce-fx .nav-pill far above for why - same always-visible
+     glass pill for as long as it's shown */
+  html.reduce-fx .epilogue-music-left{
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+    background:rgba(18,16,26,0.92);
+  }
+  html.reduce-fx body.light-theme .epilogue-music-left{
+    background:rgba(255,255,255,0.92);
+  }
+  .epilogue-lead{
+    font-family:'Caveat', cursive;
+    font-weight:600;
+    font-size:30px;
+    color:#ffffff;
+    line-height:1.35;
+    margin:0 0 18px;
+  }
+  .epilogue-line{
+    font-family:'Caveat', cursive;
+    font-weight:500;
+    font-size:24px;
+    color:#ffffff;
+    line-height:1.35;
+    margin:0 0 6px;
+  }
+  .epilogue-emphasis{
+    font-style:italic;
+    font-weight:600;
+    color:#ffffff;
+  }
+  .epilogue-para{
+    font-family:'Caveat', cursive;
+    font-weight:500;
+    font-size:24px;
+    color:#ffffff;
+    line-height:1.45;
+    margin:0 0 18px;
+  }
+  .epilogue-dedication{
+    margin-top:54px;
+    padding-top:44px;
+  }
+  .epilogue-letter .epilogue-dedication .epilogue-divider{
+    width:100%;
+    height:1px;
+    background:rgba(183,156,251,0.4);
+    margin-bottom:44px;
+    transform:scaleX(0);
+    transform-origin:center;
+    opacity:0;
+    transition:transform 1.4s ease-out, opacity 1.4s ease-out, background 0.3s ease;
+  }
+  .epilogue-letter .epilogue-dedication .epilogue-divider.is-visible{
+    transform:scaleX(1) !important;
+    opacity:1 !important;
+  }
+  .epilogue-addressee{
+    font-family:'Dancing Script', cursive;
+    font-weight:700;
+    font-size:clamp(26px, 3vw, 32px);
+    color:var(--violet-light);
+    text-align:left;
+    margin:0 0 26px;
+  }
+  /* colour-coded dedications (Mom & Dad keeps the violet default) - the
+     divider bar right above each one is tinted to match, so it reads as
+     "belonging" to the section it introduces rather than a neutral rule. */
+  .epilogue-letter .epilogue-dedication:nth-of-type(2) .epilogue-addressee{ color:#FB4B70; } /* teachers */
+  .epilogue-letter .epilogue-dedication:nth-of-type(3) .epilogue-addressee{ color:#22D3EE; } /* friends */
+  .epilogue-letter .epilogue-dedication:nth-of-type(4) .epilogue-addressee{ color:#10CC1A; } /* the internet */
+  .epilogue-letter .epilogue-dedication:nth-of-type(5) .epilogue-addressee{ color:#FFD100; } /* the AIs */
+  .epilogue-letter .epilogue-dedication:nth-of-type(6) .epilogue-addressee{ color:#F472B6; } /* younger self */
+  .epilogue-letter .epilogue-dedication:nth-of-type(7) .epilogue-addressee{ color:#FFFFFF; } /* and to you */
+  .epilogue-letter .epilogue-dedication:nth-of-type(2) .epilogue-divider{ background:rgba(251,75,112,0.4); }
+  .epilogue-letter .epilogue-dedication:nth-of-type(3) .epilogue-divider{ background:rgba(34,211,238,0.4); }
+  .epilogue-letter .epilogue-dedication:nth-of-type(4) .epilogue-divider{ background:rgba(16,204,26,0.4); }
+  .epilogue-letter .epilogue-dedication:nth-of-type(5) .epilogue-divider{ background:rgba(255,209,0,0.4); }
+  .epilogue-letter .epilogue-dedication:nth-of-type(6) .epilogue-divider{ background:rgba(244,114,182,0.4); }
+  .epilogue-letter .epilogue-dedication:nth-of-type(7) .epilogue-divider{ background:rgba(255,255,255,0.4); }
+  body.light-theme .epilogue-letter .epilogue-dedication:nth-of-type(2) .epilogue-addressee{ color:#C21E44; }
+  body.light-theme .epilogue-letter .epilogue-dedication:nth-of-type(3) .epilogue-addressee{ color:#0E7490; }
+  body.light-theme .epilogue-letter .epilogue-dedication:nth-of-type(4) .epilogue-addressee{ color:#0B8D12; }
+  body.light-theme .epilogue-letter .epilogue-dedication:nth-of-type(5) .epilogue-addressee{ color:#A98A00; }
+  body.light-theme .epilogue-letter .epilogue-dedication:nth-of-type(6) .epilogue-addressee{ color:#BE2A70; }
+  body.light-theme .epilogue-letter .epilogue-dedication:nth-of-type(7) .epilogue-addressee{ color:#17121F; }
+  body.light-theme .epilogue-letter .epilogue-dedication:nth-of-type(2) .epilogue-divider{ background:rgba(194,30,68,0.4); }
+  body.light-theme .epilogue-letter .epilogue-dedication:nth-of-type(3) .epilogue-divider{ background:rgba(14,116,144,0.4); }
+  body.light-theme .epilogue-letter .epilogue-dedication:nth-of-type(4) .epilogue-divider{ background:rgba(11,141,18,0.4); }
+  body.light-theme .epilogue-letter .epilogue-dedication:nth-of-type(5) .epilogue-divider{ background:rgba(169,138,0,0.4); }
+  body.light-theme .epilogue-letter .epilogue-dedication:nth-of-type(6) .epilogue-divider{ background:rgba(190,42,112,0.4); }
+  body.light-theme .epilogue-letter .epilogue-dedication:nth-of-type(7) .epilogue-divider{ background:rgba(23,18,31,0.4); }
+  .epilogue-signature{
+    font-family:'Dancing Script', cursive;
+    font-weight:700;
+    font-size:46px;
+    color:var(--violet-light);
+    text-align:left;
+    margin:0;
+  }
+  @media (max-width:600px){
+    .epilogue-lead{ font-size:25px; }
+    .epilogue-line, .epilogue-para{ font-size:20px; }
+  }
+
+  /* ---------- Project tiles ----------
+     NOTE: this used to also hold .project-grid/.project-title/
+     .project-bullets/.project-stack-label/.project-tags/.project-tag/
+     .project-link-btn plus their #projects green-theme and body.light-theme
+     variants - all dead code from the old flat project-grid layout, before
+     it became the apple-tree modal below. .project-card itself is still
+     live (the 8 modal cards each carry this class - see ~4750+), so it and
+     its real variants stay; everything else was removed. */
+  .project-card{
+    position:relative;
+    display:block;
+    padding:40px 40px 36px;
+    border-radius:26px;
+    border:1px solid rgba(139,92,246,0.22);
+    background:linear-gradient(160deg, rgba(139,92,246,0.08), rgba(20,23,31,0.5) 55%);
+    overflow:hidden;
+    isolation:isolate;
+    transition:transform 0.5s cubic-bezier(.16,1,.3,1), border-color 0.4s ease, box-shadow 0.4s ease;
+  }
+  .project-card::before{
+    content:"";
+    position:absolute;
+    top:-40%; right:-15%;
+    width:60%; height:180%;
+    background:radial-gradient(circle, rgba(139,92,246,0.22), transparent 65%);
+    z-index:-1;
+    opacity:0.6;
+    transition:opacity 0.5s ease, transform 0.6s ease;
+    pointer-events:none;
+  }
+  .project-card:hover{
+    transform:translateY(-8px);
+    border-color:rgba(183,156,251,0.55);
+    box-shadow:0 24px 48px -20px rgba(91,33,182,0.45), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  .project-card:hover::before{
+    opacity:1;
+    transform:scale(1.1);
+  }
+  /* ---------- Projects section: #22C55E green theme ---------- */
+  #projects .project-card{
+    border-color:rgba(34,197,94,0.22);
+    background:linear-gradient(160deg, rgba(34,197,94,0.08), rgba(20,23,31,0.5) 55%);
+  }
+  #projects .project-card::before{
+    background:radial-gradient(circle, rgba(34,197,94,0.2), transparent 65%);
+  }
+  #projects .project-card:hover{
+    border-color:rgba(74,222,128,0.55);
+    box-shadow:0 24px 48px -20px rgba(21,128,61,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  body.light-theme #projects .project-card{
+    border-color:rgba(21,128,61,0.25);
+    background:linear-gradient(160deg, rgba(34,197,94,0.1), rgba(255,255,255,0.85) 55%);
+  }
+  @media (max-width:560px){
+    .project-card{ padding:32px 26px; }
+  }
+
+  /* ---------- Projects: apple tree ---------- */
+  #projects .content-section-inner{
+    max-width:1900px;
+  }
+  .tree-scene{
+    position:relative;
+    max-width:1440px;
+    margin:0 auto 8px;
+    opacity:0;
+    transform:translateY(24px) scale(0.97);
+    transition:opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1);
+  }
+  .tree-scene.is-grown{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+  .tree-art{
+    width:100%;
+    height:auto;
+    display:block;
+    user-select:none;
+    -webkit-user-drag:none;
+    pointer-events:none;
+  }
+  body.light-theme .tree-art .tree-hl{ fill:var(--paper); }
+
+  /* a woven basket resting on the ground directly under the tree, collecting
+     viewed apples in order as they're closed. It's split into two identical
+     copies of the same art: a full "back" copy behind the apples, and a
+     "front" copy clipped to just the weave/rim band (below the cloth) that
+     sits above the apples - so a grounded apple actually reads as nestled
+     into the cloth with the front rim in front of it, not just floating
+     on top of a flat basket image. */
+  .basket-scene-back, .basket-scene-front, .basket-slots{
+    position:absolute;
+    left:55%;
+    bottom:0%;
+    width:16%;
+    max-width:145px;
+    min-width:80px;
+    /* gives the box a genuinely definite height (matching the square
+       basket-art SVG) instead of an implicit one from the image's own
+       intrinsic sizing - without this, percentage-based positioning on any
+       descendant (the ground shadow below) has no reliable height to
+       resolve against and can render far from where it should. Doesn't
+       change the basket's own left/bottom position or size at all. */
+    aspect-ratio:1/1;
+    opacity:0;
+    transform:translateX(-50%) scale(0);
+    transform-origin:center bottom;
+  }
+  /* pop in - 0 to a slight 110% overshoot to settle at 100% - starting 1s
+     after the tree/basket scene actually becomes visible (.is-grown), not
+     from page load, so it reads as a deliberate follow-up beat rather than
+     part of the initial reveal */
+  @keyframes basketPop{
+    0%{ opacity:0; transform:translateX(-50%) scale(0); }
+    18%{ opacity:1; }
+    62%{ transform:translateX(-50%) scale(1.1); }
+    100%{ opacity:1; transform:translateX(-50%) scale(1); }
+  }
+  .basket-scene-back{
+    z-index:4;
+    pointer-events:none;
+    filter:drop-shadow(0 10px 14px rgba(0,0,0,0.4));
+  }
+  /* all 8 apples are real project apples that live on the tree and get
+     reparented in here once viewed (see JS) so their left/top percentages
+     are relative to the basket's own box instead of the whole tree-scene -
+     no runtime measuring/converting required, they line up by construction.
+     Sits between the two basket layers so the front rim occludes them
+     correctly. Left at auto pointer-events so the apples inside stay
+     clickable. */
+  .basket-slots{
+    z-index:5;
+    aspect-ratio:1/1;
+  }
+  .basket-scene-front{
+    z-index:6;
+    pointer-events:none;
+  }
+  .tree-scene.is-grown .basket-scene-back, .tree-scene.is-grown .basket-scene-front,
+  .tree-scene.is-grown .basket-slots{
+    animation:basketPop 0.8s cubic-bezier(.34,1.2,.64,1) 1s both;
+  }
+  /* a soft ground-contact shadow, separate from the shape-hugging drop-shadow
+     above, so the basket reads as resting on the grass rather than floating.
+     top:62%, not 100% - backbasket.svg has a huge chunk of empty
+     transparent padding under the actual drawn basket (checked the real
+     pixel bounding box: the art only fills the canvas down to 62% of its
+     own height), so top:100% was measuring off the SQUARE BOX's bottom
+     edge, deep in that empty padding, rather than the basket's real visual
+     base - that's what was dragging the shadow so far down. margin-top/
+     height stay as plain px on top of that for the same small artistic
+     overlap as before. This only affects the shadow's own position, not
+     the basket's left/bottom. */
+  .basket-scene-back::after{
+    content:'';
+    position:absolute;
+    left:50%;
+    top:62%;
+    margin-top:-6px;
+    width:78%;
+    height:14px;
+    transform:translateX(-50%);
+    background:radial-gradient(ellipse, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.22) 55%, transparent 75%);
+    filter:blur(3px);
+    z-index:-1;
+  }
+  .basket-art{ width:100%; height:auto; display:block; }
+
+  .falling-leaves{
+    position:absolute;
+    inset:0;
+    overflow:visible;
+    pointer-events:none;
+    z-index:2;
+  }
+  .leaf-particle{
+    position:absolute;
+    opacity:0;
+    animation:leafFall var(--dur, 7.5s) cubic-bezier(.42,0,.58,1) forwards;
+  }
+  .leaf-shape{
+    display:block;
+    width:100%;
+    height:100%;
+    border-radius:0 100% 0 100%;
+    transform:rotate(45deg);
+  }
+  .leaf-particle.leaf-light .leaf-shape{ background:linear-gradient(135deg, #C5E1A5, #8BC34A); }
+  .leaf-particle.leaf-dark .leaf-shape{ background:linear-gradient(135deg, #6FA836, #4B7A26); }
+  @keyframes leafFall{
+    0%{ transform:translate(0,0) rotate(0deg); opacity:0; }
+    8%{ opacity:0.92; }
+    30%{ transform:translate(var(--sway1,20px), 130px) rotate(calc(var(--rot,200deg) * 0.35)); }
+    60%{ transform:translate(var(--sway2,-18px), 270px) rotate(calc(var(--rot,200deg) * 0.7)); opacity:0.85; }
+    100%{ transform:translate(var(--sway3,6px), 420px) rotate(var(--rot,200deg)); opacity:0; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .falling-leaves{ display:none; }
+  }
+
+  .apple{
+    position:absolute;
+    width:70px; height:70px;
+    margin:-35px 0 0 -35px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    opacity:0;
+    transform:translateY(-14px) scale(0.4);
+    z-index:5;
+    transition:opacity 0.5s cubic-bezier(.34,1.56,.64,1), transform 0.5s cubic-bezier(.34,1.56,.64,1),
+      left 0.75s cubic-bezier(.65,0,.35,1), top 0.75s cubic-bezier(.65,0,.35,1);
+  }
+  .tree-scene.is-grown .apple{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+  .apple:nth-of-type(1){ transition-delay:0.35s; }
+  .apple:nth-of-type(2){ transition-delay:0.5s; }
+  .apple:nth-of-type(3){ transition-delay:0.65s; }
+  .apple:nth-of-type(4){ transition-delay:0.8s; }
+  .apple:nth-of-type(5){ transition-delay:0.95s; }
+  .apple:nth-of-type(6){ transition-delay:1.1s; }
+  .apple:nth-of-type(7){ transition-delay:1.25s; }
+  .apple:nth-of-type(8){ transition-delay:1.4s; }
+  .apple-body{
+    position:relative;
+    width:70px; height:70px;
+    display:block;
+    filter:drop-shadow(0 6px 10px rgba(0,0,0,0.5));
+    transition:transform 0.4s cubic-bezier(.34,1.56,.64,1), filter 0.4s ease;
+    user-select:none;
+  }
+  .apple:hover .apple-body, .apple:focus-visible .apple-body{
+    transform:scale(1.15) rotate(-4deg);
+  }
+  .apple:focus-visible{ outline:none; }
+  .apple:focus-visible .apple-body{ filter:drop-shadow(0 0 5px #4ADE80) drop-shadow(0 6px 10px rgba(0,0,0,0.5)); }
+
+  /* the clicked apple itself becomes hidden while its card is open (see the FLIP
+     transition in JS) so there's only ever one apple on screen at a time */
+  /* apples that have been viewed rest in the basket, slightly smaller */
+  .apple.is-grounded .apple-body{ transform:scale(0.684); }
+  .apple.is-grounded:hover .apple-body, .apple.is-grounded:focus-visible .apple-body{
+    transform:scale(0.81) rotate(-4deg);
+  }
+  /* the CLICKABLE box (.apple itself) stays 68px even when the art inside it
+     is scaled down to 76% - with 8 apples packed tightly into the basket
+     that leftover invisible hit-area was overlapping neighbours and could
+     block clicks on whichever apple was underneath in the stacking order.
+     Shrinking the actual box for grounded apples (not just the art) keeps
+     each one's clickable region close to what's visually there. */
+  .apple.is-grounded{
+    width:41.4px; height:41.4px;
+    margin:-20.7px 0 0 -20.7px;
+  }
+  /* a quick squash-and-settle the instant a grounded apple reappears in the
+     basket, so it reads as landing/dropping in rather than just popping into
+     place. Transform-only (no opacity) so it can never reintroduce a fade. */
+  .apple-label{
+    position:absolute;
+    bottom:calc(100% + 8px);
+    left:50%;
+    transform:translateX(-50%) translateY(4px);
+    white-space:nowrap;
+    background:var(--mist);
+    color:var(--paper);
+    font-family:'Quicksand', sans-serif;
+    font-weight:600;
+    font-size:12px;
+    padding:6px 12px;
+    border-radius:999px;
+    border:1px solid rgba(74,222,128,0.35);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.25s ease, transform 0.25s ease;
+    z-index:3;
+  }
+  .apple:hover .apple-label, .apple:focus-visible .apple-label{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+
+  /* Project detail is a centred modal: hidden by default, opened by clicking an apple */
+  .project-modal-backdrop{
+    position:fixed;
+    inset:0;
+    z-index:80;
+    background:rgba(4,5,9,0.6);
+    opacity:0;
+    pointer-events:none;
+    backdrop-filter:blur(0px);
+    -webkit-backdrop-filter:blur(0px);
+    transition:opacity 0.4s cubic-bezier(.4,0,.2,1), backdrop-filter 0.4s cubic-bezier(.4,0,.2,1), -webkit-backdrop-filter 0.4s cubic-bezier(.4,0,.2,1);
+  }
+  .project-modal-backdrop.is-visible{
+    opacity:1;
+    pointer-events:auto;
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+  }
+  .project-display{
+    position:fixed;
+    top:50%; left:50%;
+    z-index:81;
+    width:calc(100vw - 40px);
+    max-width:920px;
+    max-height:94vh;
+    max-height:94dvh; /* mobile: respect the real visible viewport */
+    /* padding gives the apple's drop-shadow glow room to fade out before it
+       reaches this box's own edge - without it, overflow-y:auto hard-clips
+       the glow into a visible rectangle right where the blur was still
+       fading, instead of letting it dissolve to nothing */
+    padding:44px 34px;
+    box-sizing:border-box;
+    /* stays 'auto' (not hidden) purely so centerModalScroll() can still set
+       scrollTop to show a taller-than-viewport card centred - actual user
+       scrolling is fully blocked via blockWheel/blockTouchMove/blockScrollKeys
+       in lockBodyScroll() while a card is open, vertical scroll included */
+    overflow-y:auto;
+    /* explicit - overflow-y:auto alone computes overflow-x to auto too (per
+       spec), which let the box pick up a horizontal scroll position and
+       de-center the apple; this keeps it locked horizontally centered */
+    overflow-x:hidden;
+    overscroll-behavior:contain;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+    margin:0;
+    opacity:0;
+    pointer-events:none;
+    transform:translate(-50%,-50%) translateY(16px) scale(0.9);
+    transition:opacity 0.4s cubic-bezier(.4,0,.2,1), transform 0.45s cubic-bezier(.34,1.56,.64,1);
+  }
+  .project-display::-webkit-scrollbar{ display:none; width:0; height:0; }
+  .project-display.is-open{
+    opacity:1;
+    transform:translate(-50%,-50%) translateY(0) scale(1);
+  }
+  /* no visible close button - Escape and clicking outside the apple close
+     the card instead (see .apple-card-bg pointer-events below) */
+
+  /* ---------- "Resume under construction" popup ---------- */
+  .resume-popup-backdrop{
+    position:fixed;
+    inset:0;
+    z-index:90;
+    background:rgba(6,8,14,0.6);
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+    opacity:0;
+    pointer-events:none;
+    visibility:hidden;
+    transition:opacity 0.35s ease, visibility 0s linear 0.35s;
+  }
+  .resume-popup-backdrop.is-open{
+    opacity:1;
+    pointer-events:auto;
+    visibility:visible;
+    transition:opacity 0.35s ease;
+  }
+  .resume-popup{
+    position:fixed;
+    top:50%; left:50%;
+    z-index:95;
+    width:min(92vw, 400px);
+    box-sizing:border-box;
+    padding:34px 28px 26px;
+    border-radius:26px;
+    border:1px solid rgba(183,156,251,0.35);
+    background:linear-gradient(160deg, rgba(139,92,246,0.14), rgba(20,23,31,0.94) 45%);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 30px 70px -25px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.08);
+    text-align:center;
+    /* clip the caution tape's angled overhang to the card's rounded corners */
+    overflow:hidden;
+    opacity:0;
+    pointer-events:none;
+    visibility:hidden;
+    transform:translate(-50%,-50%) translateY(14px) scale(0.86);
+    transition:opacity 0.35s ease, transform 0.45s cubic-bezier(.34,1.56,.64,1), visibility 0s linear 0.45s;
+  }
+  .resume-popup.is-open{
+    opacity:1;
+    pointer-events:auto;
+    visibility:visible;
+    transform:translate(-50%,-50%) translateY(0) scale(1);
+    transition:opacity 0.35s ease, transform 0.45s cubic-bezier(.34,1.56,.64,1);
+  }
+  /* diagonal caution-tape ribbon across the top-left corner */
+  .resume-tape{
+    position:absolute;
+    top:24px; left:-38px;
+    width:150px; height:22px;
+    transform:rotate(-38deg);
+    background:repeating-linear-gradient(45deg, #FFD100 0 12px, #15131F 12px 24px);
+    box-shadow:0 3px 8px rgba(0,0,0,0.35);
+    opacity:0.95;
+    pointer-events:none;
+  }
+  /* the little document being built */
+  .resume-doc{
+    position:relative;
+    width:96px;
+    margin:2px auto 16px;
+  }
+  .resume-doc-sheet{
+    position:relative;
+    width:88px; height:106px;
+    margin:0 auto;
+    border-radius:9px;
+    background:#F5F6F8;
+    box-shadow:0 10px 22px -8px rgba(0,0,0,0.55);
+    padding:12px 11px 0;
+    box-sizing:border-box;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    animation:resumeSheetBob 3.2s ease-in-out infinite;
+  }
+  @keyframes resumeSheetBob{
+    0%, 100%{ transform:translateY(0) rotate(-1deg); }
+    50%{ transform:translateY(-4px) rotate(1deg); }
+  }
+  .resume-doc-photo{
+    width:20px; height:20px;
+    border-radius:50%;
+    background:linear-gradient(135deg, var(--violet-light), var(--violet-deep));
+    margin-bottom:2px;
+    flex-shrink:0;
+  }
+  /* text lines that endlessly write themselves in, one after another */
+  .resume-doc-line{
+    display:block;
+    height:6px;
+    border-radius:3px;
+    background:linear-gradient(90deg, #A78BFA, #7C5CD6);
+    width:0;
+    animation:resumeLineWrite 5.2s ease-in-out infinite;
+  }
+  .resume-doc-line.l2{ animation-delay:0.9s; background:#C9CCD4; }
+  .resume-doc-line.l3{ animation-delay:1.8s; background:#C9CCD4; }
+  .resume-doc-line.l4{ animation-delay:2.7s; }
+  @keyframes resumeLineWrite{
+    0%{ width:0; }
+    18%{ width:100%; }
+    72%{ width:100%; }
+    86%{ width:0; }
+    100%{ width:0; }
+  }
+  .resume-doc-line.l2{ max-width:80%; }
+  .resume-doc-line.l4{ max-width:62%; }
+  .resume-doc-cone{
+    position:absolute;
+    bottom:-8px; left:-16px;
+    font-size:26px;
+    filter:drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+  }
+  .resume-doc-worker{
+    position:absolute;
+    bottom:-6px; right:-18px;
+    font-size:24px;
+    transform:rotate(8deg);
+    filter:drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+    animation:resumeWorkerPeek 3.2s ease-in-out infinite;
+  }
+  @keyframes resumeWorkerPeek{
+    0%, 100%{ transform:rotate(8deg) translateY(0); }
+    50%{ transform:rotate(4deg) translateY(-3px); }
+  }
+  .resume-popup-title{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:23px;
+    margin:0 0 10px;
+    color:var(--paper);
+  }
+  .resume-popup-copy{
+    font-family:'Quicksand', sans-serif;
+    font-weight:500;
+    font-size:14px;
+    line-height:1.6;
+    color:var(--fog);
+    margin:0 0 20px;
+  }
+  .resume-progress{
+    height:12px;
+    border-radius:999px;
+    background:rgba(183,156,251,0.15);
+    border:1px solid rgba(183,156,251,0.25);
+    overflow:hidden;
+    margin:0 6px;
+  }
+  .resume-progress-fill{
+    /* starts empty - JS drives it up to 73% on open so the fill itself is
+       a clearly visible motion, not just the marching stripes in place */
+    width:0%;
+    height:100%;
+    border-radius:999px;
+    background:repeating-linear-gradient(-45deg, #FFD100 0 10px, #E0A900 10px 20px);
+    background-size:28px 100%;
+    animation:resumeStripes 2.8s linear infinite;
+    transition:width 1.8s cubic-bezier(.22,1,.36,1);
+  }
+  @keyframes resumeStripes{
+    from{ background-position:0 0; }
+    to{ background-position:28px 0; }
+  }
+  .resume-progress-label{
+    font-family:'Quicksand', sans-serif;
+    font-weight:600;
+    font-size:12px;
+    color:var(--fog);
+    margin:8px 0 22px;
+  }
+  .resume-popup-actions{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .resume-popup-ok{
+    padding:12px 24px;
+    border-radius:999px;
+    border:1px solid rgba(183,156,251,0.5);
+    background:linear-gradient(135deg, rgba(139,92,246,0.35), rgba(91,33,182,0.25));
+    color:var(--paper);
+    font-family:'Quicksand', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    transition:transform 0.3s cubic-bezier(.34,1.56,.64,1), border-color 0.3s ease;
+  }
+  .resume-popup-ok:hover{ transform:translateY(-2px) scale(1.04); border-color:var(--violet-light); }
+  .resume-popup-ok:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--violet-light); }
+  body.light-theme .resume-popup{
+    background:linear-gradient(160deg, rgba(139,92,246,0.10), rgba(255,255,255,0.96) 45%);
+    border-color:rgba(91,33,182,0.25);
+    box-shadow:0 30px 70px -25px rgba(0,0,0,0.35);
+  }
+  body.light-theme .resume-doc-sheet{ box-shadow:0 10px 22px -8px rgba(0,0,0,0.3); border:1px solid rgba(0,0,0,0.08); }
+  body.light-theme .resume-popup-backdrop{ background:rgba(240,238,250,0.55); }
+  body.light-theme .project-modal-backdrop{ background:rgba(240,238,250,0.55); }
+  @media (prefers-reduced-motion: reduce){
+    .resume-popup, .resume-popup-backdrop{ transition:none; }
+    .resume-doc-sheet, .resume-doc-worker, .resume-progress-fill{ animation:none; }
+    .resume-doc-line{ animation:none; width:100%; }
+    .resume-progress-fill{ transition:none; width:73%; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .project-modal-backdrop, .project-display{ transition:none; }
+    .apple{ transition:opacity 0.2s ease, left 0.01s, top 0.01s; }
+  }
+  /* ID-based (not ancestor-based): #projectDisplay gets moved to document.body
+     at runtime so position:fixed is never at the mercy of an ancestor's transform,
+     which means selectors requiring "inside #projects" would silently stop matching */
+  #projectDisplay.project-display .project-card{
+    display:none;
+    width:100%;
+    max-width:none;
+    padding:0;
+    border:none;
+    border-radius:0;
+    background:none;
+    overflow:visible;
+    isolation:isolate;
+  }
+  #projectDisplay.project-display .project-card::before{ content:none; }
+  #projectDisplay.project-display .project-card.is-active{ display:block; }
+  /* the card is a fixed, centred focal point while zoomed in - it shouldn't
+     lift/shift on hover the way the old flat project-grid cards used to */
+  #projectDisplay.project-display .project-card:hover{
+    transform:none;
+    border-color:transparent;
+    box-shadow:none;
+  }
+
+  /* the text lives directly inside the apple's own belly (mapped by eye against
+     the actual artwork: neck/stem end ~34%, taper begins ~90%), so content per
+     project is kept short on purpose rather than clipped to fit */
+  .apple-card{
+    position:relative;
+    width:100%;
+    max-width:840px;
+    aspect-ratio:1 / 1;
+    margin:0 auto;
+  }
+  .apple-card-bg{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    /* the second drop-shadow hugs the apple's own silhouette (unlike
+       box-shadow, which would just be a rectangle) for a soft golden radiant
+       glow around the fruit itself, on top of the existing grounding shadow */
+    filter:drop-shadow(0 20px 34px rgba(0,0,0,0.55)) drop-shadow(0 0 22px rgba(255,183,59,0.55)) drop-shadow(0 0 40px rgba(255,183,59,0.28));
+    /* purely visual - the glow's soft blurred edge would otherwise get
+       counted as "painted" for hit-testing and make the glow itself
+       clickable too, not just the apple. Hit-testing lives on the
+       unfiltered .apple-card-hit copy stacked on top instead. */
+    pointer-events:none;
+  }
+  .apple-card-hit{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    opacity:0;
+    pointer-events:none;
+  }
+  /* .project-display is pointer-events:none overall so clicks fall through
+     to the backdrop (closing the card) anywhere they land - re-enable hit
+     testing just on this unfiltered, invisible copy of the apple shape
+     (SVG default hit-testing only counts filled/stroked pixels, not the
+     transparent bounding box or a filter's blur falloff) so clicking the
+     actual fruit pixels absorbs the click instead of closing, while
+     clicking the glow or empty space around it still closes as expected */
+  .project-display.is-open .apple-card-hit{
+    pointer-events:auto;
+  }
+  .apple-card-content{
+    position:absolute;
+    /* centred on the apple's round body, not the whole square card - the
+       stem/leaf eat into the top ~20% or so, so true visual centre of the
+       fruit itself sits lower than 50% of the card */
+    top:24%; left:12%; right:12%; bottom:12%;
+    z-index:2;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    overflow:hidden;
+    opacity:0;
+    transform:translateY(6px);
+    transition:opacity 0.2s ease, transform 0.2s ease;
+  }
+  /* the text only reveals once the apple has mostly finished growing into place,
+     so early in the zoom you just see a plain apple silhouette scaling up, not a
+     smear of shrunk-down text */
+  .project-display.is-open .apple-card-content{
+    opacity:1;
+    transform:translateY(0);
+    transition:opacity 0.35s ease 0.22s, transform 0.35s ease 0.22s;
+    pointer-events:auto;
+  }
+  .apple-card-title{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:clamp(21px, 7.2vw, 30px);
+    letter-spacing:-0.01em;
+    text-transform:uppercase;
+    color:#fff;
+    text-shadow:0 2px 8px rgba(0,0,0,0.45);
+    margin:8px 0 14px;
+    line-height:1.15;
+  }
+  /* narrow on purpose - forces the description onto ~3-4 short lines instead
+     of a couple of long ones, which reads better against the apple's curve */
+  .apple-card-desc{
+    font-family:'Quicksand', sans-serif;
+    font-weight:600;
+    font-size:clamp(11.5px, 3vw, 13.5px);
+    line-height:1.55;
+    color:#FDE9B8;
+    margin:0 0 16px;
+    max-width:60%;
+  }
+  .apple-card-tags{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    row-gap:11px;
+    column-gap:9px;
+    margin:0 0 14px;
+    width:100%;
+  }
+  .apple-tag{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    flex:0 0 auto;
+    gap:5px;
+    padding:6px 13px;
+    border-radius:999px;
+    border:1.3px solid rgba(var(--tag),0.75);
+    background:rgba(var(--tag),0.18);
+    color:rgb(var(--tag));
+    font-family:'Quicksand', sans-serif;
+    font-weight:700;
+    font-size:clamp(9.5px, 1.8vw, 11px);
+    white-space:nowrap;
+  }
+  .apple-tag svg{ width:11px; height:11px; flex-shrink:0; }
+  /* Linux tag uses the real Tux logo instead of a generic line icon, so it
+     needs object-fit rather than currentColor stroke sizing like the rest */
+  .apple-tag-icon{ width:11px; height:11px; flex-shrink:0; object-fit:contain; }
+  /* themed like a little orchard sign rather than a generic dark pill -
+     warm gold border/glow instead of plain white, apple emoji instead of a
+     stock play triangle */
+  .apple-card-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-top:6px;
+    padding:11px 23px;
+    border-radius:999px;
+    border:1.5px solid rgba(255,209,128,0.65);
+    background:rgba(50,10,6,0.45);
+    color:#fff;
+    font-family:'Quicksand', sans-serif;
+    font-weight:700;
+    font-size:clamp(11.5px, 2.9vw, 13.5px);
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+    text-decoration:none;
+    flex-shrink:0;
+    box-shadow:0 0 0 0 rgba(255,180,90,0);
+    transition:background 0.25s ease, transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+  .apple-card-btn:hover{
+    background:rgba(60,12,7,0.65);
+    border-color:rgba(255,224,170,0.9);
+    transform:scale(1.05);
+    box-shadow:0 0 0 6px rgba(255,180,90,0.15);
+  }
+  .apple-card-btn-icon{ font-size:15px; line-height:1; flex-shrink:0; }
+  /* Small screens: at ~375px the card's inner content (title + desc + tags +
+     button) is taller than the apple-belly box it's clipped to, so the
+     "Pick Project" button gets cut off entirely. Reclaim space three ways:
+     shrink the modal's own padding so the square card can grow, widen the
+     belly inset a little, and tighten the type/gaps. */
+  @media (max-width:560px){
+    .project-display{ padding:26px 12px; }
+    .apple-card-content{
+      top:22%; left:9%; right:9%; bottom:8%;
+      /* worst-case safety net: if a long description + wrapped tags still
+         out-measure the belly on a tiny screen, let the content scroll
+         instead of clipping the button away (scrollbar stays hidden) */
+      overflow-y:auto;
+      justify-content:flex-start;
+      scrollbar-width:none;
+    }
+    .apple-card-content::-webkit-scrollbar{ display:none; }
+    /* auto margins re-centre the stack when it fits (justify-content:center
+       would make the overflowing top unreachable when it doesn't) */
+    .apple-card-content > :first-child{ margin-top:auto; }
+    .apple-card-content > :last-child{ margin-bottom:auto; }
+    .apple-card-title{ margin:4px 0 8px; flex-shrink:0; }
+    .apple-card-desc{ margin:0 0 10px; max-width:84%; flex-shrink:0; }
+    .apple-card-tags{ row-gap:7px; column-gap:7px; margin:0 0 10px; flex-shrink:0; }
+    .apple-tag{ padding:4px 10px; }
+    .apple-card-btn{ padding:9px 18px; }
+  }
+  @media (max-width:420px){
+    .apple-card{ max-width:640px; }
+    /* 320-400px class screens: the belly box loses another ~15px of height,
+       so trade a little type size and inset for the button's breathing room */
+    .apple-card-content{ top:20.5%; bottom:6%; }
+    .apple-card-title{ font-size:clamp(18px, 6.6vw, 26px); margin:2px 0 6px; }
+    .apple-card-tags{ margin:0 0 8px; }
+    .apple-card-btn{ padding:8px 16px; margin-top:2px; }
+  }
+  @media (max-width:560px){
+    .apple{ width:55px; height:55px; margin:-27.5px 0 0 -27.5px; }
+    .apple-body{ width:42px; height:42px; }
+    .apple-label{ display:none; }
+    .apple.is-grounded{ width:27px; height:27px; margin:-13.5px 0 0 -13.5px; }
+    /* grounded apples shrink to 27px - well under the ~44px comfortable
+       touch minimum - so give them an invisible expanded hit area. The
+       pseudo-element receives the tap and bubbles it to the .apple's own
+       click handler; visual size is unchanged. */
+    .apple.is-grounded::after{
+      content:'';
+      position:absolute;
+      inset:-9px;
+    }
+    .basket-scene-back, .basket-scene-front, .basket-slots{ width:18%; min-width:46px; bottom:0%; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    /* .apple is deliberately left OUT of this blanket transition:none -
+       it has its own tuned reduced-motion transition declared earlier
+       (opacity 0.2s ease, left/top 0.01s - see the .apple rule above,
+       ~line 3284) so ground/basket repositioning still animates opacity
+       smoothly instead of hard-cutting, while position moves near-
+       instantly. This rule and that one are equal specificity, so
+       whichever comes later in the file would otherwise silently win and
+       wipe the other out - keeping .apple out of this list avoids that. */
+    .tree-scene, .apple-body, .basket-scene-back, .basket-scene-front, .basket-slots{ transition:none; }
+    .tree-scene{ opacity:1; transform:none; }
+    .apple{ opacity:1; transform:none; }
+    .basket-scene-back, .basket-scene-front, .basket-slots{ opacity:1; transform:translateX(-50%); animation:none; }
+    #projectDisplay .project-card{ animation:none; }
+  }
+
+  .stats-inner{
+    position:relative;
+    z-index:1;
+    max-width:1080px;
+    margin:0 auto;
+  }
+
+  .timeline-wrap{
+    position:relative;
+    margin-top:90px;
+  }
+  .timeline-track{
+    position:absolute;
+    top:143px; left:0; right:0;
+    height:2px;
+    background-image:repeating-linear-gradient(90deg, rgba(255,255,255,0.18) 0 8px, transparent 8px 16px);
+  }
+  .timeline-fade{
+    position:absolute;
+    top:113px;
+    width:90px; height:60px;
+    z-index:2;
+    pointer-events:none;
+  }
+  .timeline-fade.left{ left:-10px; background:linear-gradient(90deg, var(--void), transparent); }
+  .timeline-fade.right{ right:-10px; background:linear-gradient(270deg, var(--void), transparent); }
+  .timeline-fill{
+    position:absolute;
+    top:0; left:0;
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg, #FB4B70, #8B5CF6, #22D3EE);
+    -webkit-mask-image:repeating-linear-gradient(90deg, #000 0 8px, transparent 8px 16px);
+    mask-image:repeating-linear-gradient(90deg, #000 0 8px, transparent 8px 16px);
+  }
+
+  .nodes-grid{
+    position:relative;
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    column-gap:20px;
+  }
+
+  .stem-wrap{
+    position:relative;
+    height:150px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .icon-circle{
+    position:relative;
+    flex-shrink:0;
+    width:74px; height:74px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--mist);
+    border:none;
+    opacity:0;
+    transform:scale(0.5);
+    transition:transform 0.4s cubic-bezier(.34,1.56,.64,1), box-shadow 0.35s ease;
+  }
+  .icon-circle:hover{
+    transform:scale(1.14);
+  }
+  .icon-circle > svg:not(.circle-draw){
+    transition:transform 0.2s ease;
+  }
+  @keyframes iconTiltBack{
+    0%{ transform:rotate(0deg); }
+    40%{ transform:rotate(-16deg); }
+    100%{ transform:rotate(0deg); }
+  }
+  .icon-circle:hover > svg:not(.circle-draw){
+    animation:iconTiltBack 0.6s ease;
+  }
+  .circle-draw{
+    position:absolute;
+    inset:0;
+    width:100%; height:100%;
+    transform:rotate(-90deg);
+    pointer-events:none;
+  }
+  .circle-draw circle{
+    transition:stroke-dashoffset 0.9s cubic-bezier(.65,0,.35,1) 0.3s;
+  }
+  .connector{
+    width:2px;
+    flex:1;
+    opacity:0;
+    transition:opacity 0.4s ease;
+  }
+  .node-dot{
+    flex-shrink:0;
+    width:14px; height:14px;
+    border-radius:50%;
+    margin-top:-7px;
+    border:3px solid var(--void);
+    opacity:0;
+    transform:scale(0.4);
+    transition:opacity 0.4s ease, transform 0.4s cubic-bezier(.34,1.56,.64,1);
+  }
+  .node-dot.nc-1, .node-dot.nc-2, .node-dot.nc-3{ background-color:#ffffff; }
+  @keyframes flagPop{
+    0%{ transform:scale(0.2) rotate(-10deg); opacity:0; }
+    45%{ transform:scale(1.2) rotate(5deg); opacity:1; }
+    70%{ transform:scale(0.9) rotate(-3deg); }
+    88%{ transform:scale(1.05) rotate(1deg); }
+    100%{ transform:scale(1) rotate(0deg); opacity:1; }
+  }
+  .stat-node.is-revealed .icon-circle{
+    opacity:1;
+    transform:scale(1);
+    animation:flagPop 0.65s cubic-bezier(.34,1.56,.64,1) forwards;
+  }
+  .stat-node.is-revealed .circle-draw circle{ stroke-dashoffset:0; }
+  .stat-node.is-revealed .connector{ opacity:1; }
+  .stat-node.is-revealed .node-dot{ opacity:1; transform:scale(1); }
+
+  .nc-1{ color:#FB4B70; border-color:#FB4B70; }
+  .nc-2{ color:#8B5CF6; border-color:#8B5CF6; }
+  .nc-3{ color:#22D3EE; border-color:#22D3EE; }
+  .icon-circle.nc-1, .icon-circle.nc-2, .icon-circle.nc-3{ background:var(--mist); }
+  .icon-circle.nc-1{ color:#FB4B70; box-shadow:0 0 26px rgba(251,75,112,0.35); }
+  .icon-circle.nc-2{ color:#8B5CF6; box-shadow:0 0 26px rgba(139,92,246,0.35); }
+  .icon-circle.nc-3{ color:#22D3EE; border-color:#22D3EE; box-shadow:0 0 26px rgba(34,211,238,0.35); }
+  .node-dot.nc-1{ box-shadow:0 0 22px rgba(251,75,112,0.5); }
+  .node-dot.nc-2{ box-shadow:0 0 22px rgba(139,92,246,0.5); }
+  .node-dot.nc-3{ box-shadow:0 0 22px rgba(34,211,238,0.5); }
+  .connector.nc-1{ background:linear-gradient(#FB4B70, transparent); }
+  .connector.nc-2{ background:linear-gradient(#8B5CF6, transparent); }
+  .connector.nc-3{ background:linear-gradient(#22D3EE, transparent); }
+
+  .stat-copy{
+    text-align:center;
+    margin-top:34px;
+    opacity:0;
+    transform:translateY(16px);
+    transition:opacity 0.6s ease, transform 0.6s ease;
+  }
+  .stat-node.is-revealed .stat-copy{ opacity:1; transform:translateY(0); }
+
+  .stat-number{
+    position:relative;
+    display:inline-block;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:clamp(38px, 5vw, 56px);
+    line-height:1;
+    cursor:default;
+    transition:transform 0.35s cubic-bezier(.34,1.56,.64,1);
+  }
+  .stat-number:hover{ transform:scale(1.14); }
+  .stat-number.nc-1{ color:#FB4B70; }
+  .stat-number.nc-2{ color:#8B5CF6; }
+  .stat-number.nc-3{ color:#22D3EE; }
+  .stat-number[data-infinity]{
+    transform-origin:center;
+  }
+  .stat-number.is-infinity-symbol{
+    transform:scale(1.9);
+  }
+  .stat-number.is-infinity-symbol:hover{
+    transform:scale(1.9) scale(1.14);
+  }
+  .shatter-overlay{
+    position:fixed;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    pointer-events:none;
+    z-index:9999;
+  }
+  .shatter-digit{
+    position:relative;
+    display:inline-block;
+  }
+  .shatter-digit .shatter-shard{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:transform 0.6s cubic-bezier(.16,1,.3,1), opacity 0.5s ease-in 0.05s;
+  }
+  .shard-a{ clip-path:polygon(0% 0%, 45% 0%, 38% 30%, 10% 42%, 0% 30%); }
+  .shard-b{ clip-path:polygon(45% 0%, 100% 0%, 100% 35%, 62% 48%, 38% 30%); }
+  .shard-c{ clip-path:polygon(0% 30%, 10% 42%, 40% 55%, 15% 100%, 0% 100%); }
+  .shard-d{ clip-path:polygon(38% 30%, 62% 48%, 55% 70%, 40% 55%, 10% 42%); }
+  .shard-e{ clip-path:polygon(62% 48%, 100% 35%, 100% 100%, 55% 100%, 55% 70%); }
+  .shard-f{ clip-path:polygon(40% 55%, 55% 70%, 55% 100%, 15% 100%); }
+  .shatter-shard.go{
+    transform:translate(var(--tx,0px), var(--ty,0px)) rotate(var(--rot,0deg)) scale(var(--sc,0.4));
+    opacity:0;
+  }
+  .stat-number.infinity-burst::after{
+    content:'';
+    position:absolute;
+    left:50%; top:50%;
+    width:16px; height:16px;
+    margin:-8px 0 0 -8px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(34,211,238,0.55), rgba(34,211,238,0) 70%);
+    animation:infinityBurst 0.6s ease-out forwards;
+    pointer-events:none;
+  }
+  @keyframes infinityBurst{
+    0%{ transform:scale(0.4); opacity:0.7; }
+    100%{ transform:scale(8); opacity:0; }
+  }
+  @keyframes infinityPop{
+    0%{ transform:scale(0) rotate(-14deg); opacity:0; }
+    50%{ transform:scale(2.66) rotate(6deg); opacity:1; }
+    70%{ transform:scale(1.67) rotate(-3deg); }
+    88%{ transform:scale(2.05) rotate(1deg); }
+    100%{ transform:scale(1.9) rotate(0deg); }
+  }
+  .stat-label{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:18px;
+    margin-top:8px;
+  }
+  .stat-label-link{
+    text-decoration:none;
+    color:inherit;
+    display:block;
+  }
+  .stat-number-link{
+    text-decoration:none;
+  }
+  a.icon-circle{
+    text-decoration:none;
+    color:inherit;
+    display:flex;
+  }
+  .stat-bar{
+    width:36px; height:3px;
+    border-radius:3px;
+    margin:14px auto;
+    -webkit-mask-image:linear-gradient(90deg, transparent 0%, black 20%, black 80%, transparent 100%);
+    mask-image:linear-gradient(90deg, transparent 0%, black 20%, black 80%, transparent 100%);
+  }
+  .stat-bar.nc-1{ background:#FB4B70; }
+  .stat-bar.nc-2{ background:#8B5CF6; }
+  .stat-bar.nc-3{ background:#22D3EE; }
+  .stat-caption{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:500;
+    font-size:14px;
+    color:var(--fog);
+    max-width:220px;
+    margin:0 auto;
+    line-height:1.6;
+  }
+
+  .stats-footer{
+    margin-top:100px;
+    text-align:center;
+    font-family:'Quicksand', sans-serif;
+    font-weight:600;
+    font-size:15px;
+    color:var(--paper);
+    background:var(--mist);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:999px;
+    padding:16px 30px;
+    max-width:560px;
+    margin-left:auto; margin-right:auto;
+  }
+  .stats-footer .accent{ color:var(--violet-light); }
+  .footer-star{ color:#C9A9FB; margin-right:6px; }
+
+  @media (max-width:760px){
+    .timeline-track, .connector, .node-dot, .timeline-fade{ display:none; }
+    .nodes-grid{ grid-template-columns:1fr; row-gap:56px; }
+    .stem-wrap{ height:auto; }
+    .stat-copy{ margin-top:18px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .icon-circle, .connector, .node-dot, .stat-copy{ transition:none; animation:none; opacity:1; transform:none; }
+  }
+
+  /* ---------- Closing footer: deliberately monochrome (black/white, line-art,
+     terminal-flavoured) as a distinct "curtain call" moment - stays this way
+     regardless of the site's light/dark theme toggle, on purpose. ---------- */
+  .mono-footer{
+    position:relative;
+    /* exact match to the illustration's own baked-in background (it's a
+       solid rect baked into the art itself), so there's no visible seam
+       between the section and the art now that there's no bordered box to
+       draw the eye to an edge instead */
+    background:#010101;
+    padding:28px 32px 28px;
+    overflow:hidden;
+  }
+  .mono-footer-inner{
+    max-width:1700px;
+    margin:0 auto;
+    opacity:0;
+    transform:translateY(28px);
+    transition:opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1);
+  }
+  .mono-footer *{ box-sizing:border-box; }
+
+  /* No more bordered box: the row now spans the section's full width
+     naturally, text block pinned left, CTA pinned right, illustration
+     centred in whatever room is left between them via space-between - no
+     JS scale trick needed since there's no fixed "design width" box to fit
+     into anymore, it just flows at its own natural fixed-px sizes and lets
+     ordinary responsive layout (and, naturally, browser zoom) do the rest. */
+  .mono-footer-top{
+    position:relative;
+    display:flex;
+    flex-wrap:nowrap; /* always one row - see note above .mono-intro */
+    align-items:center;
+    justify-content:space-between;
+    gap:32px;
+  }
+
+  /* flex:1 1 0 (not a px basis) + min-width:0 is what actually makes this
+     shrink smoothly instead of forcing the row to wrap once it can't fit its
+     "natural" size - a min-width in px (like the 220px this used to have)
+     acts as a hard floor that trips flex-wrap as soon as the effective
+     viewport (real narrow screen OR just a zoomed-in browser at any width,
+     CSS can't tell the difference) gets tighter than that floor. */
+  /* natural width only (no flex-grow) - the illustration slot is the one
+     growing element now, so it fills and centers within whatever gap is
+     actually left between this block and the CTA, rather than the two
+     splitting space evenly and pushing the art off toward the CTA side */
+  .mono-intro{ flex:0 1 auto; min-width:0; }
+  .mono-kicker{
+    font-family:'Space Mono', monospace;
+    font-weight:700;
+    /* clamp instead of a fixed px size - this row is deliberately
+       nowrap/never-wraps (see note above .mono-intro), so on narrow phone
+       widths a fixed size would get clipped by .mono-footer's own
+       overflow:hidden instead of shrinking to fit. */
+    font-size:clamp(11px, 4.2vw, 19px);
+    letter-spacing:0.35em;
+    color:rgba(255,255,255,0.55);
+    margin:0 0 18px;
+    white-space:nowrap;
+  }
+  .mono-headline{
+    font-family:'Bebas Neue', 'Outfit', sans-serif;
+    font-weight:400;
+    /* same reasoning as .mono-kicker above - scales down instead of
+       clipping on narrow screens. */
+    font-size:clamp(34px, 9vw, 76px);
+    line-height:1;
+    letter-spacing:0.02em;
+    color:#F5F5F5;
+    text-transform:uppercase;
+    margin:0;
+    white-space:nowrap;
+  }
+  /* "Bebas Neue Outline" isn't an actual distinct font family - achieved
+     here instead with a transparent fill + stroke on regular Bebas Neue */
+  .mono-headline-outline{
+    display:block;
+    color:transparent;
+    -webkit-text-stroke:2px #F5F5F5;
+    text-stroke:2px #F5F5F5;
+    paint-order:stroke fill;
+  }
+
+  /* character-at-desk + calendar illustration, inlined the same way the
+     tree/apple/basket art is elsewhere on the page. Its native art is
+     1846x852 (~2.17:1). Uses an explicit fixed height (with width following
+     from aspect-ratio) rather than align-self:stretch - stretch relies on
+     the browser resolving height from a sibling's size and width from
+     aspect-ratio at the same time, which is genuinely ambiguous/inconsistent
+     across browsers and was rendering noticeably smaller than intended. A
+     hard height number removes that ambiguity entirely. */
+  .mono-illustration-slot{
+    flex:0 0 auto;
+    height:380px;
+    width:auto;
+    min-width:0;
+    max-width:44%;
+    aspect-ratio:1846/852;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .mono-illustration-slot svg, .mono-illustration-slot img{ width:100%; height:100%; display:block; }
+
+  .mono-cta{ flex:0 1 auto; min-width:0; text-align:center; }
+  .mono-cta-label{
+    font-family:'Outfit', sans-serif;
+    /* same reasoning as .mono-kicker/.mono-headline above. */
+    font-size:clamp(15px, 5vw, 25px);
+    color:rgba(255,255,255,0.6);
+    margin:0 0 16px;
+    white-space:nowrap;
+  }
+  .mono-cta-btn{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:21px;
+    letter-spacing:0.02em;
+    color:#F5F5F5;
+    text-decoration:none;
+    border:3px solid rgba(255,255,255,0.45);
+    border-radius:999px;
+    padding:20px 36px;
+    white-space:nowrap;
+    transition:background 0.25s ease, color 0.25s ease, transform 0.25s ease;
+  }
+  .mono-cta-btn:hover{
+    background:#F5F5F5;
+    color:#080808;
+    transform:translateY(-2px);
+  }
+
+  .cta-text-swap{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+  }
+  /* sits to the right of the text at rest, no hover-nudge transform like it
+     used to have - but it still needs to get out of the way once the email
+     icon swaps in on hover, same fade-out timing as the text label uses. */
+  .mono-cta-btn .cta-arrow{
+    width:24px; height:24px; flex-shrink:0;
+    transition:opacity 0.35s cubic-bezier(.4,0,.2,1);
+  }
+  .mono-cta-btn:hover .cta-arrow{ opacity:0; }
+  @media (prefers-reduced-motion: reduce){
+    .mono-cta-btn .cta-arrow{ transition:opacity 0.15s ease; }
+  }
+  .cta-text-label{
+    display:inline-block;
+    transition:opacity 0.35s cubic-bezier(.4,0,.2,1), transform 0.35s cubic-bezier(.4,0,.2,1), filter 0.35s ease;
+  }
+  .cta-text-icon{
+    /* absolutely centered on the whole button (not just the text slot), so
+       it lands dead-center of the pill regardless of where the arrow sits */
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    opacity:0;
+    transform:scale(0.45) rotate(-10deg);
+    transition:opacity 0.35s cubic-bezier(.4,0,.2,1), transform 0.35s cubic-bezier(.4,0,.2,1);
+    pointer-events:none;
+  }
+  .cta-text-icon svg{ width:30px; height:30px; }
+  .mono-cta-btn:hover .cta-text-label{
+    opacity:0;
+    transform:scale(0.75);
+    filter:blur(2px);
+  }
+  .mono-cta-btn:hover .cta-text-icon{
+    opacity:1;
+    transform:scale(1) rotate(0deg);
+  }
+  @media (prefers-reduced-motion: reduce){
+    .cta-text-label, .cta-text-icon{ transition:opacity 0.15s ease; }
+    .mono-cta-btn:hover .cta-text-label{ transform:none; filter:none; }
+    .mono-cta-btn:hover .cta-text-icon{ transform:none; }
+  }
+
+  .mono-cta-socials{
+    display:flex;
+    justify-content:center;
+    gap:14px;
+    margin-top:22px;
+  }
+  .mono-cta-social{
+    width:62px;
+    height:62px;
+    border-radius:50%;
+    border:3px solid rgba(255,255,255,0.4);
+    display:flex; align-items:center; justify-content:center;
+    color:#F5F5F5;
+    flex-shrink:0;
+    transition:background 0.25s ease, color 0.25s ease, transform 0.25s ease;
+  }
+  .mono-cta-social svg{ width:46%; height:46%; }
+  .mono-cta-social:hover{
+    background:#F5F5F5;
+    color:#080808;
+    transform:translateY(-2px);
+  }
+
+  /* Below this width the three-column row (text / illustration / CTA) can no
+     longer fit at desktop sizes - the illustration alone wants ~824px at its
+     380px height, and the 4 fixed-size social icons refuse to shrink. Keep
+     all three side by side (that's the point - it should still read as the
+     same layout, just smaller), but shrink every piece hard enough that it
+     actually fits: smaller illustration, smaller type (allowed to wrap
+     instead of forcing nowrap, since a narrow column can't guarantee a
+     single line at any font size), and a much smaller CTA button + social
+     icons. Two steps (900px, then a tighter 480px pass) since a 320-375px
+     phone needs noticeably smaller numbers than a 900px tablet width. */
+  @media (max-width:900px){
+    .mono-footer-top{ gap:14px; align-items:center; }
+    .mono-kicker{
+      font-size:clamp(8px, 2.6vw, 13px);
+      letter-spacing:0.22em;
+      white-space:normal;
+      margin:0 0 10px;
+    }
+    .mono-headline{
+      font-size:clamp(16px, 6.4vw, 30px);
+      white-space:normal;
+    }
+    .mono-illustration-slot{ height:120px; max-width:26%; }
+    .mono-cta-label{
+      font-size:clamp(9px, 3vw, 13px);
+      white-space:normal;
+      margin:0 0 10px;
+    }
+    .mono-cta-btn{
+      padding:10px 16px;
+      font-size:12px;
+      gap:6px;
+    }
+    .mono-cta-btn .cta-arrow{ width:14px; height:14px; }
+    .cta-text-icon svg{ width:16px; height:16px; }
+    .mono-cta-socials{ gap:8px; margin-top:10px; }
+    .mono-cta-social{ width:28px; height:28px; border-width:2px; }
+  }
+  @media (max-width:640px){
+    .mono-footer{ padding:32px 12px 22px; }
+    .mono-footer-top{ gap:8px; }
+  }
+  @media (max-width:480px){
+    .mono-kicker{ font-size:clamp(7px, 2.4vw, 9px); letter-spacing:0.16em; margin:0 0 6px; }
+    .mono-headline{ font-size:clamp(12px, 6vw, 17px); }
+    .mono-illustration-slot{ height:64px; max-width:22%; }
+    .mono-cta-label{ font-size:clamp(7px, 2.6vw, 9px); margin:0 0 6px; }
+    .mono-cta-btn{ padding:6px 10px; font-size:9px; gap:3px; border-width:1.5px; }
+    .mono-cta-btn .cta-arrow{ width:10px; height:10px; }
+    .cta-text-icon svg{ width:11px; height:11px; }
+    .mono-cta-socials{ gap:5px; margin-top:6px; }
+    .mono-cta-social{ width:20px; height:20px; border-width:1.5px; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .mono-footer-inner{ transition:none; }
+  }
+
+  /* ---------- Cursor trail (epilogue section only) - sparkle/stardust ----------
+     A 4-point sparkle shape (like a little twinkle icon) instead of a plain
+     fading dot: pops in with a bounce overshoot, drifts upward with a slight
+     random sideways wander, and spins gently as it fades out. --dx/--dy/--rot
+     are set per-sparkle from JS so no two trail marks move quite the same way. */
+  .cursor-trail-dot{
+    position:fixed;
+    top:0; left:0;
+    width:12px; height:12px;
+    pointer-events:none;
+    z-index:9997;
+    transform:translate(-50%,-50%) scale(0) rotate(var(--rot0, 0deg));
+    animation:sparklePop 0.9s cubic-bezier(.34,1.56,.64,1) forwards;
+    will-change:transform, opacity;
+  }
+  .cursor-trail-dot svg{ width:100%; height:100%; display:block; }
+  .cursor-trail-dot.hue-white{
+    color:#ffffff;
+    filter:drop-shadow(0 0 4px rgba(255,255,255,0.85));
+  }
+  .cursor-trail-dot.hue-violet{
+    color:#B79CFB;
+    filter:drop-shadow(0 0 4px rgba(139,92,246,0.75));
+  }
+  /* the "white" hue reads fine against the dark epilogue background, but
+     would nearly vanish against the near-white --void this section flips
+     to in light theme - swap it to the same deep violet ink used
+     elsewhere for light-theme accents instead of pure white. */
+  body.light-theme .cursor-trail-dot.hue-white{
+    color:var(--violet-deep);
+    filter:drop-shadow(0 0 4px rgba(91,33,182,0.55));
+  }
+  @keyframes sparklePop{
+    0%{ opacity:0; transform:translate(-50%,-50%) scale(0) rotate(var(--rot0, 0deg)); }
+    35%{ opacity:1; transform:translate(-50%,-50%) scale(1.2) rotate(var(--rot0, 0deg)); }
+    55%{ opacity:1; transform:translate(-50%,-50%) scale(0.9) rotate(var(--rot0, 0deg)); }
+    100%{
+      opacity:0;
+      transform:translate(calc(-50% + var(--dx, 0px)), calc(-50% + var(--dy, -16px)))
+                scale(0.35) rotate(var(--rot1, 45deg));
+    }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .cursor-trail-dot{ display:none; }
+  }
+  /* stardust motes: tiny, dimmer companions to the sparkle bursts above -
+     instead of drifting up like the sparkles, these fall and accelerate
+     downward (an ease-in curve approximating gravity, since real physics
+     isn't necessary for a couple hundred milliseconds of motion) while
+     fading out, like fine dust shaken loose and pulled down by its own
+     weight rather than twinkling away. */
+  .stardust-mote{
+    position:fixed;
+    top:0; left:0;
+    width:7px; height:7px;
+    pointer-events:none;
+    z-index:9996;
+    transform:translate(-50%,-50%) rotate(var(--mote-rot0, 0deg));
+    animation:stardustFall var(--fall-dur, 1s) cubic-bezier(.55,0,1,.45) forwards;
+    will-change:transform, opacity;
+  }
+  .stardust-mote svg{ width:100%; height:100%; display:block; }
+  .stardust-mote.hue-white{
+    color:#ffffff;
+    filter:drop-shadow(0 0 3px rgba(255,255,255,0.75));
+  }
+  .stardust-mote.hue-violet{
+    color:#B79CFB;
+    filter:drop-shadow(0 0 3px rgba(139,92,246,0.65));
+  }
+  /* same light-theme fix as .cursor-trail-dot.hue-white above - pure white
+     motes would be nearly invisible against the near-white light-theme
+     background. */
+  body.light-theme .stardust-mote.hue-white{
+    color:var(--violet-deep);
+    filter:drop-shadow(0 0 3px rgba(91,33,182,0.5));
+  }
+  @keyframes stardustFall{
+    0%{ opacity:0.95; transform:translate(-50%,-50%) translate(0, 0) scale(1) rotate(var(--mote-rot0, 0deg)); }
+    100%{
+      opacity:0;
+      transform:translate(-50%,-50%) translate(var(--fall-dx, 0px), var(--fall-dy, 60px)) scale(0.35) rotate(var(--mote-rot1, 90deg));
+    }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .stardust-mote{ display:none; }
+  }
+
+  /* ---------- Mail template popup ---------- */
+  .mail-trigger{
+    font:inherit;
+    cursor:pointer;
+    background:transparent;
+    -webkit-appearance:none;
+    appearance:none;
+  }
+  .mail-popup{
+    position:fixed;
+    top:0; left:0;
+    /* actual width + near-corner radius are set inline by JS to match
+       whichever trigger opened it (see positionMailPopup) - fallbacks below */
+    width:260px;
+    --pop-radius-near:24px; /* corner touching the trigger - matches its own rounding so they blend */
+    --pop-radius-far:20px;  /* corner(s) at the outer edge */
+    background:linear-gradient(155deg, rgba(255,255,255,0.16), rgba(255,255,255,0.045) 60%, rgba(255,255,255,0.09));
+    -webkit-backdrop-filter:blur(26px) saturate(180%);
+    backdrop-filter:blur(26px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.32);
+    border-radius:var(--pop-radius-far) var(--pop-radius-far) var(--pop-radius-near) var(--pop-radius-near);
+    padding:8px;
+    box-shadow:
+      0 24px 48px -18px rgba(0,0,0,0.5),
+      0 1px 0 rgba(255,255,255,0.45) inset,
+      0 -1px 0 rgba(255,255,255,0.06) inset,
+      0 0 0 1px rgba(255,255,255,0.05) inset;
+    display:none;
+    flex-direction:column;
+    gap:2px;
+    z-index:600;
+    /* closed state: fully clipped away at the edge touching the trigger, so
+       opening reads as the list unrolling straight out of the button rather
+       than a separate card fading in above it */
+    -webkit-clip-path:inset(100% 0 0 0 round var(--pop-radius-far) var(--pop-radius-far) var(--pop-radius-near) var(--pop-radius-near));
+    clip-path:inset(100% 0 0 0 round var(--pop-radius-far) var(--pop-radius-far) var(--pop-radius-near) var(--pop-radius-near));
+    transition:clip-path 0.12s cubic-bezier(.4,0,.2,1), -webkit-clip-path 0.12s cubic-bezier(.4,0,.2,1);
+    overflow:hidden;
+    isolation:isolate;
+  }
+  .mail-popup::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:linear-gradient(120deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 32%, rgba(255,255,255,0) 68%, rgba(255,255,255,0.1) 100%);
+    pointer-events:none;
+  }
+  .mail-popup.is-open{ display:flex; }
+  .mail-popup.is-visible{
+    -webkit-clip-path:inset(0 0 0 0 round var(--pop-radius-far) var(--pop-radius-far) var(--pop-radius-near) var(--pop-radius-near));
+    clip-path:inset(0 0 0 0 round var(--pop-radius-far) var(--pop-radius-far) var(--pop-radius-near) var(--pop-radius-near));
+  }
+  /* placed below the trigger instead: unrolls downward out of the button -
+     the near/far corners flip since the top edge now touches the trigger */
+  .mail-popup.placement-below{
+    border-radius:var(--pop-radius-near) var(--pop-radius-near) var(--pop-radius-far) var(--pop-radius-far);
+    -webkit-clip-path:inset(0 0 100% 0 round var(--pop-radius-near) var(--pop-radius-near) var(--pop-radius-far) var(--pop-radius-far));
+    clip-path:inset(0 0 100% 0 round var(--pop-radius-near) var(--pop-radius-near) var(--pop-radius-far) var(--pop-radius-far));
+  }
+  .mail-popup.placement-below.is-visible{
+    -webkit-clip-path:inset(0 0 0 0 round var(--pop-radius-near) var(--pop-radius-near) var(--pop-radius-far) var(--pop-radius-far));
+    clip-path:inset(0 0 0 0 round var(--pop-radius-near) var(--pop-radius-near) var(--pop-radius-far) var(--pop-radius-far));
+  }
+  .mail-popup:not(.is-visible){ pointer-events:none; }
+  body.light-theme .mail-popup{
+    background:linear-gradient(155deg, rgba(255,255,255,0.62), rgba(255,255,255,0.28) 60%, rgba(255,255,255,0.42));
+    border-color:rgba(20,15,35,0.12);
+    box-shadow:
+      0 20px 40px -18px rgba(31,20,60,0.25),
+      0 1px 0 rgba(255,255,255,0.7) inset,
+      0 0 0 1px rgba(255,255,255,0.15) inset;
+  }
+  .mail-popup-item{
+    position:relative;
+    display:block;
+    padding:10px 12px;
+    border-radius:12px;
+    font-family:'Outfit', sans-serif;
+    font-size:14px;
+    font-weight:500;
+    line-height:1.3;
+    color:var(--paper);
+    text-decoration:none;
+    background:transparent;
+    border:none;
+    text-align:left;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    cursor:pointer;
+    opacity:0;
+    transform:translateY(4px);
+    transition:background 0.3s cubic-bezier(.4,0,.2,1), color 0.3s cubic-bezier(.4,0,.2,1), box-shadow 0.3s cubic-bezier(.4,0,.2,1);
+  }
+  /* each item fades/slides in with a delay proportional to --stagger (set in
+     JS), counted outward from the trigger, so the list appears to unroll out
+     one item after another instead of popping in all at once - kept very
+     short so the whole list snaps in/out quickly (separate from the slower,
+     smoother purple hover-highlight fade below) */
+  .mail-popup.is-visible .mail-popup-item{
+    opacity:1;
+    transform:translateY(0);
+    transition:opacity 0.12s ease, transform 0.12s ease, background 0.3s cubic-bezier(.4,0,.2,1), color 0.3s cubic-bezier(.4,0,.2,1), box-shadow 0.3s cubic-bezier(.4,0,.2,1);
+    transition-delay:calc(var(--stagger, 0) * 12ms), calc(var(--stagger, 0) * 12ms), 0s, 0s, 0s;
+  }
+  .mail-popup-item:hover, .mail-popup-item:focus-visible{
+    background:linear-gradient(135deg, rgba(183,156,251,0.4), rgba(91,33,182,0.38));
+    -webkit-backdrop-filter:blur(10px) saturate(160%);
+    backdrop-filter:blur(10px) saturate(160%);
+    color:#ffffff;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 14px -6px rgba(91,33,182,0.5);
+    outline:none;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .mail-popup{ transition:none; }
+    .mail-popup-item{ transition:none; transition-delay:0s; }
+  }

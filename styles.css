@@ -513,9 +513,9 @@
     overflow:visible;
   }
   .name .word:nth-child(2){
-    /* MALLICK sits inside the same full-width flex row as ANIRUDDHA (the
+    /* The second name word sits inside the same full-width flex row as the first name word (the
        row is always as wide as the widest word) - centering it here
-       centers it relative to ANIRUDDHA specifically, overriding the
+       centers it relative to the first name word specifically, overriding the
        right-align every other word uses */
     text-align:center;
     font-size:0.44em;
@@ -527,7 +527,7 @@
        is invisible but still counts toward the box that text-align:center
        centers - so the glyphs themselves end up sitting visibly left of
        true-center. Pulling the box back in by exactly that trailing gap
-       cancels it out, so what you actually see lines up with ANIRUDDHA. */
+       cancels it out, so what you actually see lines up with the first name word. */
     margin-right:-0.08em;
   }
   .name .word span{

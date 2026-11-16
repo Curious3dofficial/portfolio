@@ -497,7 +497,7 @@
 
   /* ---------- Name stagger reveal ---------- */
   const heading = document.getElementById('nameHeading');
-  const chunks = ["ANIRUDDHA", "MALLICK"];
+  const chunks = ["MARK", "ZUCKERBERG"];
   let delay = 0.2;
   chunks.forEach(chunk => {
     const wordSpan = document.createElement('span');
@@ -518,11 +518,11 @@
   });
 
   /* The CSS (text-align:center + a trailing-letter-spacing correction on
-     MALLICK) gets close, but it's still an approximation of where the
+     the second name word) gets close, but it's still an approximation of where the
      glyphs actually land - browser text metrics for letter-spacing/kerning
      aren't identical everywhere. Measuring the real rendered boxes and
-     nudging MALLICK by the exact pixel delta guarantees its visible centre
-     lines up with ANIRUDDHA's, instead of trusting the CSS math to be
+     nudging the second name word by the exact pixel delta guarantees its visible centre
+     lines up with the first word's, instead of trusting the CSS math to be
      exactly right. */
   function centerSecondNameWord(){
     const outerWords = heading.querySelectorAll('.word');
@@ -3842,32 +3842,32 @@
 
   /* ---------- Mail template popup ---------- */
   document.addEventListener('DOMContentLoaded', function initMailPopup(){
-    const MAIL_TO = 'aniruddha911xd@gmail.com';
+    const MAIL_TO = 'mark.zuckerberg@example.com';
     const MAIL_TEMPLATES = [
       {
         label: 'Potential Opportunity',
         subject: 'Regarding a Potential Opportunity',
-        body: "Hi Aniruddha,\n\nI came across your portfolio and would like to get in touch regarding a potential opportunity/collaboration.\n\nPlease let me know a good time to connect.\n\nBest regards,"
+        body: "Hi Mark,\n\nI came across your portfolio and would like to get in touch regarding a potential opportunity/collaboration.\n\nPlease let me know a good time to connect.\n\nBest regards,"
       },
       {
         label: 'Project Inquiry',
         subject: 'Project Inquiry',
-        body: "Hi Aniruddha,\n\nI'm reaching out regarding a project I think you'd be a great fit for. I'd love to share more details and discuss further.\n\nLooking forward to your response.\n\nBest regards,"
+        body: "Hi Mark,\n\nI'm reaching out regarding a project I think you'd be a great fit for. I'd love to share more details and discuss further.\n\nLooking forward to your response.\n\nBest regards,"
       },
       {
         label: 'Work Together',
         subject: 'Interested in Working Together',
-        body: "Hi Aniruddha,\n\nI viewed your portfolio and was impressed by your work. I'd like to explore the possibility of working together.\n\nHappy to share more details whenever convenient for you.\n\nBest regards,"
+        body: "Hi Mark,\n\nI viewed your portfolio and was impressed by your work. I'd like to explore the possibility of working together.\n\nHappy to share more details whenever convenient for you.\n\nBest regards,"
       },
       {
         label: 'General Inquiry',
         subject: 'General Inquiry',
-        body: "Hi Aniruddha,\n\nI'm writing to learn more about your work and availability. Could we set up a time to discuss further?\n\nThank you,"
+        body: "Hi Mark,\n\nI'm writing to learn more about your work and availability. Could we set up a time to discuss further?\n\nThank you,"
       },
       {
         label: 'Collaboration Request',
         subject: 'Collaboration Request',
-        body: "Hi Aniruddha,\n\nI'd like to discuss a possible collaboration based on the work showcased in your portfolio. Let me know if you're open to a conversation.\n\nBest regards,"
+        body: "Hi Mark,\n\nI'd like to discuss a possible collaboration based on the work showcased in your portfolio. Let me know if you're open to a conversation.\n\nBest regards,"
       },
       { label: 'Write your own…', subject: '', body: '' }
     ];
